@@ -23,26 +23,28 @@ window.google = { script: { run: (function(){
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     :root {
-      --primary: #1F4E79;
-      --primary-light: #2c6da8;
-      --primary-dark: #143552;
-      --accent-soft: #DCE9F7;
-      --bg: #EEF3F9;
-      --card-bg: #FFFFFF;
-      --text-main: #132435;
-      --text-muted: #5e738a;
-      --border: #d4e2f0;
-      --success: #10b981;
-      --success-bg: #d1fae5;
-      --danger: #ef4444;
-      --danger-bg: #fee2e2;
-      --warning: #f59e0b;
-      --warning-bg: #fef3c7;
-      --shadow-sm: 0 2px 6px rgba(31, 78, 121, 0.05);
-      --shadow: 0 6px 18px rgba(31, 78, 121, 0.08);
-      --shadow-hover: 0 12px 28px rgba(31, 78, 121, 0.14);
-      --radius: 14px;
-      --radius-sm: 8px;
+      --primary: #1d4e79;
+      --primary-light: #2f7fc4;
+      --primary-dark: #12314e;
+      --accent-soft: rgba(255, 255, 255, 0.5);
+      --bg: #dcefff;
+      --card-bg: rgba(255, 255, 255, 0.55);
+      --glass-strong: rgba(255, 255, 255, 0.72);
+      --glass-border: rgba(255, 255, 255, 0.85);
+      --text-main: #16324a;
+      --text-muted: #5b7a94;
+      --border: rgba(140, 180, 220, 0.45);
+      --success: #0da271;
+      --success-bg: rgba(209, 250, 229, 0.75);
+      --danger: #e23d3d;
+      --danger-bg: rgba(254, 226, 226, 0.8);
+      --warning: #d97706;
+      --warning-bg: rgba(254, 243, 199, 0.8);
+      --shadow-sm: 0 4px 14px rgba(31, 78, 121, 0.08);
+      --shadow: 0 10px 34px rgba(31, 78, 121, 0.13);
+      --shadow-hover: 0 16px 42px rgba(31, 78, 121, 0.2);
+      --radius: 22px;
+      --radius-sm: 13px;
       --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
@@ -55,25 +57,48 @@ window.google = { script: { run: (function(){
     }
 
     body {
-      background-color: var(--bg);
+      background: linear-gradient(155deg, #bfe0fb 0%, #dff1ff 32%, #d9f6e9 68%, #e7e2ff 100%);
+      background-attachment: fixed;
       color: var(--text-main);
       min-height: 100vh;
       display: flex;
       flex-direction: column;
       overflow-x: hidden;
+      position: relative;
+    }
+    /* Soft blurred colour blobs behind the glass */
+    body::before, body::after {
+      content: "";
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(70px);
+      z-index: -1;
+      pointer-events: none;
+    }
+    body::before {
+      width: 480px; height: 480px;
+      background: radial-gradient(circle, rgba(56, 189, 248, 0.55), rgba(56, 189, 248, 0) 70%);
+      top: -140px; right: -100px;
+    }
+    body::after {
+      width: 520px; height: 520px;
+      background: radial-gradient(circle, rgba(167, 139, 250, 0.45), rgba(167, 139, 250, 0) 70%);
+      bottom: -180px; left: -120px;
     }
 
-    /* Common Card */
+    /* Common Card — frosted glass */
     .card {
-      background: var(--card-bg);
+      background: linear-gradient(145deg, rgba(255,255,255,0.72), rgba(255,255,255,0.42));
+      -webkit-backdrop-filter: blur(18px) saturate(160%);
+      backdrop-filter: blur(18px) saturate(160%);
       border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      border: 1px solid rgba(220, 233, 247, 0.8);
+      box-shadow: var(--shadow), inset 0 1px 0 rgba(255,255,255,0.9);
+      border: 1px solid var(--glass-border);
       transition: var(--transition);
     }
     .card-hover:hover {
       transform: translateY(-4px);
-      box-shadow: var(--shadow-hover);
+      box-shadow: var(--shadow-hover), inset 0 1px 0 rgba(255,255,255,0.9);
     }
 
     /* Animation Utilities */
@@ -90,39 +115,47 @@ window.google = { script: { run: (function(){
       animation: fadeIn 0.35s ease forwards;
     }
 
-    /* Auth View */
+    /* Auth View — glass login */
     #auth-view {
       min-height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
       padding: 20px;
-      background: radial-gradient(circle at top left, var(--accent-soft), var(--bg));
+      background:
+        radial-gradient(circle at 18% 22%, rgba(56,189,248,0.5), rgba(56,189,248,0) 42%),
+        radial-gradient(circle at 84% 78%, rgba(52,211,153,0.4), rgba(52,211,153,0) 45%),
+        radial-gradient(circle at 78% 14%, rgba(167,139,250,0.4), rgba(167,139,250,0) 40%),
+        linear-gradient(150deg, #cdeaff, #e8f6ff 45%, #dcf7ec);
     }
     .auth-card {
       width: 100%;
       max-width: 420px;
-      padding: 36px 30px;
+      padding: 38px 32px;
       text-align: center;
+      border-radius: 28px;
     }
     .auth-logo {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      width: 58px;
-      height: 58px;
-      background: var(--primary);
-      color: #fff;
+      width: 62px;
+      height: 62px;
+      background: linear-gradient(145deg, rgba(255,255,255,0.9), rgba(255,255,255,0.45));
+      -webkit-backdrop-filter: blur(8px);
+      backdrop-filter: blur(8px);
+      color: var(--primary);
       font-weight: 800;
       font-size: 22px;
-      border-radius: 14px;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,0.95);
       margin-bottom: 14px;
-      box-shadow: 0 4px 14px rgba(31, 78, 121, 0.3);
+      box-shadow: 0 10px 26px rgba(31, 78, 121, 0.22), inset 0 2px 6px rgba(255,255,255,0.9);
     }
     .auth-title {
-      font-size: 24px;
+      font-size: 25px;
       font-weight: 800;
-      color: var(--primary);
+      color: var(--primary-dark);
       letter-spacing: -0.5px;
     }
     .auth-subtitle {
@@ -143,28 +176,31 @@ window.google = { script: { run: (function(){
     }
     .form-input, .form-select {
       width: 100%;
-      padding: 12px 14px;
-      border: 1.5px solid var(--border);
+      padding: 12px 15px;
+      border: 1.5px solid rgba(255, 255, 255, 0.9);
       border-radius: var(--radius-sm);
       font-size: 14px;
-      background: #fafcfe;
+      background: rgba(255, 255, 255, 0.62);
+      -webkit-backdrop-filter: blur(6px);
+      backdrop-filter: blur(6px);
       color: var(--text-main);
       transition: var(--transition);
       outline: none;
+      box-shadow: inset 0 1px 3px rgba(31, 78, 121, 0.06);
     }
     .form-input:focus, .form-select:focus {
-      border-color: var(--primary);
-      background: #fff;
-      box-shadow: 0 0 0 3px rgba(31, 78, 121, 0.15);
+      border-color: #38bdf8;
+      background: rgba(255, 255, 255, 0.9);
+      box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.22);
     }
     .btn-primary {
       width: 100%;
       padding: 13px;
-      background: var(--primary);
+      background: linear-gradient(90deg, #1d6fd1, #38bdf8);
       color: #fff;
       font-size: 15px;
       font-weight: 700;
-      border: none;
+      border: 1px solid rgba(255,255,255,0.5);
       border-radius: var(--radius-sm);
       cursor: pointer;
       transition: var(--transition);
@@ -172,10 +208,12 @@ window.google = { script: { run: (function(){
       align-items: center;
       justify-content: center;
       gap: 8px;
+      box-shadow: 0 10px 24px rgba(37, 99, 235, 0.35);
     }
     .btn-primary:hover {
-      background: var(--primary-light);
+      filter: brightness(1.07);
       transform: translateY(-1px);
+      box-shadow: 0 14px 30px rgba(37, 99, 235, 0.42);
     }
     .btn-primary:active {
       transform: translateY(0);
@@ -186,9 +224,9 @@ window.google = { script: { run: (function(){
       line-height: 1.5;
       color: var(--text-muted);
       padding: 12px;
-      border-radius: 10px;
-      background: var(--accent-soft);
-      border: 1px dashed #b9d3ee;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.45);
+      border: 1px dashed rgba(120, 170, 220, 0.6);
     }
     .error-msg {
       background: var(--danger-bg);
@@ -208,12 +246,14 @@ window.google = { script: { run: (function(){
       min-height: 100vh;
     }
     .app-header {
-      background: #fff;
-      border-bottom: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.55);
+      -webkit-backdrop-filter: blur(18px) saturate(160%);
+      backdrop-filter: blur(18px) saturate(160%);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.8);
       position: sticky;
       top: 0;
       z-index: 100;
-      box-shadow: 0 2px 8px rgba(31, 78, 121, 0.05);
+      box-shadow: 0 6px 22px rgba(31, 78, 121, 0.1);
     }
     .header-content {
       max-width: 1240px;
@@ -229,18 +269,19 @@ window.google = { script: { run: (function(){
       gap: 12px;
     }
     .brand-badge {
-      background: var(--primary);
+      background: linear-gradient(135deg, #1d6fd1, #38bdf8);
       color: #fff;
       font-weight: 800;
       font-size: 14px;
-      padding: 6px 12px;
-      border-radius: 10px;
+      padding: 7px 13px;
+      border-radius: 12px;
       letter-spacing: 0.5px;
+      box-shadow: 0 6px 16px rgba(37, 99, 235, 0.35);
     }
     .brand-title {
       font-size: 18px;
       font-weight: 800;
-      color: var(--primary);
+      color: var(--primary-dark);
       display: flex;
       flex-direction: column;
       line-height: 1.1;
@@ -252,19 +293,23 @@ window.google = { script: { run: (function(){
     }
     .nav-tabs {
       display: flex;
-      background: var(--accent-soft);
+      background: rgba(255, 255, 255, 0.45);
+      -webkit-backdrop-filter: blur(10px);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.8);
       padding: 4px;
-      border-radius: 12px;
+      border-radius: 999px;
       gap: 4px;
+      box-shadow: inset 0 1px 3px rgba(31,78,121,0.08);
     }
     .nav-tab {
-      padding: 8px 16px;
+      padding: 8px 17px;
       font-size: 13.5px;
       font-weight: 600;
       color: var(--primary);
       background: transparent;
       border: none;
-      border-radius: 9px;
+      border-radius: 999px;
       cursor: pointer;
       transition: var(--transition);
       display: flex;
@@ -273,12 +318,12 @@ window.google = { script: { run: (function(){
       white-space: nowrap;
     }
     .nav-tab.active {
-      background: #fff;
-      color: var(--primary);
-      box-shadow: 0 2px 6px rgba(31, 78, 121, 0.12);
+      background: linear-gradient(145deg, #ffffff, rgba(255,255,255,0.75));
+      color: var(--primary-dark);
+      box-shadow: 0 4px 12px rgba(31, 78, 121, 0.18);
     }
     .nav-tab:hover:not(.active) {
-      background: rgba(255, 255, 255, 0.5);
+      background: rgba(255, 255, 255, 0.55);
     }
 
     /* Main Container */
@@ -292,15 +337,18 @@ window.google = { script: { run: (function(){
 
     /* Supply Alert Banner */
     .supply-alert {
-      background: linear-gradient(90deg, #ef4444, #dc2626);
+      background: linear-gradient(90deg, rgba(239,68,68,0.92), rgba(220,38,38,0.92));
+      -webkit-backdrop-filter: blur(10px);
+      backdrop-filter: blur(10px);
       color: #fff;
       padding: 14px 20px;
       border-radius: var(--radius);
+      border: 1px solid rgba(255,255,255,0.5);
       margin-bottom: 22px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      box-shadow: 0 6px 16px rgba(239, 68, 68, 0.28);
+      box-shadow: 0 10px 26px rgba(239, 68, 68, 0.3);
       animation: pulseAlert 3s infinite ease-in-out;
     }
     .supply-alert-info {
@@ -311,11 +359,11 @@ window.google = { script: { run: (function(){
       font-size: 14.5px;
     }
     .supply-days-tag {
-      background: #fff;
+      background: rgba(255,255,255,0.92);
       color: #dc2626;
       font-weight: 800;
-      padding: 4px 10px;
-      border-radius: 8px;
+      padding: 4px 11px;
+      border-radius: 999px;
       font-size: 12px;
     }
 
@@ -350,7 +398,7 @@ window.google = { script: { run: (function(){
     .kpi-val {
       font-size: 24px;
       font-weight: 800;
-      color: var(--primary);
+      color: var(--primary-dark);
       line-height: 1.1;
     }
     .sparkline-svg {
@@ -377,7 +425,7 @@ window.google = { script: { run: (function(){
     .chart-title {
       font-size: 15px;
       font-weight: 700;
-      color: var(--primary);
+      color: var(--primary-dark);
       margin-bottom: 16px;
       display: flex;
       align-items: center;
@@ -399,7 +447,7 @@ window.google = { script: { run: (function(){
     .section-title {
       font-size: 17px;
       font-weight: 800;
-      color: var(--primary);
+      color: var(--primary-dark);
     }
 
     /* Renewals List Card */
@@ -411,14 +459,14 @@ window.google = { script: { run: (function(){
       align-items: center;
       justify-content: space-between;
       padding: 12px 14px;
-      border-radius: 10px;
+      border-radius: 14px;
       margin-bottom: 8px;
-      background: #fbfdff;
-      border: 1px solid #e7f0fa;
+      background: rgba(255, 255, 255, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.75);
       transition: var(--transition);
     }
     .renewal-item:hover {
-      background: var(--accent-soft);
+      background: rgba(255, 255, 255, 0.85);
     }
     .renewal-meta {
       display: flex;
@@ -428,19 +476,20 @@ window.google = { script: { run: (function(){
     .badge-icon {
       width: 38px;
       height: 38px;
-      border-radius: 10px;
-      background: var(--accent-soft);
+      border-radius: 12px;
+      background: linear-gradient(145deg, rgba(125,211,252,0.5), rgba(255,255,255,0.6));
       color: var(--primary);
       display: flex;
       align-items: center;
       justify-content: center;
       font-weight: 700;
       font-size: 14px;
+      border: 1px solid rgba(255,255,255,0.8);
     }
     .days-pill {
       font-size: 12px;
       font-weight: 700;
-      padding: 4px 10px;
+      padding: 4px 11px;
       border-radius: 30px;
     }
     .days-pill.critical {
@@ -494,7 +543,7 @@ window.google = { script: { run: (function(){
     /* Tables & Chips */
     .table-container {
       overflow-x: auto;
-      border-radius: 12px;
+      border-radius: 14px;
     }
     table {
       width: 100%;
@@ -503,7 +552,7 @@ window.google = { script: { run: (function(){
       font-size: 13.5px;
     }
     th {
-      background: #f4f8fc;
+      background: rgba(255, 255, 255, 0.55);
       color: var(--text-muted);
       font-weight: 700;
       padding: 14px 16px;
@@ -512,7 +561,7 @@ window.google = { script: { run: (function(){
     }
     td {
       padding: 13px 16px;
-      border-bottom: 1px solid #eaf1f8;
+      border-bottom: 1px solid rgba(160, 200, 235, 0.3);
       vertical-align: middle;
       white-space: nowrap;
     }
@@ -520,27 +569,28 @@ window.google = { script: { run: (function(){
       border-bottom: none;
     }
     tr.table-row-hover:hover {
-      background-color: #f7fbff;
+      background-color: rgba(255, 255, 255, 0.55);
     }
     .chip {
       display: inline-block;
-      padding: 3px 9px;
+      padding: 3px 10px;
       font-size: 11.5px;
       font-weight: 700;
       border-radius: 20px;
       text-align: center;
+      border: 1px solid rgba(255,255,255,0.7);
     }
     .chip-active { background: var(--success-bg); color: #047857; }
     .chip-expired { background: var(--danger-bg); color: #b91c1c; }
-    .chip-paid { background: #dcfce7; color: #15803d; }
+    .chip-paid { background: rgba(220, 252, 231, 0.85); color: #15803d; }
     .chip-pending { background: var(--warning-bg); color: #b45309; }
-    .chip-tag { background: var(--accent-soft); color: var(--primary); font-size: 11px; }
+    .chip-tag { background: rgba(219, 234, 254, 0.8); color: var(--primary); font-size: 11px; }
 
     .btn-wa {
-      background: #25D366;
+      background: linear-gradient(90deg, #1eb956, #25D366);
       color: #fff;
-      padding: 6px 12px;
-      border-radius: 8px;
+      padding: 6px 13px;
+      border-radius: 999px;
       text-decoration: none;
       font-size: 12px;
       font-weight: 700;
@@ -548,11 +598,12 @@ window.google = { script: { run: (function(){
       align-items: center;
       gap: 6px;
       transition: var(--transition);
-      border: none;
+      border: 1px solid rgba(255,255,255,0.5);
       cursor: pointer;
+      box-shadow: 0 4px 12px rgba(37, 211, 102, 0.35);
     }
     .btn-wa:hover {
-      background: #1eb956;
+      filter: brightness(1.06);
       transform: translateY(-1px);
     }
 
@@ -564,15 +615,20 @@ window.google = { script: { run: (function(){
     }
     .search-input {
       flex: 1;
-      padding: 11px 16px;
-      border: 1.5px solid var(--border);
-      border-radius: 10px;
+      padding: 11px 17px;
+      border: 1.5px solid rgba(255,255,255,0.9);
+      border-radius: 999px;
       font-size: 14px;
-      background: #fff;
+      background: rgba(255, 255, 255, 0.62);
+      -webkit-backdrop-filter: blur(6px);
+      backdrop-filter: blur(6px);
       outline: none;
+      box-shadow: inset 0 1px 3px rgba(31, 78, 121, 0.06);
     }
     .search-input:focus {
-      border-color: var(--primary);
+      border-color: #38bdf8;
+      background: rgba(255, 255, 255, 0.92);
+      box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.2);
     }
 
     /* Skeleton / Spinner Loading */
@@ -580,8 +636,9 @@ window.google = { script: { run: (function(){
       display: none;
       position: fixed;
       inset: 0;
-      background: rgba(238, 243, 249, 0.75);
-      backdrop-filter: blur(3px);
+      background: rgba(220, 240, 255, 0.55);
+      -webkit-backdrop-filter: blur(8px);
+      backdrop-filter: blur(8px);
       z-index: 999;
       justify-content: center;
       align-items: center;
@@ -590,8 +647,8 @@ window.google = { script: { run: (function(){
     .spinner {
       width: 44px;
       height: 44px;
-      border: 4px solid var(--accent-soft);
-      border-top-color: var(--primary);
+      border: 4px solid rgba(255,255,255,0.8);
+      border-top-color: #1d6fd1;
       border-radius: 50%;
       animation: spin 0.7s linear infinite;
     }
