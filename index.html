@@ -661,6 +661,12 @@ window.google = { script: { run: (function(){
     .account-card { padding: 20px; }
     .member-line { font-size: 12.5px; padding: 5px 0; border-bottom: 1px dashed rgba(140,180,220,0.35); display: flex; justify-content: space-between; gap: 8px; }
     .member-line:last-child { border-bottom: none; }
+    .account-card.acc-warn { border-color: rgba(245, 158, 11, 0.8); box-shadow: 0 10px 34px rgba(245, 158, 11, 0.22); }
+    .account-card.acc-danger { border-color: rgba(239, 68, 68, 0.8); box-shadow: 0 10px 34px rgba(239, 68, 68, 0.22); }
+    .acc-actions { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+    .mini-btn { background: rgba(255,255,255,0.65); border: 1px solid var(--glass-border); border-radius: 999px; padding: 6px 14px; font-size: 12.5px; font-weight: 700; color: var(--primary); cursor: pointer; font-family: inherit; }
+    .mini-btn:hover { background: #ffffff; }
+    .acc-box { margin-top: 12px; border-top: 1px dashed rgba(15, 23, 42, 0.14); padding-top: 12px; }
 
     /* ===== New features (tasks / pending / target / history / filters) ===== */
     .filter-bar { flex-wrap: wrap; align-items: center; }
@@ -1124,6 +1130,9 @@ window.google = { script: { run: (function(){
           <h2 class="section-title">Service Accounts</h2>
           <span id="accounts-count-badge" class="chip chip-tag">0 Accounts</span>
         </div>
+        <div style="margin-bottom: 16px;">
+          <input type="text" id="acc-search" class="form-input" placeholder="Customer ka naam ya number likhein — kis account mein hai?">
+        </div>
         <div class="accounts-grid" id="accounts-container">
           <!-- Rendered in JS -->
         </div>
@@ -1164,65 +1173,52 @@ window.google = { script: { run: (function(){
                   <input type="text" id="acc-vendor" class="form-input" placeholder="Vendor Name">
                 </div>
                 <div class="form-group">
-                  <label class="form-label">Vendor Number</label>
-                  <input type="text" id="acc-vendor-number" class="form-input" placeholder="Vendor Number">
-                </div>
-              </div>
-              <div class="grid-2">
-                <div class="form-group">
-                  <label class="form-label">Cost (Rs)</label>
-                  <input type="number" id="acc-cost" class="form-input" placeholder="Cost Price" min="0">
-                </div>
-                <div class="form-group">
-                  <label class="form-label">Status</label>
-                  <select id="acc-status" class="form-select">
-                    <option value="Active">Active</option>
-                    <option value="Active (Trial)">Active (Trial)</option>
-                    <option value="Expired">Expired</option>
-                  </select>
-                </div>
-              </div>
-              <div class="grid-2">
-                <div class="form-group">
-                  <label class="form-label">Start Date</label>
-                  <input type="date" id="acc-start" class="form-input">
-                </div>
-                <div class="form-group">
                   <label class="form-label">Expiry Date</label>
                   <input type="date" id="acc-expiry" class="form-input">
                 </div>
               </div>
-              <div class="form-group">
-                <label class="form-label">Notes</label>
-                <input type="text" id="acc-notes" class="form-input" placeholder="Notes">
+              <button type="button" class="mini-btn" onclick="toggleAccMore()" style="margin-bottom: 14px;">Mazeed tafseel (vendor number, cost, dates) ▾</button>
+              <div id="acc-more" style="display:none;">
+                <div class="grid-2">
+                  <div class="form-group">
+                    <label class="form-label">Vendor Number</label>
+                    <input type="text" id="acc-vendor-number" class="form-input" placeholder="Vendor Number">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Cost (Rs)</label>
+                    <input type="number" id="acc-cost" class="form-input" placeholder="Cost Price" min="0">
+                  </div>
+                </div>
+                <div class="grid-2">
+                  <div class="form-group">
+                    <label class="form-label">Status</label>
+                    <select id="acc-status" class="form-select">
+                      <option value="Active">Active</option>
+                      <option value="Active (Trial)">Active (Trial)</option>
+                      <option value="Expired">Expired</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Start Date</label>
+                    <input type="date" id="acc-start" class="form-input">
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Notes</label>
+                  <input type="text" id="acc-notes" class="form-input" placeholder="Notes">
+                </div>
               </div>
               <button type="submit" class="btn-primary"><span>Account Save karein</span></button>
               <div id="account-msg" style="font-size: 12.5px; margin-top: 8px;"></div>
             </form>
           </div>
 
-          <div class="card form-wrapper" style="margin: 0; max-width: 100%;">
-            <div class="section-head" style="margin-bottom: 16px;">
-              <h2 class="section-title">Customer ko Account mein Add karein</h2>
-            </div>
-            <form id="member-form">
-              <div class="form-group">
-                <label class="form-label">Account *</label>
-                <select id="mem-account" class="form-select" required></select>
-              </div>
-              <div class="form-group">
-                <label class="form-label">Customer *</label>
-                <select id="mem-customer" class="form-select" required></select>
-              </div>
-              <div class="form-group">
-                <label class="form-label">Added Date</label>
-                <input type="date" id="mem-added" class="form-input">
-              </div>
-              <button type="submit" class="btn-primary"><span>Member Add karein</span></button>
-              <div id="member-msg" style="font-size: 12.5px; margin-top: 8px;"></div>
-            </form>
-            <p style="color: var(--text-muted); font-size: 12.5px; line-height: 1.6; margin-top: 14px;">
-              Canva teams ke members Canva access milne par yahan khud update ho jayenge.
+          <div class="card" style="margin: 0; max-width: 100%; padding: 20px;">
+            <h2 class="section-title" style="margin-bottom: 10px;">Member add karna aasan hai</h2>
+            <p style="color: var(--text-muted); font-size: 13px; line-height: 1.7;">
+              Har account ke card par <strong>+ Member</strong> button hai — wahi se customer ko usi account mein add karein.<br><br>
+              Koi customer kis account mein hai, ye jaanne ke liye ooper wali search mein us ka naam ya number likhein.<br><br>
+              Canva teams ke members Canva access milne par yahan update ho jayenge.
             </p>
           </div>
         </div>
@@ -1236,8 +1232,7 @@ window.google = { script: { run: (function(){
         </div>
         <div class="kpi-grid">
           <div class="card kpi-card"><span class="kpi-title">Is Mah Kharcha</span><div class="kpi-value-row"><span class="kpi-val" id="ads-month-spend">Rs 0</span></div></div>
-          <div class="card kpi-card"><span class="kpi-title">Conversations</span><div class="kpi-value-row"><span class="kpi-val" id="ads-month-conv">0</span></div></div>
-          <div class="card kpi-card"><span class="kpi-title">Cost / Conversation</span><div class="kpi-value-row"><span class="kpi-val" id="ads-cost-conv">Rs 0</span></div></div>
+          <div class="card kpi-card"><span class="kpi-title">Cost / Conversation</span><div class="kpi-value-row"><span class="kpi-val" id="ads-cost-conv">Rs 0</span></div><div style="font-size:12px; color:var(--text-muted); margin-top:4px;" id="ads-month-conv"></div></div>
           <div class="card kpi-card"><span class="kpi-title">Orders (Ads se)</span><div class="kpi-value-row"><span class="kpi-val" id="ads-month-orders">0</span></div></div>
         </div>
 
@@ -1253,7 +1248,8 @@ window.google = { script: { run: (function(){
               </div>
               <div class="form-group">
                 <label class="form-label">Campaign *</label>
-                <input type="text" id="ad-campaign" class="form-input" placeholder="Campaign Name" required>
+                <input type="text" id="ad-campaign" class="form-input" placeholder="Campaign Name" list="campaign-list" required>
+                <datalist id="campaign-list"></datalist>
               </div>
               <div class="grid-2">
                 <div class="form-group">
@@ -1266,7 +1262,7 @@ window.google = { script: { run: (function(){
                 </div>
               </div>
               <div class="form-group">
-                <label class="form-label">Orders (is ad se)</label>
+                <label class="form-label">Orders (is ad se) — optional</label>
                 <input type="number" id="ad-orders" class="form-input" placeholder="Orders" min="0">
               </div>
               <button type="submit" class="btn-primary"><span>Kharcha Save karein</span></button>
@@ -1899,6 +1895,34 @@ window.google = { script: { run: (function(){
       });
     }
 
+    function toggleAccBox(id, kind) {
+      const el = document.getElementById(kind + '-' + id);
+      if (el) el.style.display = (el.style.display === 'none' || !el.style.display) ? 'block' : 'none';
+    }
+
+    function toggleAccMore() {
+      const el = document.getElementById('acc-more');
+      if (el) el.style.display = (el.style.display === 'none' || !el.style.display) ? 'block' : 'none';
+    }
+
+    function addMemberFromCard(accountId, btn) {
+      const card = btn.closest('.account-card');
+      if (!card) return;
+      const sel = card.querySelector('.card-cust');
+      const dateEl = card.querySelector('.card-date');
+      const msg = card.querySelector('.card-msg');
+      const parts = (sel.value || '').split('|');
+      const d = { accountId: accountId, number: parts[0] || '', name: parts[1] || '', tool: parts[2] || '', added: dateEl.value || fmtDate_(new Date()), notes: '' };
+      showLoading(true);
+      sendMember(d).then(function(r) {
+        showLoading(false);
+        if (r && r.ok === false) { msg.style.color = 'var(--danger)'; msg.innerText = 'Add nahi hua — dobara try karein.'; return; }
+        msg.style.color = 'var(--success)';
+        msg.innerText = 'Member add ho gaya ✔';
+        silentRefetch();
+      }).catch(function() { showLoading(false); msg.style.color = 'var(--danger)'; msg.innerText = 'Error — add nahi hua.'; });
+    }
+
     function renderAccounts(data) {
       const box = document.getElementById('accounts-container');
       if (!box) return;
@@ -1906,44 +1930,59 @@ window.google = { script: { run: (function(){
       const members = data.members || [];
       const badge = document.getElementById('accounts-count-badge');
       if (badge) badge.innerText = accounts.length + ' Accounts';
+      const q = (window.__accQuery || '').trim().toLowerCase();
+      const custOptions = (data.customers || []).map(c => '<option value="' + escapeHtml(c.number + '|' + c.name + '|' + c.tool) + '">' + escapeHtml(c.name + ' — ' + c.tool) + '</option>').join('');
+      const today = fmtDate_(new Date());
+      let shown = 0;
+      const cards = accounts.map(a => {
+        const mem = members.filter(m => m.accountId === a.id);
+        let matchedMember = null;
+        if (q) {
+          const selfMatch = [a.name, a.tool, a.email, a.id].join(' ').toLowerCase().indexOf(q) !== -1;
+          matchedMember = mem.find(m => (m.name + ' ' + m.number).toLowerCase().indexOf(q) !== -1) || null;
+          if (!selfMatch && !matchedMember) return '';
+        }
+        shown++;
+        const d = daysUntil(a.expiry);
+        let pill;
+        if (d === null) pill = '<span class="days-pill" style="background:rgba(255,255,255,0.6); color:var(--text-muted);">Expiry —</span>';
+        else if (d < 0) pill = '<span class="days-pill critical">Expired</span>';
+        else if (d <= 7) pill = '<span class="days-pill critical">' + d + ' din baqi</span>';
+        else if (d <= 30) pill = '<span class="days-pill warn">' + d + ' din baqi</span>';
+        else pill = '<span class="days-pill" style="background:var(--success-bg); color:#047857;">' + d + ' din baqi</span>';
+        const cardClass = (d !== null && d <= 7 && a.status !== 'Expired') ? ' acc-danger' : ((d !== null && d <= 15 && a.status !== 'Expired') ? ' acc-warn' : '');
+        const memHtml = mem.length
+          ? mem.map(m => '<div class="member-line"><span>' + escapeHtml(m.name) + '</span><span style="color:var(--text-muted);">' + escapeHtml(m.number) + '</span></div>').join('')
+          : '<div style="font-size:12.5px; color:var(--text-muted); padding:4px 0;">Abhi koi member record nahi</div>';
+        const vendorLine = (a.vendor || a.vendorNumber) ? escapeHtml(a.vendor || '') + (a.vendorNumber ? ' • ' + escapeHtml(a.vendorNumber) : '') : '—';
+        const safeId = String(a.id).replace(/'/g, '');
+        return '<div class="card account-card' + cardClass + '">'
+          + '<div style="display:flex; justify-content:space-between; align-items:flex-start; gap:8px;">'
+          + '<div><div style="font-weight:800; font-size:15.5px; color:var(--primary-dark);">' + escapeHtml(a.name || a.tool) + '</div>'
+          + '<div style="font-size:12px; color:var(--text-muted);">' + escapeHtml(a.tool) + ' • ' + escapeHtml(a.id) + '</div></div>'
+          + '<span class="chip ' + (a.status === 'Expired' ? 'chip-expired' : 'chip-active') + '">' + escapeHtml(a.status || 'Active') + '</span></div>'
+          + '<div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; align-items:center;">' + pill + '<span class="chip chip-tag">👥 ' + mem.length + ' members</span></div>'
+          + (matchedMember ? '<div style="margin-top:8px; font-size:12.5px; color:var(--primary); font-weight:600;">🔎 ' + escapeHtml(matchedMember.name) + ' is account mein hai</div>' : '')
+          + '<div class="acc-actions"><button type="button" class="mini-btn" onclick="toggleAccBox(\'' + safeId + '\', \'det\')">Details ▾</button><button type="button" class="mini-btn" onclick="toggleAccBox(\'' + safeId + '\', \'asg\')">+ Member</button></div>'
+          + '<div id="det-' + escapeHtml(a.id) + '" class="acc-box" style="display:none;">'
+          + '<div style="font-size:13px; line-height:1.75;">📧 Email: <strong>' + escapeHtml(a.email || '—') + '</strong><br>🏪 Vendor: ' + vendorLine + '<br>💰 Cost: ' + (a.cost ? 'Rs ' + Number(a.cost).toLocaleString() : '—') + '<br>📅 ' + escapeHtml(a.start || '—') + ' → ' + escapeHtml(a.expiry || '—') + (a.notes ? '<br><span style="color:var(--text-muted);">' + escapeHtml(a.notes) + '</span>' : '') + '</div>'
+          + '<div style="margin-top:10px;"><div style="font-weight:700; font-size:13px; margin-bottom:4px;">Members (' + mem.length + ')</div>' + memHtml + '</div>'
+          + '</div>'
+          + '<div id="asg-' + escapeHtml(a.id) + '" class="acc-box" style="display:none;">'
+          + '<div class="form-group"><label class="form-label">Customer select karein</label><select class="form-select card-cust">' + custOptions + '</select></div>'
+          + '<div class="form-group"><label class="form-label">Added Date</label><input type="date" class="form-input card-date" value="' + today + '"></div>'
+          + '<button type="button" class="btn-primary" onclick="addMemberFromCard(\'' + safeId + '\', this)"><span>Member Add karein</span></button>'
+          + '<div class="card-msg" style="font-size:12.5px; margin-top:8px;"></div>'
+          + '</div>'
+          + '</div>';
+      }).join('');
       if (!accounts.length) {
         box.innerHTML = '<div class="card" style="padding:20px; color:var(--text-muted); font-size:13.5px;">Abhi koi account record nahi — neeche wala form se pehla account add karein.</div>';
+      } else if (!shown) {
+        box.innerHTML = '<div class="card" style="padding:20px; color:var(--text-muted); font-size:13.5px;">Is naam ya number ka koi customer / account nahi mila.</div>';
       } else {
-        box.innerHTML = accounts.map(a => {
-          const d = daysUntil(a.expiry);
-          let pill;
-          if (d === null) pill = '<span class="days-pill" style="background:rgba(255,255,255,0.6); color:var(--text-muted);">Expiry —</span>';
-          else if (d < 0) pill = '<span class="days-pill critical">Expired</span>';
-          else if (d <= 7) pill = '<span class="days-pill critical">' + d + ' din baqi</span>';
-          else if (d <= 30) pill = '<span class="days-pill warn">' + d + ' din baqi</span>';
-          else pill = '<span class="days-pill" style="background:var(--success-bg); color:#047857;">' + d + ' din baqi</span>';
-          const mem = members.filter(m => m.accountId === a.id);
-          const memHtml = mem.length
-            ? mem.map(m => '<div class="member-line"><span>' + escapeHtml(m.name) + '</span><span style="color:var(--text-muted);">' + escapeHtml(m.number) + '</span></div>').join('')
-            : '<div style="font-size:12.5px; color:var(--text-muted); padding:4px 0;">Abhi koi member record nahi</div>';
-          const vendorLine = (a.vendor || a.vendorNumber)
-            ? escapeHtml(a.vendor || '') + (a.vendorNumber ? ' • ' + escapeHtml(a.vendorNumber) : '')
-            : '—';
-          return '<div class="card account-card">'
-            + '<div style="display:flex; justify-content:space-between; align-items:flex-start; gap:8px; margin-bottom:10px;">'
-            + '<div><div style="font-weight:800; font-size:15.5px; color:var(--primary-dark);">' + escapeHtml(a.name || a.tool) + '</div>'
-            + '<div style="font-size:12px; color:var(--text-muted);">' + escapeHtml(a.tool) + ' • ' + escapeHtml(a.id) + '</div></div>'
-            + '<span class="chip ' + (a.status === 'Expired' ? 'chip-expired' : 'chip-active') + '">' + escapeHtml(a.status || 'Active') + '</span></div>'
-            + '<div style="font-size:13px; line-height:1.75;">'
-            + '📧 Email: <strong>' + escapeHtml(a.email || '—') + '</strong><br>'
-            + '🏪 Vendor: ' + vendorLine + '<br>'
-            + '💰 Cost: ' + (a.cost ? 'Rs ' + Number(a.cost).toLocaleString() : '—') + '<br>'
-            + '📅 ' + escapeHtml(a.start || '—') + ' → ' + escapeHtml(a.expiry || '—') + ' ' + pill
-            + (a.notes ? '<br><span style="color:var(--text-muted);">' + escapeHtml(a.notes) + '</span>' : '')
-            + '</div>'
-            + '<div style="margin-top:12px;"><div style="font-weight:700; font-size:13px; margin-bottom:4px;">Members (' + mem.length + ')</div>' + memHtml + '</div>'
-            + '</div>';
-        }).join('');
+        box.innerHTML = cards;
       }
-      const accSel = document.getElementById('mem-account');
-      if (accSel) accSel.innerHTML = accounts.map(a => '<option value="' + escapeHtml(a.id) + '">' + escapeHtml(a.id + ' — ' + (a.name || a.tool)) + '</option>').join('');
-      const custSel = document.getElementById('mem-customer');
-      if (custSel) custSel.innerHTML = (data.customers || []).map(c => '<option value="' + escapeHtml(c.number + '|' + c.name + '|' + c.tool) + '">' + escapeHtml(c.name + ' — ' + c.tool) + '</option>').join('');
     }
 
     function renderAds(data) {
@@ -1956,9 +1995,15 @@ window.google = { script: { run: (function(){
       const orders = month.reduce((s, a) => s + (Number(a.orders) || 0), 0);
       const set = (id, v) => { const el = document.getElementById(id); if (el) el.innerText = v; };
       set('ads-month-spend', 'Rs ' + spend.toLocaleString());
-      set('ads-month-conv', conv.toLocaleString());
+      set('ads-month-conv', '(' + conv.toLocaleString() + ' conversations is mahine)');
       set('ads-cost-conv', conv > 0 ? 'Rs ' + Math.round(spend / conv).toLocaleString() : 'Rs 0');
       set('ads-month-orders', orders.toLocaleString());
+      const dl = document.getElementById('campaign-list');
+      if (dl) {
+        const names = [];
+        ads.forEach(a => { if (a.campaign && names.indexOf(a.campaign) === -1) names.push(a.campaign); });
+        dl.innerHTML = names.map(n => '<option value="' + escapeHtml(n) + '">').join('');
+      }
       const badge = document.getElementById('ads-count-badge');
       if (badge) badge.innerText = ads.length + ' Entries';
       const tbody = document.getElementById('ads-table-body');
@@ -2327,8 +2372,6 @@ window.google = { script: { run: (function(){
 
       // Accounts & Ads forms
       const todayStr = fmtDate_(new Date());
-      const memAddedEl = document.getElementById('mem-added');
-      if (memAddedEl) memAddedEl.value = todayStr;
       const adDateEl = document.getElementById('ad-date');
       if (adDateEl) adDateEl.value = todayStr;
 
@@ -2365,26 +2408,10 @@ window.google = { script: { run: (function(){
         }).catch(function() { showLoading(false); msg.style.color = 'var(--danger)'; msg.innerText = 'Error — save nahi hua.'; });
       });
 
-      document.getElementById('member-form').addEventListener('submit', function(e) {
-        e.preventDefault();
-        const parts = (document.getElementById('mem-customer').value || '').split('|');
-        const d = {
-          accountId: document.getElementById('mem-account').value,
-          number: parts[0] || '',
-          name: parts[1] || '',
-          tool: parts[2] || '',
-          added: document.getElementById('mem-added').value || todayStr,
-          notes: ''
-        };
-        const msg = document.getElementById('member-msg');
-        showLoading(true);
-        sendMember(d).then(function(r) {
-          showLoading(false);
-          if (r && r.ok === false) { msg.style.color = 'var(--danger)'; msg.innerText = 'Add nahi hua — dobara try karein.'; return; }
-          msg.style.color = 'var(--success)';
-          msg.innerText = 'Member add ho gaya ✔';
-          silentRefetch();
-        }).catch(function() { showLoading(false); msg.style.color = 'var(--danger)'; msg.innerText = 'Error — add nahi hua.'; });
+      const accSearchEl = document.getElementById('acc-search');
+      if (accSearchEl) accSearchEl.addEventListener('input', function() {
+        window.__accQuery = accSearchEl.value;
+        if (currentDataset) renderAccounts(currentDataset);
       });
 
       document.getElementById('ad-form').addEventListener('submit', function(e) {
