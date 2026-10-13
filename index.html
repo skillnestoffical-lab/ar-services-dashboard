@@ -963,12 +963,12 @@ window.google = { script: { run: (function(){
             <form id="order-form">
               <div class="grid-2">
                 <div class="form-group">
-                  <label class="form-label">Client Name *</label>
-                  <input type="text" id="ent-name" class="form-input" placeholder="e.g. Ali Khan" required>
+                  <label class="form-label">Customer Name *</label>
+                  <input type="text" id="ent-name" class="form-input" placeholder="Customer Name" required>
                 </div>
                 <div class="form-group">
-                  <label class="form-label">WhatsApp Number *</label>
-                  <input type="text" id="ent-number" class="form-input" placeholder="e.g. 923001234567" required>
+                  <label class="form-label">Customer Number (WhatsApp) *</label>
+                  <input type="text" id="ent-number" class="form-input" placeholder="Customer Number" required>
                 </div>
               </div>
 
@@ -1004,12 +1004,23 @@ window.google = { script: { run: (function(){
 
               <div class="grid-2">
                 <div class="form-group">
+                  <label class="form-label">Start Date *</label>
+                  <input type="date" id="ent-start" class="form-input" required>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Expiry Date (Auto)</label>
+                  <input type="date" id="ent-expiry" class="form-input">
+                </div>
+              </div>
+
+              <div class="grid-2">
+                <div class="form-group">
                   <label class="form-label">Selling Price (Rs) *</label>
-                  <input type="number" id="ent-selling" class="form-input" placeholder="e.g. 1500" required min="0">
+                  <input type="number" id="ent-selling" class="form-input" placeholder="Selling Price" required min="0">
                 </div>
                 <div class="form-group">
                   <label class="form-label">Cost Price (Rs, Optional)</label>
-                  <input type="number" id="ent-cost" class="form-input" placeholder="e.g. 600" min="0">
+                  <input type="number" id="ent-cost" class="form-input" placeholder="Cost Price" min="0">
                 </div>
               </div>
 
@@ -1036,7 +1047,7 @@ window.google = { script: { run: (function(){
               </button>
 
               <div class="form-note">
-                "Start Date aaj ki khud lagegi, Expiry plan se khud ban jayegi."
+                "Start Date khud aaj ki lagi hogi — badal bhi sakte hain. Expiry Date plan ke hisaab se khud ban jayegi, zaroorat ho to woh bhi badal sakte hain."
               </div>
             </form>
           </div>
@@ -1261,8 +1272,8 @@ window.google = { script: { run: (function(){
               number: d.number,
               tool: d.tool,
               plan: d.plan,
-              start: new Date().toISOString().split('T')[0],
-              expiry: "In " + d.plan,
+              start: d.start || new Date().toISOString().split('T')[0],
+              expiry: d.expiry || ("In " + d.plan),
               days: 30,
               status: "Active",
               payment: d.payment,
@@ -1627,6 +1638,43 @@ window.google = { script: { run: (function(){
     }
 
     /* =========================================================
+       ENTRY DATE HELPERS
+       ========================================================= */
+    function fmtDate_(d) {
+      return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    }
+    function addMonths_(dt, n) {
+      const day = dt.getDate();
+      const r = new Date(dt.getFullYear(), dt.getMonth() + n, 1);
+      const last = new Date(r.getFullYear(), r.getMonth() + 1, 0).getDate();
+      r.setDate(Math.min(day, last));
+      return r;
+    }
+    function initEntryDates() {
+      const s = document.getElementById('ent-start');
+      if (s && !s.value) s.value = fmtDate_(new Date());
+      computeExpiry();
+    }
+    function computeExpiry() {
+      const sEl = document.getElementById('ent-start');
+      const pEl = document.getElementById('ent-plan');
+      const eEl = document.getElementById('ent-expiry');
+      if (!sEl || !pEl || !eEl) return;
+      const v = sEl.value;
+      if (!v) { eEl.value = ''; return; }
+      const parts = v.split('-').map(Number);
+      const base = new Date(parts[0], parts[1] - 1, parts[2]);
+      const plan = pEl.value || '1 Month';
+      let out;
+      if (/day/i.test(plan)) {
+        out = new Date(base.getFullYear(), base.getMonth(), base.getDate() + (parseInt(plan, 10) || 7));
+      } else {
+        out = addMonths_(base, parseInt(plan, 10) || 1);
+      }
+      eEl.value = fmtDate_(out);
+    }
+
+    /* =========================================================
        NEW FEATURES: tasks, pending, target, history, notes, CSV, filters
        ========================================================= */
     function firstNameOf(name) { return (name || '').trim().split(/\s+/)[0] || 'Customer'; }
@@ -1838,6 +1886,8 @@ window.google = { script: { run: (function(){
           number: document.getElementById('ent-number').value.trim(),
           tool: document.getElementById('ent-tool').value,
           plan: document.getElementById('ent-plan').value,
+          start: document.getElementById('ent-start').value,
+          expiry: document.getElementById('ent-expiry').value,
           selling: document.getElementById('ent-selling').value,
           cost: document.getElementById('ent-cost').value || 0,
           payment: document.getElementById('ent-payment').value,
@@ -1866,6 +1916,7 @@ window.google = { script: { run: (function(){
       // Add Another Entry Button
       document.getElementById('btn-another-entry').addEventListener('click', function() {
         document.getElementById('order-form').reset();
+        initEntryDates();
         document.getElementById('entry-success-container').style.display = 'none';
         document.getElementById('entry-form-container').style.display = 'block';
       });
@@ -1917,6 +1968,11 @@ window.google = { script: { run: (function(){
         document.getElementById('login-form').reset();
         document.getElementById('login-error').style.display = 'none';
       });
+
+      // Entry dates: default start = today, expiry auto from plan
+      initEntryDates();
+      document.getElementById('ent-start').addEventListener('change', computeExpiry);
+      document.getElementById('ent-plan').addEventListener('change', computeExpiry);
 
       // New features wiring
       const savedTarget = localStorage.getItem('ar_monthly_target');
