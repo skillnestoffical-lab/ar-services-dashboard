@@ -656,6 +656,61 @@ window.google = { script: { run: (function(){
       to { transform: rotate(360deg); }
     }
 
+
+    /* ===== New features (tasks / pending / target / history / filters) ===== */
+    .filter-bar { flex-wrap: wrap; align-items: center; }
+    .filter-select {
+      padding: 11px 13px;
+      border: 1.5px solid rgba(255,255,255,0.9);
+      border-radius: 999px;
+      font-size: 13.5px;
+      background: rgba(255,255,255,0.62);
+      color: var(--text-main);
+      outline: none;
+      cursor: pointer;
+    }
+    .filter-select:focus { border-color: #38bdf8; background: rgba(255,255,255,0.92); }
+    .btn-history {
+      background: rgba(255,255,255,0.65);
+      color: var(--primary);
+      padding: 6px 13px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      border: 1px solid rgba(140,180,220,0.55);
+      cursor: pointer;
+      transition: var(--transition);
+      white-space: nowrap;
+    }
+    .btn-history:hover { background: #fff; transform: translateY(-1px); }
+    .action-cell { display: flex; gap: 6px; align-items: center; }
+    .progress-track {
+      height: 14px; border-radius: 999px;
+      background: rgba(255,255,255,0.6);
+      border: 1px solid rgba(255,255,255,0.85);
+      overflow: hidden;
+      box-shadow: inset 0 1px 3px rgba(31,78,121,0.12);
+    }
+    .progress-fill {
+      height: 100%; border-radius: 999px;
+      background: linear-gradient(90deg, #1d6fd1, #38bdf8);
+      transition: width 0.6s ease;
+    }
+    .modal-overlay {
+      position: fixed; inset: 0; z-index: 1000;
+      background: rgba(190, 225, 250, 0.5);
+      -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+      display: flex; align-items: flex-start; justify-content: center;
+      padding: 26px 14px; overflow-y: auto;
+    }
+    .modal-card { width: 100%; max-width: 560px; padding: 24px; border-radius: 24px; }
+    .hist-row {
+      padding: 10px 12px; border-radius: 12px; margin-bottom: 8px;
+      background: rgba(255,255,255,0.5); border: 1px solid rgba(255,255,255,0.75);
+      font-size: 13px;
+    }
+    .note-area { resize: vertical; min-height: 54px; }
+
     /* Responsiveness */
     @media (max-width: 900px) {
       .charts-grid {
@@ -756,6 +811,15 @@ window.google = { script: { run: (function(){
           <span class="supply-days-tag" id="supply-days-count">0 din</span>
         </div>
 
+        <!-- AAJ KE TASKS -->
+        <div class="section-head">
+          <h2 class="section-title">📌 Aaj ke Tasks</h2>
+          <span style="font-size: 13px; color: var(--text-muted);">Aaj / 3 din mein expire + expired follow-ups</span>
+        </div>
+        <div class="card renewals-card" id="tasks-container" style="margin-bottom: 24px;">
+          <!-- Rendered in JS -->
+        </div>
+
         <!-- 6 KPI CARDS -->
         <div class="kpi-grid">
           <!-- Active Plans -->
@@ -825,6 +889,15 @@ window.google = { script: { run: (function(){
           </div>
         </div>
 
+        <!-- MONTHLY TARGET -->
+        <div class="card" id="target-card" style="padding: 20px; margin-bottom: 24px;">
+          <div class="section-head" style="margin-bottom: 10px;">
+            <h2 class="section-title">🎯 Monthly Target</h2>
+            <span id="target-summary" style="font-size: 13px; color: var(--text-muted);"></span>
+          </div>
+          <div id="target-body"></div>
+        </div>
+
         <!-- CHARTS GRID -->
         <div class="charts-grid">
           <!-- Donut: Orders by Tool -->
@@ -866,6 +939,15 @@ window.google = { script: { run: (function(){
           <span style="font-size: 13px; color: var(--text-muted);">Urgent Follow-ups</span>
         </div>
         <div class="card renewals-card" id="renewals-container">
+          <!-- Rendered in JS -->
+        </div>
+
+        <!-- PENDING PAYMENTS SECTION -->
+        <div class="section-head" style="margin-top: 26px;">
+          <h2 class="section-title">💰 Pending Payments</h2>
+          <span style="font-size: 13px; color: var(--text-muted);">Jin ki payment abhi baqi hai</span>
+        </div>
+        <div class="card renewals-card" id="pending-container">
           <!-- Rendered in JS -->
         </div>
       </section>
@@ -981,6 +1063,18 @@ window.google = { script: { run: (function(){
 
           <div class="filter-bar">
             <input type="text" id="cust-search" class="search-input" placeholder="🔍 Search by client name, tool or phone...">
+            <select id="filter-tool" class="filter-select"><option value="">All Tools</option></select>
+            <select id="filter-status" class="filter-select">
+              <option value="">All Status</option>
+              <option value="Active">Active</option>
+              <option value="Expired">Expired</option>
+            </select>
+            <select id="filter-payment" class="filter-select">
+              <option value="">All Payments</option>
+              <option value="Paid">Paid</option>
+              <option value="Pending">Pending</option>
+            </select>
+            <button type="button" id="btn-csv" class="btn-history">⬇ CSV Download</button>
           </div>
 
           <div class="table-container">
@@ -1042,6 +1136,17 @@ window.google = { script: { run: (function(){
               </p>
             </div>
 
+            <div>
+              <div class="form-group" style="margin-bottom: 16px;">
+                <label class="form-label">Monthly Sales Target (Rs)</label>
+                <div style="display: flex; gap: 8px;">
+                  <input type="number" id="set-target" class="form-input" placeholder="Masalan: 30000" min="0">
+                  <button type="button" class="btn-primary" id="btn-save-target" style="width: auto; padding: 10px 20px;">Save</button>
+                </div>
+                <div id="target-msg" style="font-size: 12px; color: var(--success); margin-top: 6px;"></div>
+              </div>
+            </div>
+
             <div style="display: flex; flex-direction: column; gap: 12px;">
               <button type="button" class="btn-primary" id="btn-refresh-data" style="background: #2563eb;">
                 <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
@@ -1056,6 +1161,23 @@ window.google = { script: { run: (function(){
       </section>
 
     </main>
+  </div>
+
+  <!-- CUSTOMER HISTORY MODAL -->
+  <div id="history-modal" class="modal-overlay" style="display:none;">
+    <div class="card modal-card">
+      <div class="section-head" style="margin-bottom: 12px;">
+        <h2 class="section-title" id="hist-title">Customer History</h2>
+        <button type="button" id="hist-close" class="btn-history">✕ Band karein</button>
+      </div>
+      <div id="hist-body"></div>
+      <div class="form-group" style="margin-top: 14px;">
+        <label class="form-label">Note (ye note sirf is device par save hota hai)</label>
+        <textarea id="hist-note" class="form-input note-area" placeholder="Masalan: 2 devices hain, VIP customer..."></textarea>
+      </div>
+      <button type="button" id="hist-save-note" class="btn-primary" style="width: auto; padding: 10px 22px;">Note Save karein</button>
+      <span id="hist-note-msg" style="font-size: 12px; color: var(--success); margin-left: 10px;"></span>
+    </div>
   </div>
 
   <script>
@@ -1298,6 +1420,12 @@ window.google = { script: { run: (function(){
 
       // 4. Renewal Alerts List
       renderRenewals(data.renewals || []);
+
+      // 5. New features
+      renderTasks(data.customers || []);
+      renderPending(data.customers || []);
+      renderTarget(data);
+      populateToolFilter(data.customers || []);
     }
 
     function renderCharts(data) {
@@ -1447,7 +1575,10 @@ window.google = { script: { run: (function(){
                 <div style="font-size: 12px; color: var(--text-muted);">${escapeHtml(item.tool)} • Expiry: ${escapeHtml(item.expiry)}</div>
               </div>
             </div>
-            <div class="${pillClass}">${daysText}</div>
+            <div style="display:flex; gap:8px; align-items:center;">
+              <div class="${pillClass}">${daysText}</div>
+              ${(() => { const m = ((currentDataset && currentDataset.customers) || []).find(x => x.name === item.name && x.tool === item.tool); return m ? waBtn(m, 'renewal') : ''; })()}
+            </div>
           </div>
         `;
       });
@@ -1455,6 +1586,7 @@ window.google = { script: { run: (function(){
     }
 
     function renderCustomers(customers) {
+      window.__lastList = customers;
       const tbody = document.getElementById('customers-table-body');
       const badge = document.getElementById('cust-count-badge');
       badge.innerText = customers.length + ' Total';
@@ -1481,14 +1613,159 @@ window.google = { script: { run: (function(){
             <td><span class="chip ${paymentClass}">${escapeHtml(c.payment)}</span></td>
             <td><span class="chip chip-tag">${escapeHtml(c.ctype || 'Customer')}</span></td>
             <td>
-              <a href="${escapeHtml(c.reminder || '#')}" target="_blank" rel="noopener noreferrer" class="btn-wa">
-                <span>WA Reminder</span>
-              </a>
+              <div class="action-cell">
+                <a href="${escapeHtml(buildWaLink(c, 'renewal'))}" target="_blank" rel="noopener noreferrer" class="btn-wa">
+                  <span>WA Reminder</span>
+                </a>
+                <button type="button" class="btn-history" data-hist="${escapeHtml(c.number)}">History</button>
+              </div>
             </td>
           </tr>
         `;
       });
       tbody.innerHTML = html;
+    }
+
+    /* =========================================================
+       NEW FEATURES: tasks, pending, target, history, notes, CSV, filters
+       ========================================================= */
+    function firstNameOf(name) { return (name || '').trim().split(/\s+/)[0] || 'Customer'; }
+    function digitsOf(n) { return String(n || '').replace(/\D/g, ''); }
+
+    function buildWaLink(c, kind) {
+      if (c.reminder) return c.reminder;
+      const num = digitsOf(c.number);
+      if (!num) return '#';
+      const fn = firstNameOf(c.name);
+      let msg;
+      if (kind === 'payment') {
+        msg = 'Assalam-o-Alaikum ' + fn + ', aap ke ' + c.tool + ' plan ki payment abhi pending hai. Meharbani karke payment mukammal kar dein taake aap ki service baghair rukawat chalu rahe. Shukriya! \u2014 Team AR SERVICES';
+      } else if (Number(c.days) < 0) {
+        msg = 'Assalam-o-Alaikum ' + fn + ', aap ka ' + c.tool + ' plan ' + (c.expiry || '') + ' ko expire ho gaya hai. Renew karwana ho to isi chat par reply kar dein, hum fauran renew kar dein ge. \u2014 Team AR SERVICES';
+      } else {
+        msg = 'Assalam-o-Alaikum ' + fn + ', aap ke ' + c.tool + ' plan ki expiry date ' + (c.expiry || '') + ' hai. Renew karwana ho to isi chat par reply kar dein, hum fauran renew kar dein ge. \u2014 Team AR SERVICES';
+      }
+      return 'https://wa.me/' + num + '?text=' + encodeURIComponent(msg);
+    }
+
+    function waBtn(c, kind, label) {
+      return '<a href="' + escapeHtml(buildWaLink(c, kind)) + '" target="_blank" rel="noopener noreferrer" class="btn-wa"><span>' + (label || 'WA Reminder') + '</span></a>';
+    }
+
+    function renderTasks(customers) {
+      const box = document.getElementById('tasks-container');
+      if (!box) return;
+      const list = (customers || []).filter(c => {
+        const d = Number(c.days);
+        if (isNaN(d)) return false;
+        return (c.status === 'Active' && d <= 3) || c.status === 'Expired';
+      }).sort((a, b) => Number(a.days) - Number(b.days));
+      if (!list.length) {
+        box.innerHTML = '<div style="color:var(--text-muted); font-size:13px; text-align:center; padding:12px;">Aaj koi urgent task nahi \u2014 sab theek hai. \u2714</div>';
+        return;
+      }
+      let html = '';
+      list.forEach(c => {
+        const d = Number(c.days);
+        const isExp = c.status === 'Expired' || d < 0;
+        const pillClass = (isExp || d <= 1) ? 'days-pill critical' : 'days-pill warn';
+        const daysText = isExp ? 'Expired \u2014 follow-up' : (d === 0 ? 'Aaj expire' : d + ' din baqi');
+        html += '<div class="renewal-item"><div class="renewal-meta"><div class="badge-icon">' + escapeHtml((c.tool || '?').substring(0, 2).toUpperCase()) + '</div><div><div style="font-weight: 700; font-size: 14px; color: var(--primary);">' + escapeHtml(c.name) + '</div><div style="font-size: 12px; color: var(--text-muted);">' + escapeHtml(c.tool) + ' \u2022 Expiry: ' + escapeHtml(c.expiry || '-') + '</div></div></div><div style="display:flex; gap:8px; align-items:center;"><span class="' + pillClass + '">' + daysText + '</span>' + waBtn(c, 'renewal') + '</div></div>';
+      });
+      box.innerHTML = html;
+    }
+
+    function renderPending(customers) {
+      const box = document.getElementById('pending-container');
+      if (!box) return;
+      const list = (customers || []).filter(c => c.payment === 'Pending');
+      if (!list.length) {
+        box.innerHTML = '<div style="color:var(--text-muted); font-size:13px; text-align:center; padding:12px;">Koi pending payment nahi. \u2714</div>';
+        return;
+      }
+      let html = '';
+      list.forEach(c => {
+        html += '<div class="renewal-item"><div class="renewal-meta"><div class="badge-icon">' + escapeHtml((c.tool || '?').substring(0, 2).toUpperCase()) + '</div><div><div style="font-weight: 700; font-size: 14px; color: var(--primary);">' + escapeHtml(c.name) + '</div><div style="font-size: 12px; color: var(--text-muted);">' + escapeHtml(c.tool) + ' \u2022 ' + escapeHtml(c.plan || '') + ' \u2022 Expiry: ' + escapeHtml(c.expiry || '-') + '</div></div></div><div style="display:flex; gap:8px; align-items:center;"><span class="days-pill warn">Pending</span>' + waBtn(c, 'payment', 'Payment Reminder') + '</div></div>';
+      });
+      box.innerHTML = html;
+    }
+
+    function renderTarget(data) {
+      const body = document.getElementById('target-body');
+      const summary = document.getElementById('target-summary');
+      if (!body) return;
+      const target = Number(localStorage.getItem('ar_monthly_target') || 0);
+      const months = data.byMonth || [];
+      const cur = months.length ? months[months.length - 1] : null;
+      const rev = cur ? Number(cur.revenue || 0) : 0;
+      if (summary) summary.innerText = (cur ? (cur.month || 'Is mahina') : 'Is mahina') + ' ki revenue';
+      if (!target) {
+        body.innerHTML = '<div style="color:var(--text-muted); font-size:13.5px;">Abhi koi target set nahi. <strong>Settings</strong> mein ja kar monthly target likhein \u2014 phir yahan progress bar nazar ayega.</div>';
+        return;
+      }
+      const pct = Math.max(0, Math.min(100, Math.round(rev / target * 100)));
+      const left = Math.max(0, target - rev);
+      body.innerHTML = '<div style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:6px; font-size:13.5px; margin-bottom:8px;"><span><strong>Rs ' + rev.toLocaleString() + '</strong> / Rs ' + target.toLocaleString() + '</span><span style="color:var(--text-muted);">' + pct + '% poora' + (left > 0 ? ' \u2022 Rs ' + left.toLocaleString() + ' baqi' : ' \u2022 Target poora! \uD83C\uDF89') + '</span></div><div class="progress-track"><div class="progress-fill" style="width:' + pct + '%;"></div></div>';
+    }
+
+    function populateToolFilter(customers) {
+      const sel = document.getElementById('filter-tool');
+      if (!sel) return;
+      const current = sel.value;
+      const tools = [...new Set((customers || []).map(c => c.tool).filter(Boolean))].sort();
+      sel.innerHTML = '<option value="">All Tools</option>' + tools.map(t => '<option value="' + escapeHtml(t) + '">' + escapeHtml(t) + '</option>').join('');
+      sel.value = current;
+    }
+
+    function applyCustomerFilters() {
+      if (!currentDataset || !currentDataset.customers) return;
+      const q = (document.getElementById('cust-search').value || '').toLowerCase().trim();
+      const tool = document.getElementById('filter-tool').value;
+      const status = document.getElementById('filter-status').value;
+      const payment = document.getElementById('filter-payment').value;
+      const filtered = currentDataset.customers.filter(c => {
+        const matchQ = !q || (c.name && c.name.toLowerCase().includes(q)) || (c.tool && c.tool.toLowerCase().includes(q)) || (c.number && c.number.toLowerCase().includes(q));
+        return matchQ && (!tool || c.tool === tool) && (!status || c.status === status) && (!payment || c.payment === payment);
+      });
+      renderCustomers(filtered);
+    }
+
+    function loadNotes() { try { return JSON.parse(localStorage.getItem('ar_notes_v1') || '{}'); } catch (e) { return {}; } }
+    let histNumber = '';
+    function openHistory(number) {
+      if (!currentDataset || !currentDataset.customers) return;
+      const rows = currentDataset.customers.filter(c => String(c.number) === String(number));
+      if (!rows.length) return;
+      histNumber = String(number);
+      const name = rows[0].name || 'Customer';
+      document.getElementById('hist-title').innerText = name + ' \u2014 History';
+      const sorted = rows.slice().sort((a, b) => String(b.start || '').localeCompare(String(a.start || '')));
+      let html = '<div style="font-size:13.5px; margin-bottom:10px;">Number: <strong>' + escapeHtml(number) + '</strong> \u2022 Kul orders: <strong>' + rows.length + '</strong>' + (rows.length > 1 ? ' \u2022 <span class="chip chip-tag">Repeat Customer \u2B50</span>' : '') + '</div>';
+      sorted.forEach(c => {
+        html += '<div class="hist-row"><strong>' + escapeHtml(c.tool) + '</strong> \u2022 ' + escapeHtml(c.plan || '') + '<br><span style="color:var(--text-muted);">Start: ' + escapeHtml(c.start || '-') + ' \u2192 Expiry: ' + escapeHtml(c.expiry || '-') + '</span> <span class="chip ' + (c.status === 'Active' ? 'chip-active' : 'chip-expired') + '">' + escapeHtml(c.status) + '</span> <span class="chip ' + (c.payment === 'Paid' ? 'chip-paid' : 'chip-pending') + '">' + escapeHtml(c.payment) + '</span></div>';
+      });
+      html += '<div style="margin-top:10px;">' + waBtn(rows[0], 'renewal') + '</div>';
+      document.getElementById('hist-body').innerHTML = html;
+      document.getElementById('hist-note').value = loadNotes()[histNumber] || '';
+      document.getElementById('hist-note-msg').innerText = '';
+      document.getElementById('history-modal').style.display = 'flex';
+    }
+    function closeHistory() { document.getElementById('history-modal').style.display = 'none'; }
+
+    function downloadCSV() {
+      const rows = window.__lastList || (currentDataset ? currentDataset.customers || [] : []);
+      if (!rows.length) { alert('CSV ke liye koi record nahi.'); return; }
+      const head = ['Name', 'Number', 'Tool', 'Plan', 'Start', 'Expiry', 'Days Left', 'Status', 'Payment', 'Type'];
+      const esc = v => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"';
+      const lines = [head.join(',')].concat(rows.map(c => [c.name, c.number, c.tool, c.plan, c.start, c.expiry, c.days, c.status, c.payment, c.ctype].map(esc).join(',')));
+      const blob = new Blob([lines.join('\n')], { type: 'text/csv' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'ar-services-customers.csv';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(a.href), 2000);
     }
 
     function escapeHtml(str) {
@@ -1593,17 +1870,8 @@ window.google = { script: { run: (function(){
         document.getElementById('entry-form-container').style.display = 'block';
       });
 
-      // Customer Search Filter
-      document.getElementById('cust-search').addEventListener('input', function(e) {
-        const query = e.target.value.toLowerCase().trim();
-        if (!currentDataset || !currentDataset.customers) return;
-        const filtered = currentDataset.customers.filter(c => {
-          return (c.name && c.name.toLowerCase().includes(query)) ||
-                 (c.tool && c.tool.toLowerCase().includes(query)) ||
-                 (c.number && c.number.toLowerCase().includes(query));
-        });
-        renderCustomers(filtered);
-      });
+      // Customer Search + Filters
+      document.getElementById('cust-search').addEventListener('input', applyCustomerFilters);
 
       // Settings: Update Password
       document.getElementById('settings-password-form').addEventListener('submit', function(e) {
@@ -1648,6 +1916,36 @@ window.google = { script: { run: (function(){
         document.getElementById('auth-view').style.display = 'flex';
         document.getElementById('login-form').reset();
         document.getElementById('login-error').style.display = 'none';
+      });
+
+      // New features wiring
+      const savedTarget = localStorage.getItem('ar_monthly_target');
+      if (savedTarget) document.getElementById('set-target').value = savedTarget;
+      document.getElementById('btn-save-target').addEventListener('click', function() {
+        const v = document.getElementById('set-target').value;
+        if (v === '' || Number(v) < 0) { document.getElementById('target-msg').innerText = 'Sahi target likhein.'; return; }
+        localStorage.setItem('ar_monthly_target', String(Number(v)));
+        document.getElementById('target-msg').innerText = 'Target save ho gaya \u2714';
+        if (currentDataset) renderTarget(currentDataset);
+      });
+      document.getElementById('btn-csv').addEventListener('click', downloadCSV);
+      ['filter-tool', 'filter-status', 'filter-payment'].forEach(function(id) {
+        document.getElementById(id).addEventListener('change', applyCustomerFilters);
+      });
+      document.getElementById('customers-table-body').addEventListener('click', function(e) {
+        const btn = e.target.closest('[data-hist]');
+        if (btn) openHistory(btn.getAttribute('data-hist'));
+      });
+      document.getElementById('hist-close').addEventListener('click', closeHistory);
+      document.getElementById('history-modal').addEventListener('click', function(e) {
+        if (e.target === this) closeHistory();
+      });
+      document.getElementById('hist-save-note').addEventListener('click', function() {
+        if (!histNumber) return;
+        const notes = loadNotes();
+        notes[histNumber] = document.getElementById('hist-note').value;
+        localStorage.setItem('ar_notes_v1', JSON.stringify(notes));
+        document.getElementById('hist-note-msg').innerText = 'Note save ho gaya \u2714';
       });
     }
   </script>
