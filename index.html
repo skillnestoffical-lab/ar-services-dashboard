@@ -657,6 +657,11 @@ window.google = { script: { run: (function(){
     }
 
 
+    .accounts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 18px; margin-bottom: 24px; }
+    .account-card { padding: 20px; }
+    .member-line { font-size: 12.5px; padding: 5px 0; border-bottom: 1px dashed rgba(140,180,220,0.35); display: flex; justify-content: space-between; gap: 8px; }
+    .member-line:last-child { border-bottom: none; }
+
     /* ===== New features (tasks / pending / target / history / filters) ===== */
     .filter-bar { flex-wrap: wrap; align-items: center; }
     .filter-select {
@@ -793,6 +798,8 @@ window.google = { script: { run: (function(){
           <button class="nav-tab active" data-tab="dashboard">Dashboard</button>
           <button class="nav-tab" data-tab="entry">New Entry</button>
           <button class="nav-tab" data-tab="customers">Customers</button>
+          <button class="nav-tab" data-tab="accounts">Accounts</button>
+          <button class="nav-tab" data-tab="ads">Ads</button>
           <button class="nav-tab" data-tab="settings">Settings</button>
         </nav>
       </div>
@@ -1111,6 +1118,179 @@ window.google = { script: { run: (function(){
         </div>
       </section>
 
+      <!-- ================= TAB: ACCOUNTS ================= -->
+      <section id="tab-accounts" class="tab-pane animate-in" style="display:none;">
+        <div class="section-head">
+          <h2 class="section-title">Service Accounts</h2>
+          <span id="accounts-count-badge" class="chip chip-tag">0 Accounts</span>
+        </div>
+        <div class="accounts-grid" id="accounts-container">
+          <!-- Rendered in JS -->
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px;">
+          <div class="card form-wrapper" style="margin: 0; max-width: 100%;">
+            <div class="section-head" style="margin-bottom: 16px;">
+              <h2 class="section-title">Add Account</h2>
+            </div>
+            <form id="account-form">
+              <div class="form-group">
+                <label class="form-label">Tool *</label>
+                <select id="acc-tool" class="form-select" required>
+                  <option value="Surfshark VPN">Surfshark VPN</option>
+                  <option value="Canva Pro">Canva Pro</option>
+                  <option value="Gemini">Gemini</option>
+                  <option value="CapCut Pro">CapCut Pro</option>
+                  <option value="Netflix">Netflix</option>
+                  <option value="YouTube Premium">YouTube Premium</option>
+                  <option value="MS Office 365 Plus">MS Office 365 Plus</option>
+                  <option value="Adobe Express">Adobe Express</option>
+                  <option value="iLovePDF">iLovePDF</option>
+                  <option value="QuillBot">QuillBot</option>
+                  <option value="Super Duolingo">Super Duolingo</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Account Name / Team</label>
+                <input type="text" id="acc-name" class="form-input" placeholder="Account Name / Team">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Account Email</label>
+                <input type="text" id="acc-email" class="form-input" placeholder="Account Email">
+              </div>
+              <div class="grid-2">
+                <div class="form-group">
+                  <label class="form-label">Vendor Name</label>
+                  <input type="text" id="acc-vendor" class="form-input" placeholder="Vendor Name">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Vendor Number</label>
+                  <input type="text" id="acc-vendor-number" class="form-input" placeholder="Vendor Number">
+                </div>
+              </div>
+              <div class="grid-2">
+                <div class="form-group">
+                  <label class="form-label">Cost (Rs)</label>
+                  <input type="number" id="acc-cost" class="form-input" placeholder="Cost Price" min="0">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Status</label>
+                  <select id="acc-status" class="form-select">
+                    <option value="Active">Active</option>
+                    <option value="Active (Trial)">Active (Trial)</option>
+                    <option value="Expired">Expired</option>
+                  </select>
+                </div>
+              </div>
+              <div class="grid-2">
+                <div class="form-group">
+                  <label class="form-label">Start Date</label>
+                  <input type="date" id="acc-start" class="form-input">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Expiry Date</label>
+                  <input type="date" id="acc-expiry" class="form-input">
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Notes</label>
+                <input type="text" id="acc-notes" class="form-input" placeholder="Notes">
+              </div>
+              <button type="submit" class="btn-primary"><span>Account Save karein</span></button>
+              <div id="account-msg" style="font-size: 12.5px; margin-top: 8px;"></div>
+            </form>
+          </div>
+
+          <div class="card form-wrapper" style="margin: 0; max-width: 100%;">
+            <div class="section-head" style="margin-bottom: 16px;">
+              <h2 class="section-title">Customer ko Account mein Add karein</h2>
+            </div>
+            <form id="member-form">
+              <div class="form-group">
+                <label class="form-label">Account *</label>
+                <select id="mem-account" class="form-select" required></select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Customer *</label>
+                <select id="mem-customer" class="form-select" required></select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Added Date</label>
+                <input type="date" id="mem-added" class="form-input">
+              </div>
+              <button type="submit" class="btn-primary"><span>Member Add karein</span></button>
+              <div id="member-msg" style="font-size: 12.5px; margin-top: 8px;"></div>
+            </form>
+            <p style="color: var(--text-muted); font-size: 12.5px; line-height: 1.6; margin-top: 14px;">
+              Canva teams ke members Canva access milne par yahan khud update ho jayenge.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= TAB: ADS ================= -->
+      <section id="tab-ads" class="tab-pane animate-in" style="display:none;">
+        <div class="section-head">
+          <h2 class="section-title">Ads — Kharcha aur Result</h2>
+          <span style="font-size: 13px; color: var(--text-muted);">Is mahine ka hisaab</span>
+        </div>
+        <div class="kpi-grid">
+          <div class="card kpi-card"><span class="kpi-title">Is Mah Kharcha</span><div class="kpi-value-row"><span class="kpi-val" id="ads-month-spend">Rs 0</span></div></div>
+          <div class="card kpi-card"><span class="kpi-title">Conversations</span><div class="kpi-value-row"><span class="kpi-val" id="ads-month-conv">0</span></div></div>
+          <div class="card kpi-card"><span class="kpi-title">Cost / Conversation</span><div class="kpi-value-row"><span class="kpi-val" id="ads-cost-conv">Rs 0</span></div></div>
+          <div class="card kpi-card"><span class="kpi-title">Orders (Ads se)</span><div class="kpi-value-row"><span class="kpi-val" id="ads-month-orders">0</span></div></div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; align-items: start;">
+          <div class="card form-wrapper" style="margin: 0; max-width: 100%;">
+            <div class="section-head" style="margin-bottom: 16px;">
+              <h2 class="section-title">Roz ka Ad Kharcha Add karein</h2>
+            </div>
+            <form id="ad-form">
+              <div class="form-group">
+                <label class="form-label">Date *</label>
+                <input type="date" id="ad-date" class="form-input" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Campaign *</label>
+                <input type="text" id="ad-campaign" class="form-input" placeholder="Campaign Name" required>
+              </div>
+              <div class="grid-2">
+                <div class="form-group">
+                  <label class="form-label">Kharcha (Rs) *</label>
+                  <input type="number" id="ad-spend" class="form-input" placeholder="Spend" min="0" required>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Conversations</label>
+                  <input type="number" id="ad-conv" class="form-input" placeholder="Conversations" min="0">
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Orders (is ad se)</label>
+                <input type="number" id="ad-orders" class="form-input" placeholder="Orders" min="0">
+              </div>
+              <button type="submit" class="btn-primary"><span>Kharcha Save karein</span></button>
+              <div id="ad-msg" style="font-size: 12.5px; margin-top: 8px;"></div>
+            </form>
+          </div>
+
+          <div class="card" style="padding: 20px;">
+            <div class="section-head">
+              <h2 class="section-title">Ads Record</h2>
+              <span id="ads-count-badge" class="chip chip-tag">0 Entries</span>
+            </div>
+            <div class="table-container">
+              <table>
+                <thead>
+                  <tr><th>Date</th><th>Campaign</th><th>Kharcha</th><th>Conv.</th><th>Orders</th><th>Cost/Conv</th></tr>
+                </thead>
+                <tbody id="ads-table-body"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <!-- ================= TAB: SETTINGS ================= -->
       <section id="tab-settings" class="tab-pane animate-in" style="display:none;">
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px;">
@@ -1181,6 +1361,7 @@ window.google = { script: { run: (function(){
         <h2 class="section-title" id="hist-title">Customer History</h2>
         <button type="button" id="hist-close" class="btn-history">✕ Band karein</button>
       </div>
+      <div id="hist-account" style="font-size: 13.5px; margin-bottom: 8px;"></div>
       <div id="hist-body"></div>
       <div class="form-group" style="margin-top: 14px;">
         <label class="form-label">Note (ye note sirf is device par save hota hai)</label>
@@ -1237,6 +1418,16 @@ window.google = { script: { run: (function(){
         { name: "Ayesha Siddiqui", number: "923048899112", tool: "MS Office 365 Plus", plan: "18 Months", start: "2025-04-01", expiry: "2026-10-01", days: -10, status: "Expired", payment: "Pending", ctype: "Non-Ad", reminder: "https://wa.me/923048899112?text=Assalam-o-Alaikum%20Ayesha%2C%20plan%20expired." },
         { name: "Omer Jamil", number: "923081122445", tool: "iLovePDF", plan: "1 Month", start: "2026-10-02", expiry: "2026-11-02", days: 22, status: "Active", payment: "Paid", ctype: "Ad", reminder: "https://wa.me/923081122445?text=Assalam-o-Alaikum%20Omer%2C%20renewal." }
       ],
+      accounts: [
+        { id: "SS-1", tool: "Surfshark VPN", name: "Main Account", email: "", vendor: "", vendorNumber: "", cost: 1000, start: "2026-09-24", expiry: "2026-11-24", status: "Active (Trial)", notes: "Vendor coupon account" },
+        { id: "CV-1", tool: "Canva Pro", name: "Itkdigital6's Team", email: "aliheader779@gmail.com", vendor: "", vendorNumber: "", cost: 0, start: "", expiry: "", status: "Active", notes: "" }
+      ],
+      members: [
+        { accountId: "SS-1", name: "Hamza Tariq", number: "923001122334", tool: "Surfshark VPN", added: "2026-09-14", notes: "" }
+      ],
+      ads: [
+        { date: "2026-10-10", campaign: "SurfShark WhatsApp Sales v3", spend: 2670, conversations: 57, orders: 0, notes: "Aggregate" }
+      ],
       supplyDays: 32 // Triggers alert because <= 45
     };
 
@@ -1287,6 +1478,36 @@ window.google = { script: { run: (function(){
             if (d.payment === 'Pending') MOCK_DATA.kpis.pending += 1;
             res({ ok: true });
           }, 400);
+        }
+      });
+    }
+
+    function sendAccount(d) {
+      return new Promise(function(res, rej) {
+        if (hasGAS()) {
+          google.script.run.withSuccessHandler(res).withFailureHandler(rej).addAccount(d, window.__tok || '');
+        } else {
+          setTimeout(function() { (MOCK_DATA.accounts = MOCK_DATA.accounts || []).push(d); res({ ok: true }); }, 300);
+        }
+      });
+    }
+
+    function sendMember(d) {
+      return new Promise(function(res, rej) {
+        if (hasGAS()) {
+          google.script.run.withSuccessHandler(res).withFailureHandler(rej).addMember(d, window.__tok || '');
+        } else {
+          setTimeout(function() { (MOCK_DATA.members = MOCK_DATA.members || []).push(d); res({ ok: true }); }, 300);
+        }
+      });
+    }
+
+    function sendAd(d) {
+      return new Promise(function(res, rej) {
+        if (hasGAS()) {
+          google.script.run.withSuccessHandler(res).withFailureHandler(rej).addAdSpend(d, window.__tok || '');
+        } else {
+          setTimeout(function() { (MOCK_DATA.ads = MOCK_DATA.ads || []).push(d); res({ ok: true }); }, 300);
         }
       });
     }
@@ -1437,6 +1658,9 @@ window.google = { script: { run: (function(){
       renderPending(data.customers || []);
       renderTarget(data);
       populateToolFilter(data.customers || []);
+      renderAccounts(data);
+      renderAds(data);
+      appendAccountTasks(data.accounts || []);
     }
 
     function renderCharts(data) {
@@ -1638,6 +1862,119 @@ window.google = { script: { run: (function(){
     }
 
     /* =========================================================
+       ACCOUNTS & ADS
+       ========================================================= */
+    function daysUntil(dateStr) {
+      if (!dateStr) return null;
+      const p = String(dateStr).split('-').map(Number);
+      if (p.length !== 3 || isNaN(p[0])) return null;
+      const target = new Date(p[0], p[1] - 1, p[2]);
+      const now = new Date();
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      return Math.round((target - today) / 86400000);
+    }
+
+    function silentRefetch() {
+      loadData().then(d => {
+        currentDataset = d;
+        renderDashboard(d);
+        renderCustomers(d.customers || []);
+      }).catch(function() {});
+    }
+
+    function appendAccountTasks(accounts) {
+      const box = document.getElementById('tasks-container');
+      if (!box) return;
+      const list = (accounts || []).filter(a => {
+        const d = daysUntil(a.expiry);
+        return d !== null && d <= 15 && a.status !== 'Expired';
+      }).sort((a, b) => daysUntil(a.expiry) - daysUntil(b.expiry));
+      if (!list.length) return;
+      if (window.__tasksEmpty) { box.innerHTML = ''; window.__tasksEmpty = false; }
+      list.forEach(a => {
+        const d = daysUntil(a.expiry);
+        const pillClass = d <= 3 ? 'days-pill critical' : 'days-pill warn';
+        const daysText = d < 0 ? 'Expired' : (d === 0 ? 'Aaj expire' : d + ' din baqi');
+        box.innerHTML += '<div class="renewal-item"><div class="renewal-meta"><div class="badge-icon">' + escapeHtml((a.tool || '?').substring(0, 2).toUpperCase()) + '</div><div><div style="font-weight: 700; font-size: 14px; color: var(--primary);">' + escapeHtml(a.name || a.email || a.id) + ' <span class="chip chip-tag">Account</span></div><div style="font-size: 12px; color: var(--text-muted);">' + escapeHtml(a.tool) + ' account ki expiry: ' + escapeHtml(a.expiry || '-') + '</div></div></div><span class="' + pillClass + '">' + daysText + '</span></div>';
+      });
+    }
+
+    function renderAccounts(data) {
+      const box = document.getElementById('accounts-container');
+      if (!box) return;
+      const accounts = data.accounts || [];
+      const members = data.members || [];
+      const badge = document.getElementById('accounts-count-badge');
+      if (badge) badge.innerText = accounts.length + ' Accounts';
+      if (!accounts.length) {
+        box.innerHTML = '<div class="card" style="padding:20px; color:var(--text-muted); font-size:13.5px;">Abhi koi account record nahi — neeche wala form se pehla account add karein.</div>';
+      } else {
+        box.innerHTML = accounts.map(a => {
+          const d = daysUntil(a.expiry);
+          let pill;
+          if (d === null) pill = '<span class="days-pill" style="background:rgba(255,255,255,0.6); color:var(--text-muted);">Expiry —</span>';
+          else if (d < 0) pill = '<span class="days-pill critical">Expired</span>';
+          else if (d <= 7) pill = '<span class="days-pill critical">' + d + ' din baqi</span>';
+          else if (d <= 30) pill = '<span class="days-pill warn">' + d + ' din baqi</span>';
+          else pill = '<span class="days-pill" style="background:var(--success-bg); color:#047857;">' + d + ' din baqi</span>';
+          const mem = members.filter(m => m.accountId === a.id);
+          const memHtml = mem.length
+            ? mem.map(m => '<div class="member-line"><span>' + escapeHtml(m.name) + '</span><span style="color:var(--text-muted);">' + escapeHtml(m.number) + '</span></div>').join('')
+            : '<div style="font-size:12.5px; color:var(--text-muted); padding:4px 0;">Abhi koi member record nahi</div>';
+          const vendorLine = (a.vendor || a.vendorNumber)
+            ? escapeHtml(a.vendor || '') + (a.vendorNumber ? ' • ' + escapeHtml(a.vendorNumber) : '')
+            : '—';
+          return '<div class="card account-card">'
+            + '<div style="display:flex; justify-content:space-between; align-items:flex-start; gap:8px; margin-bottom:10px;">'
+            + '<div><div style="font-weight:800; font-size:15.5px; color:var(--primary-dark);">' + escapeHtml(a.name || a.tool) + '</div>'
+            + '<div style="font-size:12px; color:var(--text-muted);">' + escapeHtml(a.tool) + ' • ' + escapeHtml(a.id) + '</div></div>'
+            + '<span class="chip ' + (a.status === 'Expired' ? 'chip-expired' : 'chip-active') + '">' + escapeHtml(a.status || 'Active') + '</span></div>'
+            + '<div style="font-size:13px; line-height:1.75;">'
+            + '📧 Email: <strong>' + escapeHtml(a.email || '—') + '</strong><br>'
+            + '🏪 Vendor: ' + vendorLine + '<br>'
+            + '💰 Cost: ' + (a.cost ? 'Rs ' + Number(a.cost).toLocaleString() : '—') + '<br>'
+            + '📅 ' + escapeHtml(a.start || '—') + ' → ' + escapeHtml(a.expiry || '—') + ' ' + pill
+            + (a.notes ? '<br><span style="color:var(--text-muted);">' + escapeHtml(a.notes) + '</span>' : '')
+            + '</div>'
+            + '<div style="margin-top:12px;"><div style="font-weight:700; font-size:13px; margin-bottom:4px;">Members (' + mem.length + ')</div>' + memHtml + '</div>'
+            + '</div>';
+        }).join('');
+      }
+      const accSel = document.getElementById('mem-account');
+      if (accSel) accSel.innerHTML = accounts.map(a => '<option value="' + escapeHtml(a.id) + '">' + escapeHtml(a.id + ' — ' + (a.name || a.tool)) + '</option>').join('');
+      const custSel = document.getElementById('mem-customer');
+      if (custSel) custSel.innerHTML = (data.customers || []).map(c => '<option value="' + escapeHtml(c.number + '|' + c.name + '|' + c.tool) + '">' + escapeHtml(c.name + ' — ' + c.tool) + '</option>').join('');
+    }
+
+    function renderAds(data) {
+      const ads = data.ads || [];
+      const now = new Date();
+      const ym = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
+      const month = ads.filter(a => String(a.date || '').indexOf(ym) === 0);
+      const spend = month.reduce((s, a) => s + (Number(a.spend) || 0), 0);
+      const conv = month.reduce((s, a) => s + (Number(a.conversations) || 0), 0);
+      const orders = month.reduce((s, a) => s + (Number(a.orders) || 0), 0);
+      const set = (id, v) => { const el = document.getElementById(id); if (el) el.innerText = v; };
+      set('ads-month-spend', 'Rs ' + spend.toLocaleString());
+      set('ads-month-conv', conv.toLocaleString());
+      set('ads-cost-conv', conv > 0 ? 'Rs ' + Math.round(spend / conv).toLocaleString() : 'Rs 0');
+      set('ads-month-orders', orders.toLocaleString());
+      const badge = document.getElementById('ads-count-badge');
+      if (badge) badge.innerText = ads.length + ' Entries';
+      const tbody = document.getElementById('ads-table-body');
+      if (!tbody) return;
+      if (!ads.length) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:var(--text-muted); padding:18px;">Abhi koi ad record nahi.</td></tr>';
+        return;
+      }
+      const sorted = ads.slice().sort((a, b) => String(b.date).localeCompare(String(a.date)));
+      tbody.innerHTML = sorted.map(a => {
+        const cpc = Number(a.conversations) > 0 ? 'Rs ' + Math.round(Number(a.spend) / Number(a.conversations)).toLocaleString() : '—';
+        return '<tr class="table-row-hover"><td>' + escapeHtml(a.date) + '</td><td style="font-weight:600;">' + escapeHtml(a.campaign) + '</td><td>Rs ' + Number(a.spend || 0).toLocaleString() + '</td><td>' + (a.conversations || 0) + '</td><td>' + (a.orders || 0) + '</td><td>' + cpc + '</td></tr>';
+      }).join('');
+    }
+
+    /* =========================================================
        ENTRY DATE HELPERS
        ========================================================= */
     function fmtDate_(d) {
@@ -1703,11 +2040,13 @@ window.google = { script: { run: (function(){
     function renderTasks(customers) {
       const box = document.getElementById('tasks-container');
       if (!box) return;
+      window.__tasksEmpty = false;
       const list = (customers || []).filter(c => {
         const d = Number(c.days);
         if (isNaN(d)) return false;
         return (c.status === 'Active' && d <= 3) || c.status === 'Expired';
       }).sort((a, b) => Number(a.days) - Number(b.days));
+      window.__tasksEmpty = list.length === 0;
       if (!list.length) {
         box.innerHTML = '<div style="color:var(--text-muted); font-size:13px; text-align:center; padding:12px;">Aaj koi urgent task nahi \u2014 sab theek hai. \u2714</div>';
         return;
@@ -1794,6 +2133,18 @@ window.google = { script: { run: (function(){
       });
       html += '<div style="margin-top:10px;">' + waBtn(rows[0], 'renewal') + '</div>';
       document.getElementById('hist-body').innerHTML = html;
+      const myAccounts = (currentDataset.members || []).filter(m => String(m.number || '').replace(/\D/g, '').slice(-10) === String(number).replace(/\D/g, '').slice(-10));
+      const accEl = document.getElementById('hist-account');
+      if (accEl) {
+        if (myAccounts.length) {
+          accEl.innerHTML = myAccounts.map(m => {
+            const acc = (currentDataset.accounts || []).find(a => a.id === m.accountId);
+            return '📌 Account: <strong>' + escapeHtml(m.accountId) + (acc ? ' (' + escapeHtml(acc.name || acc.tool) + ')' : '') + '</strong>';
+          }).join('<br>');
+        } else {
+          accEl.innerHTML = '📌 Account: kisi account mein assign nahi';
+        }
+      }
       document.getElementById('hist-note').value = loadNotes()[histNumber] || '';
       document.getElementById('hist-note-msg').innerText = '';
       document.getElementById('history-modal').style.display = 'flex';
@@ -1973,6 +2324,91 @@ window.google = { script: { run: (function(){
       initEntryDates();
       document.getElementById('ent-start').addEventListener('change', computeExpiry);
       document.getElementById('ent-plan').addEventListener('change', computeExpiry);
+
+      // Accounts & Ads forms
+      const todayStr = fmtDate_(new Date());
+      const memAddedEl = document.getElementById('mem-added');
+      if (memAddedEl) memAddedEl.value = todayStr;
+      const adDateEl = document.getElementById('ad-date');
+      if (adDateEl) adDateEl.value = todayStr;
+
+      document.getElementById('account-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const tool = document.getElementById('acc-tool').value;
+        const prefix = tool.indexOf('Surfshark') === 0 ? 'SS' : (tool.indexOf('Canva') === 0 ? 'CV' : 'AC');
+        const existing = (currentDataset && currentDataset.accounts) || [];
+        let n = existing.filter(a => String(a.id || '').indexOf(prefix + '-') === 0).length + 1;
+        let newId = prefix + '-' + n;
+        while (existing.some(a => a.id === newId)) { n++; newId = prefix + '-' + n; }
+        const d = {
+          id: newId,
+          tool: tool,
+          name: document.getElementById('acc-name').value.trim(),
+          email: document.getElementById('acc-email').value.trim(),
+          vendor: document.getElementById('acc-vendor').value.trim(),
+          vendorNumber: document.getElementById('acc-vendor-number').value.trim(),
+          cost: document.getElementById('acc-cost').value || '',
+          status: document.getElementById('acc-status').value,
+          start: document.getElementById('acc-start').value,
+          expiry: document.getElementById('acc-expiry').value,
+          notes: document.getElementById('acc-notes').value.trim()
+        };
+        const msg = document.getElementById('account-msg');
+        showLoading(true);
+        sendAccount(d).then(function(r) {
+          showLoading(false);
+          if (r && r.ok === false) { msg.style.color = 'var(--danger)'; msg.innerText = 'Save nahi hua — dobara try karein.'; return; }
+          msg.style.color = 'var(--success)';
+          msg.innerText = 'Account save ho gaya ✔ (' + newId + ')';
+          document.getElementById('account-form').reset();
+          silentRefetch();
+        }).catch(function() { showLoading(false); msg.style.color = 'var(--danger)'; msg.innerText = 'Error — save nahi hua.'; });
+      });
+
+      document.getElementById('member-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const parts = (document.getElementById('mem-customer').value || '').split('|');
+        const d = {
+          accountId: document.getElementById('mem-account').value,
+          number: parts[0] || '',
+          name: parts[1] || '',
+          tool: parts[2] || '',
+          added: document.getElementById('mem-added').value || todayStr,
+          notes: ''
+        };
+        const msg = document.getElementById('member-msg');
+        showLoading(true);
+        sendMember(d).then(function(r) {
+          showLoading(false);
+          if (r && r.ok === false) { msg.style.color = 'var(--danger)'; msg.innerText = 'Add nahi hua — dobara try karein.'; return; }
+          msg.style.color = 'var(--success)';
+          msg.innerText = 'Member add ho gaya ✔';
+          silentRefetch();
+        }).catch(function() { showLoading(false); msg.style.color = 'var(--danger)'; msg.innerText = 'Error — add nahi hua.'; });
+      });
+
+      document.getElementById('ad-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const d = {
+          date: document.getElementById('ad-date').value,
+          campaign: document.getElementById('ad-campaign').value.trim(),
+          spend: document.getElementById('ad-spend').value,
+          conversations: document.getElementById('ad-conv').value || 0,
+          orders: document.getElementById('ad-orders').value || 0,
+          notes: ''
+        };
+        const msg = document.getElementById('ad-msg');
+        showLoading(true);
+        sendAd(d).then(function(r) {
+          showLoading(false);
+          if (r && r.ok === false) { msg.style.color = 'var(--danger)'; msg.innerText = 'Save nahi hua — dobara try karein.'; return; }
+          msg.style.color = 'var(--success)';
+          msg.innerText = 'Ad kharcha save ho gaya ✔';
+          document.getElementById('ad-form').reset();
+          document.getElementById('ad-date').value = todayStr;
+          silentRefetch();
+        }).catch(function() { showLoading(false); msg.style.color = 'var(--danger)'; msg.innerText = 'Error — save nahi hua.'; });
+      });
 
       // New features wiring
       const savedTarget = localStorage.getItem('ar_monthly_target');
