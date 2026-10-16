@@ -833,6 +833,24 @@ window.google = { script: { run: (function(){
           <!-- Rendered in JS -->
         </div>
 
+        <!-- DATE FILTER (Ads Manager style) -->
+        <div class="card" style="padding: 14px 20px; margin-bottom: 16px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center;">
+          <strong style="font-size: 14px;">📅 Date Range:</strong>
+          <select id="df-preset" class="form-select" style="width: auto;">
+            <option value="today">Today</option>
+            <option value="last7">Last 7 Days</option>
+            <option value="last30">Last 30 Days</option>
+            <option value="thismonth" selected>This Month</option>
+            <option value="lastmonth">Last Month</option>
+            <option value="max">Maximum (All Time)</option>
+            <option value="custom">Custom Range</option>
+          </select>
+          <input type="date" id="df-from" class="form-input" style="width: auto; display: none;">
+          <input type="date" id="df-to" class="form-input" style="width: auto; display: none;">
+          <span id="df-label" style="font-size: 12.5px; color: var(--text-muted);"></span>
+          <span style="font-size: 12.5px; color: var(--text-muted);">— neeche ke numbers, charts aur customer list isi range ke hain</span>
+        </div>
+
         <!-- 6 KPI CARDS -->
         <div class="kpi-grid">
           <!-- Active Plans -->
@@ -1032,8 +1050,30 @@ window.google = { script: { run: (function(){
                   <input type="number" id="ent-selling" class="form-input" placeholder="Selling Price" required min="0">
                 </div>
                 <div class="form-group">
-                  <label class="form-label">Cost Price (Rs, Optional)</label>
+                  <label class="form-label">Cost Price (Rs) — Auto, badal bhi sakte hain</label>
                   <input type="number" id="ent-cost" class="form-input" placeholder="Cost Price" min="0">
+                </div>
+              </div>
+
+              <div class="grid-2" id="ent-team-wrap" style="display:none;">
+                <div class="form-group">
+                  <label class="form-label">Canva Team</label>
+                  <select id="ent-team" class="form-select">
+                    <option value="CV-1 (Itkdigital6's Team)">CV-1 — Itkdigital6's Team</option>
+                    <option value="CV-2 (maraimvergeri71479's team)">CV-2 — maraimvergeri71479's team</option>
+                  </select>
+                </div>
+                <div class="form-group"></div>
+              </div>
+
+              <div class="grid-2">
+                <div class="form-group">
+                  <label class="form-label">Account Email</label>
+                  <input type="text" id="ent-email" class="form-input" placeholder="Woh email jis par account/access active hai">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Note (Optional)</label>
+                  <input type="text" id="ent-note" class="form-input" placeholder="Is entry ke baare mein koi note">
                 </div>
               </div>
 
@@ -1325,7 +1365,7 @@ window.google = { script: { run: (function(){
 
             <div>
               <div class="form-group" style="margin-bottom: 16px;">
-                <label class="form-label">Monthly Sales Target (Rs)</label>
+                <label class="form-label">Monthly Net Profit Target (Rs)</label>
                 <div style="display: flex; gap: 8px;">
                   <input type="number" id="set-target" class="form-input" placeholder="Masalan: 30000" min="0">
                   <button type="button" class="btn-primary" id="btn-save-target" style="width: auto; padding: 10px 20px;">Save</button>
@@ -1589,7 +1629,7 @@ window.google = { script: { run: (function(){
           showLoading(false);
           currentDataset = data;
           renderDashboard(data);
-          renderCustomers(data.customers || []);
+          applyCustomerFilters();
         })
         .catch(function(err) {
           showLoading(false);
@@ -1634,17 +1674,18 @@ window.google = { script: { run: (function(){
         supplyBanner.style.display = 'none';
       }
 
-      // 2. Animated KPI Cards
-      const k = data.kpis || {};
-      animateCount('kpi-active', k.active || 0);
-      animateCount('kpi-revenue', k.revenue || 0, 'Rs');
-      animateCount('kpi-profit', k.profit || 0, 'Rs');
-      animateCount('kpi-customers', k.customers || 0);
-      animateCount('kpi-pending', k.pending || 0);
-      animateCount('kpi-expiring7', k.expiring7 || 0);
+      // 2. Date-filtered aggregates — KPI cards / charts / target / list isi range ke
+      const dfRows = dfFilteredCustomers();
+      const agg = dfAggregate(dfRows);
+      animateCount('kpi-active', agg.kpis.active);
+      animateCount('kpi-revenue', agg.kpis.revenue, 'Rs');
+      animateCount('kpi-profit', agg.kpis.profit, 'Rs');
+      animateCount('kpi-customers', agg.kpis.customers);
+      animateCount('kpi-pending', agg.kpis.pending);
+      animateCount('kpi-expiring7', agg.kpis.expiring7);
 
-      // 3. Render Charts
-      renderCharts(data);
+      // 3. Render Charts (filtered)
+      renderCharts({ byTool: agg.byTool, byMonth: agg.byMonth });
 
       // 4. Renewal Alerts List
       renderRenewals(data.renewals || []);
@@ -1652,8 +1693,8 @@ window.google = { script: { run: (function(){
       // 5. New features
       renderTasks(data.customers || []);
       renderPending(data.customers || []);
-      renderTarget(data);
-      populateToolFilter(data.customers || []);
+      renderTarget(agg);
+      populateToolFilter(dfRows);
       renderAccounts(data);
       renderAds(data);
       appendAccountTasks(data.accounts || []);
@@ -1874,7 +1915,7 @@ window.google = { script: { run: (function(){
       loadData().then(d => {
         currentDataset = d;
         renderDashboard(d);
-        renderCustomers(d.customers || []);
+        applyCustomerFilters();
       }).catch(function() {});
     }
 
@@ -2122,22 +2163,72 @@ window.google = { script: { run: (function(){
       box.innerHTML = html;
     }
 
-    function renderTarget(data) {
+    /* ===== DATE FILTER (Meta Ads Manager style) ===== */
+    let dfRange = null;
+    function dfFmt_(d) { return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
+    function dfComputeRange(preset) {
+      const now = new Date(); const y = now.getFullYear(), m = now.getMonth(), day = now.getDate();
+      switch (preset) {
+        case 'today': return { from: dfFmt_(now), to: dfFmt_(now), label: 'Aaj' };
+        case 'last7': return { from: dfFmt_(new Date(y, m, day - 6)), to: dfFmt_(now), label: 'Pichhle 7 din' };
+        case 'last30': return { from: dfFmt_(new Date(y, m, day - 29)), to: dfFmt_(now), label: 'Pichhle 30 din' };
+        case 'lastmonth': return { from: dfFmt_(new Date(y, m - 1, 1)), to: dfFmt_(new Date(y, m, 0)), label: 'Pichhla mahina' };
+        case 'max': return { from: '0000-01-01', to: '9999-12-31', label: 'Maximum (All Time)' };
+        default: return { from: dfFmt_(new Date(y, m, 1)), to: dfFmt_(new Date(y, m + 1, 0)), label: 'Is mahina' };
+      }
+    }
+    function dfFilteredCustomers() {
+      if (!currentDataset || !currentDataset.customers) return [];
+      if (!dfRange) dfRange = dfComputeRange('thismonth');
+      return currentDataset.customers.filter(c => {
+        const s = String(c.start || '').slice(0, 10);
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(s)) return dfRange.from === '0000-01-01';
+        return s >= dfRange.from && s <= dfRange.to;
+      });
+    }
+    function dfAggregate(rows) {
+      const toolMap = {}, monthMap = {}, nums = {};
+      let revenue = 0, profit = 0, active = 0, pending = 0, expiring7 = 0;
+      const MN = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      (rows || []).forEach(c => {
+        const sell = Number(c.selling || 0), prof = Number(c.profit || 0);
+        revenue += sell; profit += prof;
+        if (c.status === 'Active') { active++; if (c.days !== null && c.days !== '' && !isNaN(Number(c.days)) && Number(c.days) >= 0 && Number(c.days) <= 7) expiring7++; }
+        if (c.payment === 'Pending') pending++;
+        const nk = String(c.number || '').replace(/\D/g, '').slice(-10); if (nk) nums[nk] = 1;
+        const t = c.tool || 'Other';
+        if (!toolMap[t]) toolMap[t] = { tool: t, orders: 0, revenue: 0, profit: 0 };
+        toolMap[t].orders++; toolMap[t].revenue += sell; toolMap[t].profit += prof;
+        const mm = /^(\d{4})-(\d{2})/.exec(String(c.start || '').slice(0, 10));
+        if (mm) { const key = mm[1] + '-' + mm[2]; if (!monthMap[key]) monthMap[key] = { month: MN[Number(mm[2]) - 1] + ' ' + mm[1], orders: 0, revenue: 0, profit: 0 }; monthMap[key].orders++; monthMap[key].revenue += sell; monthMap[key].profit += prof; }
+      });
+      return {
+        kpis: { revenue: revenue, profit: profit, active: active, customers: Object.keys(nums).length, pending: pending, expiring7: expiring7 },
+        byTool: Object.keys(toolMap).map(k => toolMap[k]).sort((a, b) => b.revenue - a.revenue),
+        byMonth: Object.keys(monthMap).sort().map(k => monthMap[k]),
+        revenue: revenue, profit: profit,
+        rangeLabel: dfRange ? dfRange.label : 'Is mahina'
+      };
+    }
+    function dfRefresh_() { if (currentDataset) { renderDashboard(currentDataset); applyCustomerFilters(); } }
+    function dfSetLabel_() { const el = document.getElementById('df-label'); if (el && dfRange) el.innerText = 'Data: ' + dfRange.from + ' \u2192 ' + dfRange.to; }
+
+    function renderTarget(agg) {
       const body = document.getElementById('target-body');
       const summary = document.getElementById('target-summary');
       if (!body) return;
       const target = Number(localStorage.getItem('ar_monthly_target') || 0);
-      const months = data.byMonth || [];
-      const cur = months.length ? months[months.length - 1] : null;
-      const rev = cur ? Number(cur.revenue || 0) : 0;
-      if (summary) summary.innerText = (cur ? (cur.month || 'Is mahina') : 'Is mahina') + ' ki revenue';
+      const prof = Number((agg && agg.profit) || 0);
+      const rev = Number((agg && agg.revenue) || 0);
+      const lbl = (agg && agg.rangeLabel) || 'Is range';
+      if (summary) summary.innerText = lbl + ' ka net profit target';
       if (!target) {
-        body.innerHTML = '<div style="color:var(--text-muted); font-size:13.5px;">Abhi koi target set nahi. <strong>Settings</strong> mein ja kar monthly target likhein \u2014 phir yahan progress bar nazar ayega.</div>';
+        body.innerHTML = '<div style="font-size:13.5px; margin-bottom:6px;">' + lbl + ' ka <strong>Net Profit: Rs ' + prof.toLocaleString() + '</strong> \u2022 Revenue: Rs ' + rev.toLocaleString() + '</div><div style="color:var(--text-muted); font-size:13.5px;">Abhi koi target set nahi. <strong>Settings</strong> mein ja kar monthly <strong>net profit</strong> target likhein \u2014 phir yahan progress bar nazar ayega.</div>';
         return;
       }
-      const pct = Math.max(0, Math.min(100, Math.round(rev / target * 100)));
-      const left = Math.max(0, target - rev);
-      body.innerHTML = '<div style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:6px; font-size:13.5px; margin-bottom:8px;"><span><strong>Rs ' + rev.toLocaleString() + '</strong> / Rs ' + target.toLocaleString() + '</span><span style="color:var(--text-muted);">' + pct + '% poora' + (left > 0 ? ' \u2022 Rs ' + left.toLocaleString() + ' baqi' : ' \u2022 Target poora! \uD83C\uDF89') + '</span></div><div class="progress-track"><div class="progress-fill" style="width:' + pct + '%;"></div></div>';
+      const pct = Math.max(0, Math.min(100, Math.round(prof / target * 100)));
+      const left = Math.max(0, target - prof);
+      body.innerHTML = '<div style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:6px; font-size:13.5px; margin-bottom:8px;"><span>Net Profit: <strong>Rs ' + prof.toLocaleString() + '</strong> / Rs ' + target.toLocaleString() + '</span><span style="color:var(--text-muted);">' + pct + '% poora' + (left > 0 ? ' \u2022 Rs ' + left.toLocaleString() + ' baqi' : ' \u2022 Target poora! \uD83C\uDF89') + '</span></div><div class="progress-track"><div class="progress-fill" style="width:' + pct + '%;"></div></div><div style="font-size:13px; color:var(--text-muted); margin-top:8px;">' + lbl + ' ki Revenue: <strong style="color:var(--text);">Rs ' + rev.toLocaleString() + '</strong> (target profit par hai, revenue par nahi)</div>';
     }
 
     function populateToolFilter(customers) {
@@ -2155,7 +2246,7 @@ window.google = { script: { run: (function(){
       const tool = document.getElementById('filter-tool').value;
       const status = document.getElementById('filter-status').value;
       const payment = document.getElementById('filter-payment').value;
-      const filtered = currentDataset.customers.filter(c => {
+      const filtered = dfFilteredCustomers().filter(c => {
         const matchQ = !q || (c.name && c.name.toLowerCase().includes(q)) || (c.tool && c.tool.toLowerCase().includes(q)) || (c.number && c.number.toLowerCase().includes(q));
         return matchQ && (!tool || c.tool === tool) && (!status || c.status === status) && (!payment || c.payment === payment);
       });
@@ -2174,7 +2265,13 @@ window.google = { script: { run: (function(){
       const sorted = rows.slice().sort((a, b) => String(b.start || '').localeCompare(String(a.start || '')));
       let html = '<div style="font-size:13.5px; margin-bottom:10px;">Number: <strong>' + escapeHtml(number) + '</strong> \u2022 Kul orders: <strong>' + rows.length + '</strong>' + (rows.length > 1 ? ' \u2022 <span class="chip chip-tag">Repeat Customer \u2B50</span>' : '') + '</div>';
       sorted.forEach(c => {
-        html += '<div class="hist-row"><strong>' + escapeHtml(c.tool) + '</strong> \u2022 ' + escapeHtml(c.plan || '') + '<br><span style="color:var(--text-muted);">Start: ' + escapeHtml(c.start || '-') + ' \u2192 Expiry: ' + escapeHtml(c.expiry || '-') + '</span> <span class="chip ' + (c.status === 'Active' ? 'chip-active' : 'chip-expired') + '">' + escapeHtml(c.status) + '</span> <span class="chip ' + (c.payment === 'Paid' ? 'chip-paid' : 'chip-pending') + '">' + escapeHtml(c.payment) + '</span></div>';
+        html += '<div class="hist-row"><strong>' + escapeHtml(c.tool) + '</strong> \u2022 ' + escapeHtml(c.plan || '') + '<br><span style="color:var(--text-muted);">Start: ' + escapeHtml(c.start || '-') + ' \u2192 Expiry: ' + escapeHtml(c.expiry || '-') + '</span> <span class="chip ' + (c.status === 'Active' ? 'chip-active' : 'chip-expired') + '">' + escapeHtml(c.status) + '</span> <span class="chip ' + (c.payment === 'Paid' ? 'chip-paid' : 'chip-pending') + '">' + escapeHtml(c.payment) + '</span>';
+        const exList = ((currentDataset && currentDataset.entryExtras) || []).filter(x => String(x.number || '').replace(/\D/g, '').slice(-10) === String(c.number || '').replace(/\D/g, '').slice(-10) && x.tool === c.tool);
+        const ex = exList.length ? exList[exList.length - 1] : null;
+        if (ex && (ex.email || ex.team || ex.note)) {
+          html += '<br><span style="color:var(--text-muted); font-size:12.5px;">' + (ex.email ? '\uD83D\uDCE7 ' + escapeHtml(ex.email) + '  ' : '') + (ex.team ? '\uD83D\uDC65 ' + escapeHtml(ex.team) + '  ' : '') + (ex.note ? '\uD83D\uDCDD ' + escapeHtml(ex.note) : '') + '</span>';
+        }
+        html += '</div>';
       });
       html += '<div style="margin-top:10px;">' + waBtn(rows[0], 'renewal') + '</div>';
       document.getElementById('hist-body').innerHTML = html;
@@ -2287,7 +2384,10 @@ window.google = { script: { run: (function(){
           selling: document.getElementById('ent-selling').value,
           cost: document.getElementById('ent-cost').value || 0,
           payment: document.getElementById('ent-payment').value,
-          source: document.getElementById('ent-source').value
+          source: document.getElementById('ent-source').value,
+          note: (document.getElementById('ent-note').value || '').trim(),
+          email: (document.getElementById('ent-email').value || '').trim(),
+          team: document.getElementById('ent-tool').value === 'Canva Pro' ? document.getElementById('ent-team').value : ''
         };
 
         showLoading(true);
@@ -2300,7 +2400,7 @@ window.google = { script: { run: (function(){
             loadData().then(d => {
               currentDataset = d;
               renderDashboard(d);
-              renderCustomers(d.customers || []);
+              applyCustomerFilters();
             });
           })
           .catch(function(err) {
@@ -2313,12 +2413,38 @@ window.google = { script: { run: (function(){
       document.getElementById('btn-another-entry').addEventListener('click', function() {
         document.getElementById('order-form').reset();
         initEntryDates();
+        if (typeof applyToolDefaults === 'function') applyToolDefaults();
         document.getElementById('entry-success-container').style.display = 'none';
         document.getElementById('entry-form-container').style.display = 'block';
       });
 
       // Customer Search + Filters
       document.getElementById('cust-search').addEventListener('input', applyCustomerFilters);
+
+      // Date Filter wiring
+      dfRange = dfComputeRange('thismonth');
+      dfSetLabel_();
+      const dfPresetEl = document.getElementById('df-preset');
+      if (dfPresetEl) dfPresetEl.addEventListener('change', function() {
+        const v = dfPresetEl.value;
+        const fromEl = document.getElementById('df-from');
+        const toEl = document.getElementById('df-to');
+        if (v === 'custom') {
+          fromEl.style.display = ''; toEl.style.display = '';
+          if (fromEl.value && toEl.value) { dfRange = { from: fromEl.value, to: toEl.value, label: 'Custom range' }; dfSetLabel_(); dfRefresh_(); }
+        } else {
+          fromEl.style.display = 'none'; toEl.style.display = 'none';
+          dfRange = dfComputeRange(v); dfSetLabel_(); dfRefresh_();
+        }
+      });
+      ['df-from', 'df-to'].forEach(function(id) {
+        const el = document.getElementById(id);
+        if (el) el.addEventListener('change', function() {
+          const f = document.getElementById('df-from').value;
+          const t = document.getElementById('df-to').value;
+          if (f && t) { dfRange = { from: f, to: t, label: 'Custom range' }; dfSetLabel_(); dfRefresh_(); }
+        });
+      });
 
       // Settings: Update Password
       document.getElementById('settings-password-form').addEventListener('submit', function(e) {
@@ -2369,6 +2495,25 @@ window.google = { script: { run: (function(){
       initEntryDates();
       document.getElementById('ent-start').addEventListener('change', computeExpiry);
       document.getElementById('ent-plan').addEventListener('change', computeExpiry);
+
+      // Tool select: Canva team dikhana + cost auto bharna (user badal bhi sakta hai)
+      const TOOL_COSTS = { 'Surfshark VPN': 25, 'CapCut Pro': 450, 'Canva Pro': 4, 'Gemini': 110, 'Netflix': 110, 'YouTube Premium': 700, 'MS Office 365 Plus': 200, 'Adobe Express': 150, 'iLovePDF': 300, 'QuillBot': 700, 'Super Duolingo': 250 };
+      function applyToolDefaults() {
+        const toolEl = document.getElementById('ent-tool');
+        if (!toolEl) return;
+        const tool = toolEl.value;
+        const plan = document.getElementById('ent-plan').value;
+        document.getElementById('ent-team-wrap').style.display = (tool === 'Canva Pro') ? 'grid' : 'none';
+        const base = TOOL_COSTS[tool];
+        if (base != null) {
+          let c = base;
+          if (tool === 'Surfshark VPN') { const mo = parseInt(plan, 10); c = base * (isNaN(mo) ? 1 : mo); }
+          document.getElementById('ent-cost').value = c;
+        }
+      }
+      document.getElementById('ent-tool').addEventListener('change', applyToolDefaults);
+      document.getElementById('ent-plan').addEventListener('change', applyToolDefaults);
+      applyToolDefaults();
 
       // Accounts & Ads forms
       const todayStr = fmtDate_(new Date());
