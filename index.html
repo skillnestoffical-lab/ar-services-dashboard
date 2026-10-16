@@ -835,6 +835,16 @@ window.google = { script: { run: (function(){
       .tool-row-l1 .tool-card-sq { aspect-ratio: auto; flex: 1 1 0; min-width: 108px; max-width: none; padding: 14px 8px; }
       .tool-row-l1 .tool-card-sq img { width: 38px !important; height: 38px !important; }
       .tool-row-l1 .tool-card-sq .chip { display: none; }
+      /* Fixed clean look (owner-approved mockup) */
+      body { background: #f4f7fa !important; }
+      body::before, body::after { display: none !important; }
+      .app-header { background: #ffffff !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; box-shadow: 0 1px 0 #e6edf4 !important; }
+      .card { background: #ffffff !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; box-shadow: 0 4px 14px rgba(10,37,64,.05) !important; }
+      .kpi-card { padding: 15px 16px !important; }
+      .kpi-val { white-space: nowrap; }
+      .sparkline-svg { display: none !important; }
+      .supply-alert { padding: 13px 16px !important; border-radius: 22px !important; }
+      .renewal-item, .task-item { background: #f8fafc !important; }
     }
   </style>
 </head>
