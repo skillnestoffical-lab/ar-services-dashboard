@@ -1195,91 +1195,7 @@ window.google = { script: { run: (function(){
           <!-- Rendered in JS -->
         </div>
 
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px;">
-          <div class="card form-wrapper" style="margin: 0; max-width: 100%;">
-            <div class="section-head" style="margin-bottom: 16px;">
-              <h2 class="section-title">Add Account</h2>
-            </div>
-            <form id="account-form">
-              <div class="form-group">
-                <label class="form-label">Tool *</label>
-                <select id="acc-tool" class="form-select" required>
-                  <option value="Surfshark VPN">Surfshark VPN</option>
-                  <option value="Canva Pro">Canva Pro</option>
-                  <option value="Gemini">Gemini</option>
-                  <option value="CapCut Pro">CapCut Pro</option>
-                  <option value="Netflix">Netflix</option>
-                  <option value="YouTube Premium">YouTube Premium</option>
-                  <option value="MS Office 365 Plus">MS Office 365 Plus</option>
-                  <option value="Adobe Express">Adobe Express</option>
-                  <option value="iLovePDF">iLovePDF</option>
-                  <option value="QuillBot">QuillBot</option>
-                  <option value="Super Duolingo">Super Duolingo</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label class="form-label">Account Name / Team</label>
-                <input type="text" id="acc-name" class="form-input" placeholder="Account Name / Team">
-              </div>
-              <div class="form-group">
-                <label class="form-label">Account Email</label>
-                <input type="text" id="acc-email" class="form-input" placeholder="Account Email">
-              </div>
-              <div class="grid-2">
-                <div class="form-group">
-                  <label class="form-label">Vendor Name</label>
-                  <input type="text" id="acc-vendor" class="form-input" placeholder="Vendor Name">
-                </div>
-                <div class="form-group">
-                  <label class="form-label">Expiry Date</label>
-                  <input type="date" id="acc-expiry" class="form-input">
-                </div>
-              </div>
-              <button type="button" class="mini-btn" onclick="toggleAccMore()" style="margin-bottom: 14px;">Mazeed tafseel (vendor number, cost, dates) ▾</button>
-              <div id="acc-more" style="display:none;">
-                <div class="grid-2">
-                  <div class="form-group">
-                    <label class="form-label">Vendor Number</label>
-                    <input type="text" id="acc-vendor-number" class="form-input" placeholder="Vendor Number">
-                  </div>
-                  <div class="form-group">
-                    <label class="form-label">Cost (Rs)</label>
-                    <input type="number" id="acc-cost" class="form-input" placeholder="Cost Price" min="0">
-                  </div>
-                </div>
-                <div class="grid-2">
-                  <div class="form-group">
-                    <label class="form-label">Status</label>
-                    <select id="acc-status" class="form-select">
-                      <option value="Active">Active</option>
-                      <option value="Active (Trial)">Active (Trial)</option>
-                      <option value="Expired">Expired</option>
-                    </select>
-                  </div>
-                  <div class="form-group">
-                    <label class="form-label">Start Date</label>
-                    <input type="date" id="acc-start" class="form-input">
-                  </div>
-                </div>
-                <div class="form-group">
-                  <label class="form-label">Notes</label>
-                  <input type="text" id="acc-notes" class="form-input" placeholder="Notes">
-                </div>
-              </div>
-              <button type="submit" class="btn-primary"><span>Account Save karein</span></button>
-              <div id="account-msg" style="font-size: 12.5px; margin-top: 8px;"></div>
-            </form>
-          </div>
-
-          <div class="card" style="margin: 0; max-width: 100%; padding: 20px;">
-            <h2 class="section-title" style="margin-bottom: 10px;">Member add karna aasan hai</h2>
-            <p style="color: var(--text-muted); font-size: 13px; line-height: 1.7;">
-              Har account ke card par <strong>+ Member</strong> button hai — wahi se customer ko usi account mein add karein.<br><br>
-              Koi customer kis account mein hai, ye jaanne ke liye ooper wali search mein us ka naam ya number likhein.<br><br>
-              Canva teams ke members Canva access milne par yahan update ho jayenge.
-            </p>
-          </div>
-        </div>
+        
       </section>
 
       <!-- ================= TAB: ADS ================= -->
@@ -2666,39 +2582,6 @@ window.google = { script: { run: (function(){
       const todayStr = fmtDate_(new Date());
       const adDateEl = document.getElementById('ad-date');
       if (adDateEl) adDateEl.value = todayStr;
-
-      document.getElementById('account-form').addEventListener('submit', function(e) {
-        e.preventDefault();
-        const tool = document.getElementById('acc-tool').value;
-        const prefix = tool.indexOf('Surfshark') === 0 ? 'SS' : (tool.indexOf('Canva') === 0 ? 'CV' : 'AC');
-        const existing = (currentDataset && currentDataset.accounts) || [];
-        let n = existing.filter(a => String(a.id || '').indexOf(prefix + '-') === 0).length + 1;
-        let newId = prefix + '-' + n;
-        while (existing.some(a => a.id === newId)) { n++; newId = prefix + '-' + n; }
-        const d = {
-          id: newId,
-          tool: tool,
-          name: document.getElementById('acc-name').value.trim(),
-          email: document.getElementById('acc-email').value.trim(),
-          vendor: document.getElementById('acc-vendor').value.trim(),
-          vendorNumber: document.getElementById('acc-vendor-number').value.trim(),
-          cost: document.getElementById('acc-cost').value || '',
-          status: document.getElementById('acc-status').value,
-          start: document.getElementById('acc-start').value,
-          expiry: document.getElementById('acc-expiry').value,
-          notes: document.getElementById('acc-notes').value.trim()
-        };
-        const msg = document.getElementById('account-msg');
-        showLoading(true);
-        sendAccount(d).then(function(r) {
-          showLoading(false);
-          if (r && r.ok === false) { msg.style.color = 'var(--danger)'; msg.innerText = 'Save nahi hua — dobara try karein.'; return; }
-          msg.style.color = 'var(--success)';
-          msg.innerText = 'Account save ho gaya ✔ (' + newId + ')';
-          document.getElementById('account-form').reset();
-          silentRefetch();
-        }).catch(function() { showLoading(false); msg.style.color = 'var(--danger)'; msg.innerText = 'Error — save nahi hua.'; });
-      });
 
       const accSearchEl = document.getElementById('acc-search');
       if (accSearchEl) accSearchEl.addEventListener('input', function() {
