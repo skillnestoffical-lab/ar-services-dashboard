@@ -434,6 +434,7 @@ window.google = { script: { run: (function(){
     .r-tool::after { content: ' • '; }
     .renewal-thead { display: none; }
     #web-hero { display: none; }
+    #customers-cards { display: none; }
     .wh-label { font-size: 11px; letter-spacing: 2.4px; font-weight: 700; color: #c4b5fd; }
     .wh-profit { font-size: 44px; font-weight: 900; margin-top: 4px; line-height: 1.1; }
     .wh-sub { font-size: 13px; color: rgba(255,255,255,.82); margin-top: 3px; }
@@ -1996,6 +1997,7 @@ window.google = { script: { run: (function(){
       const dfRows = dfFilteredCustomers();
       const agg = dfAggregate(dfRows);
       window.__lastAgg = agg; window.__lastAggOrders = dfRows.length;
+      window.__lastData = data;
       animateCount('kpi-active', agg.kpis.active);
       animateCount('kpi-revenue', agg.kpis.revenue, 'Rs');
       animateCount('kpi-profit', agg.kpis.profit, 'Rs');
@@ -2992,6 +2994,7 @@ window.syncMobileHero = function(agg, orders) {
         } catch (e) {}
       };
       if (window.__lastAgg) { if (window.syncMobileHero) syncMobileHero(window.__lastAgg, window.__lastAggOrders); if (window.syncWebHero) syncWebHero(window.__lastAgg, window.__lastAggOrders); }
+      if (window.__lastData) { try { renderAccounts(window.__lastData); } catch (e) {} }
       window.mnav = function(tab) {
         var b = document.querySelector('.nav-tab[data-tab="' + tab + '"]');
         if (b) b.click();
@@ -3029,6 +3032,7 @@ window.syncMobileHero = function(agg, orders) {
             + '<div class="cc-r"><div class="cc-exp">' + sd(c.expiry) + '</div><span class="chip ' + st + '">' + escapeHtml(c.status) + '</span><div class="cc-days">' + days + '</div></div></div>';
         }).join('');
       };
+      if (window.__lastList) buildMobileCustCards(window.__lastList);
       (function() {
         var cc = document.getElementById('customers-cards');
         if (cc) cc.addEventListener('click', function(e) {
