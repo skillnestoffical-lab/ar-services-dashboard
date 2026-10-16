@@ -1005,7 +1005,9 @@ window.google = { script: { run: (function(){
       body { overflow-x: hidden !important; }
       #web-hero { margin-top: -24px !important; margin-left: calc((100% - 100vw) / 2) !important; margin-right: calc((100% - 100vw) / 2) !important; padding-left: max(24px, calc((100vw - 1200px) / 2)) !important; padding-right: max(24px, calc((100vw - 1200px) / 2)) !important; }
       .card { border-radius: 18px !important; }
-      .charts-grid > .chart-card:nth-child(1) .chart-box { min-height: 0 !important; height: 208px !important; max-width: 208px; width: 100%; margin: 8px auto 4px; }
+      .chart-card { min-height: 212px !important; padding: 18px 20px !important; }
+      .charts-grid .chart-title { margin-bottom: 2px !important; }
+      .charts-grid > .chart-card:nth-child(1) .chart-box { min-height: 0 !important; height: 138px !important; max-height: 138px; flex: none !important; max-width: 190px; width: 100%; margin: 2px auto 0; }
     }
 
     /* Target slim line — Date Range se upar (owner 00:38) */
