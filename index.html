@@ -17,6 +17,7 @@ window.google = { script: { run: (function(){
   Runner.prototype.addMember=function(d,t){ var self=this; __api({action:'member', data:d, token:t}).then(function(r){ if(self._s) self._s(r); }).catch(function(e){ if(self._f) self._f(e); }); };
   Runner.prototype.addAdSpend=function(d,t){ var self=this; __api({action:'ad', data:d, token:t}).then(function(r){ if(self._s) self._s(r); }).catch(function(e){ if(self._f) self._f(e); }); };
   Runner.prototype.updateAccount=function(d,t){ var self=this; __api({action:'updateaccount', data:d, token:t}).then(function(r){ if(self._s) self._s(r); }).catch(function(e){ if(self._f) self._f(e); }); };
+  Runner.prototype.updateCustomer=function(d,t){ var self=this; __api({action:'updatecustomer', data:d, token:t}).then(function(r){ if(self._s) self._s(r); }).catch(function(e){ if(self._f) self._f(e); }); };
   return new Runner();
 })() } };
 </script>
@@ -1358,11 +1359,58 @@ window.google = { script: { run: (function(){
       <div id="hist-account" style="font-size: 13.5px; margin-bottom: 8px;"></div>
       <div id="hist-body"></div>
       <div class="form-group" style="margin-top: 14px;">
-        <label class="form-label">Note (ye note sirf is device par save hota hai)</label>
+        <label class="form-label">Note (saved on this device only)</label>
         <textarea id="hist-note" class="form-input note-area" placeholder="Example: 2 devices, VIP customer..."></textarea>
       </div>
       <button type="button" id="hist-save-note" class="btn-primary" style="width: auto; padding: 10px 22px;">Save Note</button>
       <span id="hist-note-msg" style="font-size: 12px; color: var(--success); margin-left: 10px;"></span>
+    </div>
+  </div>
+
+  <div id="edit-modal" class="modal-overlay" style="display:none;">
+    <div class="card modal-card">
+      <div class="section-head" style="margin-bottom: 12px;">
+        <h2 class="section-title">✏️ Edit Customer</h2>
+        <button type="button" class="btn-history" onclick="closeEditCustomer()">✕ Close</button>
+      </div>
+      <div class="grid-2">
+        <div class="form-group"><label class="form-label">Client Name *</label><input type="text" id="ec-name" class="form-input"></div>
+        <div class="form-group"><label class="form-label">WhatsApp Number *</label><input type="text" id="ec-number" class="form-input"></div>
+      </div>
+      <div class="grid-2">
+        <div class="form-group"><label class="form-label">Tool</label><select id="ec-tool" class="form-select"></select></div>
+        <div class="form-group"><label class="form-label">Access Type</label><select id="ec-access" class="form-select"></select></div>
+      </div>
+      <div class="grid-2">
+        <div class="form-group"><label class="form-label">Plan</label><select id="ec-plan" class="form-select">
+          <option value="7 Days">7 Days</option><option value="1 Month">1 Month</option><option value="2 Months">2 Months</option><option value="3 Months">3 Months</option><option value="12 Months">12 Months</option><option value="18 Months">18 Months</option>
+        </select></div>
+        <div class="form-group"><label class="form-label">Payment Status</label><select id="ec-payment" class="form-select"><option value="Paid">Paid</option><option value="Pending">Pending</option></select></div>
+      </div>
+      <div class="grid-2">
+        <div class="form-group"><label class="form-label">Start Date</label><input type="date" id="ec-start" class="form-input"></div>
+        <div class="form-group"><label class="form-label">Expiry Date</label><input type="date" id="ec-expiry" class="form-input"></div>
+      </div>
+      <div class="grid-2">
+        <div class="form-group"><label class="form-label">Cost (Rs)</label><input type="number" id="ec-cost" class="form-input"></div>
+        <div class="form-group"><label class="form-label">Selling (Rs)</label><input type="number" id="ec-selling" class="form-input"></div>
+      </div>
+      <div class="grid-2">
+        <div class="form-group"><label class="form-label">Source</label><select id="ec-source" class="form-select"><option value="Ad">Ad</option><option value="Non-Ad">Non-Ad</option><option value="Repeat Customer">Repeat Customer</option></select></div>
+        <div class="form-group"></div>
+      </div>
+      <div id="ec-extras" style="display:none;">
+        <div class="grid-2">
+          <div class="form-group"><label class="form-label">Account Email</label><input type="text" id="ec-email" class="form-input"></div>
+          <div class="form-group"><label class="form-label">Linked Account</label><select id="ec-account" class="form-select"><option value="">— None —</option></select></div>
+        </div>
+        <div class="grid-2">
+          <div class="form-group"><label class="form-label">Canva Team</label><input type="text" id="ec-team" class="form-input"></div>
+          <div class="form-group"><label class="form-label">Note</label><input type="text" id="ec-note" class="form-input"></div>
+        </div>
+      </div>
+      <button type="button" class="btn-primary" style="width: auto; padding: 10px 26px; margin-top: 6px;" onclick="saveEditCustomer()"><span>Save Changes</span></button>
+      <span id="ec-msg" style="font-size: 12.5px; margin-left: 10px;"></span>
     </div>
   </div>
 
@@ -1497,6 +1545,16 @@ window.google = { script: { run: (function(){
       return new Promise(function(res, rej) {
         if (hasGAS()) {
           google.script.run.withSuccessHandler(res).withFailureHandler(rej).updateAccount(d, window.__tok || '');
+        } else {
+          setTimeout(function() { res({ ok: true }); }, 300);
+        }
+      });
+    }
+
+    function sendUpdateCustomer(d) {
+      return new Promise(function(res, rej) {
+        if (hasGAS()) {
+          google.script.run.withSuccessHandler(res).withFailureHandler(rej).updateCustomer(d, window.__tok || '');
         } else {
           setTimeout(function() { res({ ok: true }); }, 300);
         }
@@ -1878,6 +1936,7 @@ window.google = { script: { run: (function(){
                   <span>WA Reminder</span>
                 </a>
                 <button type="button" class="btn-history" data-hist="${escapeHtml(c.number)}">History</button>
+                ${c.srow ? '<button type="button" class="btn-history" onclick="openEditCustomer(' + c.srow + ')">Edit</button>' : ''}
               </div>
             </td>
           </tr>
@@ -2473,7 +2532,55 @@ window.google = { script: { run: (function(){
       document.getElementById('history-modal').style.display = 'flex';
     }
     function closeHistory() { document.getElementById('history-modal').style.display = 'none'; }
-    window.histTogglePw = function(link) {
+    window.__ecSrow = null;
+    window.closeEditCustomer = function() { document.getElementById('edit-modal').style.display = 'none'; window.__ecSrow = null; };
+    window.openEditCustomer = function(srow) {
+      const c = ((currentDataset && currentDataset.customers) || []).find(x => x.srow === srow);
+      if (!c) return;
+      window.__ecSrow = srow;
+      const set = function(id, v) { const el = document.getElementById(id); if (el) el.value = (v == null ? '' : v); };
+      set('ec-name', c.name); set('ec-number', c.number);
+      const TOOLS = ['Surfshark VPN','CapCut Pro','Canva Pro','Gemini','Netflix','YouTube Premium','MS Office 365 Plus','Adobe Express','iLovePDF','QuillBot','Super Duolingo'];
+      const toolSel = document.getElementById('ec-tool');
+      toolSel.innerHTML = TOOLS.map(t => '<option value="' + t + '">' + t + '</option>').join('') + (TOOLS.indexOf(c.tool) === -1 && c.tool ? '<option value="' + escapeHtml(c.tool) + '">' + escapeHtml(c.tool) + '</option>' : '');
+      toolSel.value = c.tool || '';
+      const accVals = ['', 'Own Email', 'Login Provided', 'Other'];
+      const cur = c.acct || '';
+      const accSel = document.getElementById('ec-access');
+      accSel.innerHTML = accVals.map(v => '<option value="' + v + '">' + (v || '— Select —') + '</option>').join('') + (cur && accVals.indexOf(cur) === -1 ? '<option value="' + escapeHtml(cur) + '">' + escapeHtml(cur) + '</option>' : '');
+      accSel.value = cur;
+      set('ec-plan', c.plan || '1 Month'); set('ec-payment', c.payment || 'Paid');
+      set('ec-start', c.start); set('ec-expiry', c.expiry);
+      set('ec-cost', c.cost); set('ec-selling', c.selling); set('ec-source', c.source || 'Ad');
+      const isForm = srow >= 33;
+      document.getElementById('ec-extras').style.display = isForm ? 'block' : 'none';
+      if (isForm) {
+        const exList = ((currentDataset && currentDataset.entryExtras) || []).filter(x => String(x.number || '').replace(/\D/g, '').slice(-10) === String(c.number || '').replace(/\D/g, '').slice(-10) && x.tool === c.tool);
+        const ex = exList.length ? exList[exList.length - 1] : {};
+        set('ec-email', ex.email || ''); set('ec-team', ex.team || ''); set('ec-note', ex.note || '');
+        const accList = ((currentDataset && currentDataset.accounts) || []).filter(a => a.tool === c.tool);
+        const aSel = document.getElementById('ec-account');
+        aSel.innerHTML = '<option value="">— None —</option>' + accList.map(a => '<option value="' + escapeHtml(a.id) + '">' + escapeHtml(a.id) + ' — ' + escapeHtml(a.name || a.tool) + '</option>').join('');
+        aSel.value = ex.accountId || '';
+      }
+      document.getElementById('ec-msg').innerText = '';
+      document.getElementById('edit-modal').style.display = 'flex';
+    };
+    window.saveEditCustomer = function() {
+      if (window.__ecSrow == null) return;
+      const g = function(id) { const el = document.getElementById(id); return el ? el.value.trim() : ''; };
+      const msg = document.getElementById('ec-msg');
+      if (!g('ec-name') || !g('ec-number')) { msg.style.color = 'var(--danger)'; msg.innerText = 'Name and Number are required.'; return; }
+      const d = { srow: window.__ecSrow, name: g('ec-name'), number: g('ec-number'), tool: g('ec-tool'), accessType: g('ec-access'), plan: g('ec-plan'), payment: g('ec-payment'), start: g('ec-start'), expiry: g('ec-expiry'), cost: g('ec-cost'), selling: g('ec-selling'), source: g('ec-source'), note: g('ec-note'), email: g('ec-email'), team: g('ec-team'), accountId: g('ec-account') };
+      showLoading(true);
+      sendUpdateCustomer(d).then(function(r) {
+        showLoading(false);
+        if (r && r.ok === false) { msg.style.color = 'var(--danger)'; msg.innerText = 'Could not save — please try again.'; return; }
+        window.closeEditCustomer();
+        silentRefetch();
+      }).catch(function() { showLoading(false); msg.style.color = 'var(--danger)'; msg.innerText = 'Error — could not save.'; });
+    };
+        window.histTogglePw = function(link) {
       const el = link.previousElementSibling; if (!el) return;
       if (el.innerText === '••••••••') { el.innerText = el.getAttribute('data-pw') || ''; link.innerText = 'Hide'; }
       else { el.innerText = '••••••••'; link.innerText = 'Show'; }
