@@ -431,6 +431,12 @@ window.google = { script: { run: (function(){
       display: flex;
       flex-direction: column;
     }
+    .mpb-row { display: grid; grid-template-columns: 104px 1fr 118px; gap: 12px; align-items: center; margin: 13px 0; }
+    .mpb-lab { font-size: 13px; font-weight: 700; color: var(--primary); white-space: nowrap; }
+    .mpb-track { height: 20px; background: #eef3f7; border-radius: 99px; overflow: hidden; display: block; }
+    .mpb-track i { display: block; height: 100%; border-radius: 99px; background: linear-gradient(90deg, #14b8a6, #0d9488); }
+    .mpb-val { font-size: 13.5px; font-weight: 800; color: var(--primary); text-align: right; white-space: nowrap; }
+    .mpb-val small { display: block; font-size: 11px; font-weight: 600; color: var(--text-muted); }
     .chart-title {
       font-size: 15px;
       font-weight: 700;
@@ -1088,11 +1094,11 @@ window.google = { script: { run: (function(){
             </div>
           </div>
 
-          <!-- Line: Revenue by Month -->
+          <!-- Progress bars: Profit by Month (Graph 10 style) -->
           <div class="card chart-card">
-            <div class="chart-title">Revenue Trend by Month</div>
-            <div class="chart-box">
-              <canvas id="chart-revenue-month"></canvas>
+            <div class="chart-title">Monthly Profit — Progress Bars</div>
+            <div class="chart-box" style="height: auto; min-height: 0;">
+              <div id="monthly-profit-bars" style="padding: 8px 2px 2px;"></div>
             </div>
           </div>
 
@@ -1956,34 +1962,21 @@ window.google = { script: { run: (function(){
         }
       });
 
-      // 3. Line: Revenue by Month
-      if (charts.revMonth) charts.revMonth.destroy();
-      const ctxRevMonth = document.getElementById('chart-revenue-month').getContext('2d');
-      charts.revMonth = new Chart(ctxRevMonth, {
-        type: 'line',
-        data: {
-          labels: monthLabels,
-          datasets: [{
-            label: 'Monthly Revenue',
-            data: monthRevenues,
-            borderColor: '#2563eb',
-            backgroundColor: 'rgba(37, 99, 235, 0.08)',
-            fill: true,
-            tension: 0.35,
-            pointRadius: 4,
-            pointBackgroundColor: '#2563eb'
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: { legend: { display: false } },
-          scales: {
-            y: { beginAtZero: true, grid: { color: '#eef3f9' } },
-            x: { grid: { display: false } }
-          }
-        }
-      });
+      // 3. Progress bars: Profit by Month (Graph 10 style, owner pick)
+      (function () {
+        const host = document.getElementById('monthly-profit-bars');
+        if (!host) return;
+        const rows = (byMonth || []).slice().sort((a, b) => (a._s || 0) - (b._s || 0));
+        if (!rows.length) { host.innerHTML = '<div style="color:var(--text-muted); font-size:13px; text-align:center; padding:14px;">No monthly data yet.</div>'; return; }
+        const maxP = Math.max.apply(null, rows.map(m => Number(m.profit) || 0).concat([1]));
+        host.innerHTML = rows.map(m => {
+          const pv = Number(m.profit) || 0;
+          const w = Math.max(2, Math.round(pv / maxP * 100));
+          return '<div class="mpb-row"><span class="mpb-lab">' + escapeHtml(m.month) + '</span>' +
+            '<span class="mpb-track"><i style="width:' + w + '%;"></i></span>' +
+            '<span class="mpb-val">Rs ' + pv.toLocaleString('en-US') + '<small>' + (Number(m.orders) || 0) + ' orders</small></span></div>';
+        }).join('');
+      })();
 
       // 4. Bar: Profit by Tool
       if (charts.profitTool) charts.profitTool.destroy();
