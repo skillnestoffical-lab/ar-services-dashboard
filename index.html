@@ -434,6 +434,10 @@ window.google = { script: { run: (function(){
     .r-tool::after { content: ' • '; }
     .renewal-thead { display: none; }
     #web-hero { display: none; }
+    #target-line-slim { display: none; }
+    .tsl-row { display: flex; justify-content: space-between; align-items: center; font-size: 13px; font-weight: 700; color: #312e81; }
+    .tsl-track { height: 6px; background: #efeaf9; border-radius: 99px; margin-top: 6px; overflow: hidden; }
+    .tsl-track i { display: block; height: 100%; background: linear-gradient(90deg, #7c3aed, #db2777); border-radius: 99px; }
     #customers-cards { display: none; }
     .wh-label { font-size: 11px; letter-spacing: 2.4px; font-weight: 700; color: #c4b5fd; }
     .wh-profit { font-size: 44px; font-weight: 900; margin-top: 4px; line-height: 1.1; }
@@ -798,8 +802,8 @@ window.google = { script: { run: (function(){
       #tab-dashboard > #mobile-home-top { order: 0; }
       #tab-dashboard > #supply-alert-banner { order: 1; }
       #tab-dashboard > .kpi-grid { order: 2; }
-      #tab-dashboard > #renewals-head { order: 5; }
-      #tab-dashboard > #renewals-container { order: 6; }
+      #tab-dashboard > #renewals-head { order: 4; }
+      #tab-dashboard > #renewals-container { order: 5; }
       #tab-dashboard > :nth-child(6) { order: 3; }
       #tab-dashboard > :nth-child(4) { order: 6; }
       #tab-dashboard > :nth-child(5) { order: 7; }
@@ -926,14 +930,14 @@ window.google = { script: { run: (function(){
       #tab-dashboard.animate-in { display: flex !important; flex-direction: column; }
       #tab-dashboard > * { order: 10; }
       #tab-dashboard > :nth-child(3) { order: 0; }
-      #tab-dashboard > :nth-child(6) { order: 3; background: transparent !important; border: none !important; box-shadow: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; padding: 2px 4px 6px !important; margin-bottom: 6px !important; }
+      #tab-dashboard > :nth-child(6) { order: 4; background: transparent !important; border: none !important; box-shadow: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; padding: 2px 4px 6px !important; margin-bottom: 6px !important; }
       #tab-dashboard > :nth-child(6) > span:nth-of-type(2) { display: none !important; }
       #df-target-line { display: block !important; margin-left: auto; }
       #tab-dashboard > :nth-child(7) { order: 2; }
-      #tab-dashboard > :nth-child(9) { order: 4; }
-      #tab-dashboard > #renewals-head { order: 4; }
-      #tab-dashboard > #renewals-container { order: 5; }
-      #tab-dashboard > :nth-child(8) { order: 7; }
+      #tab-dashboard > :nth-child(9) { order: 5; }
+      #tab-dashboard > #renewals-head { order: 6; }
+      #tab-dashboard > #renewals-container { order: 7; }
+      #tab-dashboard > :nth-child(8) { order: 3; }
       #tab-dashboard > :nth-child(4) { order: 8; }
       #tab-dashboard > :nth-child(5) { order: 9; }
       #tab-dashboard > :nth-child(12) { order: 10; }
@@ -1002,6 +1006,15 @@ window.google = { script: { run: (function(){
       #web-hero { margin-top: -24px !important; margin-left: calc((100% - 100vw) / 2) !important; margin-right: calc((100% - 100vw) / 2) !important; padding-left: max(24px, calc((100vw - 1200px) / 2)) !important; padding-right: max(24px, calc((100vw - 1200px) / 2)) !important; }
       .card { border-radius: 18px !important; }
       .charts-grid > .chart-card:nth-child(1) .chart-box { min-height: 0 !important; height: 208px !important; max-width: 208px; width: 100%; margin: 8px auto 4px; }
+    }
+
+    /* Target slim line — Date Range se upar (owner 00:38) */
+    @media (min-width: 861px) {
+      #df-target-line { display: none !important; }
+      #target-card { background: transparent !important; border: none !important; box-shadow: none !important; backdrop-filter: none !important; padding: 2px 4px 0 !important; margin-bottom: 4px !important; }
+      #target-card .section-head { display: none !important; }
+      #target-body { display: none !important; }
+      #target-line-slim { display: block !important; }
     }
 </style>
 </head>
@@ -1199,6 +1212,7 @@ window.google = { script: { run: (function(){
             <span id="target-summary" style="font-size: 13px; color: var(--text-muted);"></span>
           </div>
           <div id="target-body"></div>
+          <div id="target-line-slim"></div>
         </div>
 
         <!-- CHARTS GRID -->
@@ -2764,6 +2778,8 @@ window.google = { script: { run: (function(){
       if (summary) summary.innerText = lbl + ' — Net Profit Target';
       if (!target) {
         body.innerHTML = '<div style="font-size:13.5px; margin-bottom:6px;">' + lbl + ' — <strong>Net Profit: Rs ' + prof.toLocaleString() + '</strong> \u2022 Revenue: Rs ' + rev.toLocaleString() + '</div><div style="color:var(--text-muted); font-size:13.5px;">No target set yet. Go to <strong>Settings</strong> and enter a monthly <strong>net profit</strong> target — the progress bar will appear here.</div>';
+        const tsl0 = document.getElementById('target-line-slim');
+        if (tsl0) tsl0.innerHTML = '<div class="tsl-row"><span>\uD83C\uDFAF Monthly Target</span><span>target set nahi</span></div>';
         const tl0 = document.getElementById('df-target-line');
         if (tl0) tl0.innerText = '\uD83C\uDFAF Monthly Target — Net Profit Rs ' + prof.toLocaleString() + ' · target set nahi';
         return;
@@ -2771,6 +2787,8 @@ window.google = { script: { run: (function(){
       const pct = Math.max(0, Math.min(100, Math.round(prof / target * 100)));
       const left = Math.max(0, target - prof);
       body.innerHTML = '<div style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:6px; font-size:13.5px; margin-bottom:8px;"><span>Net Profit: <strong>Rs ' + prof.toLocaleString() + '</strong> / Rs ' + target.toLocaleString() + '</span><span style="color:var(--text-muted);">' + pct + '% done' + (left > 0 ? ' \u2022 Rs ' + left.toLocaleString() + ' left' : ' \u2022 Target achieved! \uD83C\uDF89') + '</span></div><div class="progress-track"><div class="progress-fill" style="width:' + pct + '%;"></div></div><div style="font-size:13px; color:var(--text-muted); margin-top:8px;">' + lbl + ' ki Revenue: <strong style="color:var(--text);">Rs ' + rev.toLocaleString() + '</strong> (the target is on profit, not revenue)</div>';
+      const tsl1 = document.getElementById('target-line-slim');
+      if (tsl1) tsl1.innerHTML = '<div class="tsl-row"><span>\uD83C\uDFAF Monthly Target</span><span>Rs ' + prof.toLocaleString() + ' / Rs ' + target.toLocaleString() + '</span></div><div class="tsl-track"><i style="width:' + pct + '%;"></i></div>';
       const tl1 = document.getElementById('df-target-line');
       if (tl1) tl1.innerText = '\uD83C\uDFAF Monthly Target — Net Profit Rs ' + prof.toLocaleString() + ' / Rs ' + target.toLocaleString() + ' (' + pct + '%)';
     }
