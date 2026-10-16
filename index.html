@@ -765,7 +765,7 @@ window.google = { script: { run: (function(){
       }
     }
     /* ===== Mobile App Mode (phone / home-screen app only) ===== */
-    #mobile-home-top, #mobile-nav { display: none; }
+    #mobile-home-top, #mobile-nav, #acc-mobile-list { display: none; }
     @media (max-width: 860px) {
       .nav-tabs { display: none !important; }
       .header-content { flex-direction: row !important; align-items: center; padding: 10px 16px; }
@@ -781,13 +781,15 @@ window.google = { script: { run: (function(){
       .mh-big { font-size: 34px; font-weight: 800; margin: 5px 0 2px; }
       .mh-sub { font-size: 12.5px; color: #c7d6e6; }
       #tab-dashboard.animate-in { display: flex !important; flex-direction: column; }
-      #tab-dashboard > * { order: 6; }
+      #tab-dashboard > * { order: 8; }
       #tab-dashboard > #mobile-home-top { order: 0; }
       #tab-dashboard > #supply-alert-banner { order: 1; }
       #tab-dashboard > .kpi-grid { order: 2; }
-      #tab-dashboard > :nth-child(5) { order: 3; }
-      #tab-dashboard > :nth-child(3) { order: 4; }
-      #tab-dashboard > :nth-child(4) { order: 5; }
+      #tab-dashboard > #renewals-head { order: 3; }
+      #tab-dashboard > #renewals-container { order: 4; }
+      #tab-dashboard > :nth-child(5) { order: 5; }
+      #tab-dashboard > :nth-child(3) { order: 6; }
+      #tab-dashboard > :nth-child(4) { order: 7; }
       .kpi-grid { grid-template-columns: 1fr 1fr !important; gap: 12px; }
       .card { border-radius: 20px; }
       .kpi-card { padding: 15px; }
@@ -804,6 +806,35 @@ window.google = { script: { run: (function(){
       .mnav-item.on { color: #0d9488; }
       .mnav-plus-wrap { flex: 1; display: flex; justify-content: center; }
       .mnav-plus { width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(135deg, #14b8a6, #0d9488); color: #fff; font-size: 27px; line-height: 1; display: flex; align-items: center; justify-content: center; margin-top: -22px; box-shadow: 0 10px 22px rgba(13,148,136,.45); border: 4px solid #eef3f8; cursor: pointer; padding: 0; font-family: inherit; }
+      /* Customers: card list on phone (table stays on desktop) */
+      #tab-customers .table-container { display: none; }
+      #customers-cards { display: block; margin-top: 14px; }
+      .cust-card { background: #fff; border-radius: 20px; padding: 13px 15px; display: flex; gap: 12px; margin-bottom: 10px; box-shadow: 0 5px 14px rgba(10,37,64,.05); }
+      .cc-ava { width: 42px; height: 42px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 14px; flex: none; }
+      .cc-mid { flex: 1; min-width: 0; }
+      .cc-name { font-size: 14.5px; font-weight: 700; color: #0a2540; }
+      .cc-sub { font-size: 12px; color: var(--text-muted); }
+      .cc-actions { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+      .cc-act { font-size: 11px; font-weight: 700; padding: 5px 10px; border-radius: 999px; border: 1px solid #dbe5ef; background: #f4f8fb; color: var(--primary); text-decoration: none; cursor: pointer; font-family: inherit; }
+      .cc-act.wa { background: #dcfce7; border-color: #bbf7d0; color: #15803d; }
+      .cc-r { text-align: right; flex: none; }
+      .cc-exp { font-size: 13.5px; font-weight: 800; color: #0a2540; }
+      .cc-days { font-size: 11px; color: var(--text-muted); margin-top: 3px; }
+      .cust-card-empty { background: #fff; border-radius: 20px; padding: 22px; text-align: center; color: var(--text-muted); font-size: 13.5px; }
+      /* Accounts: mockup-style list on phone */
+      #acc-mobile-list { display: block; margin-top: 16px; }
+      .macc-head { font-size: 16px; font-weight: 800; color: #0a2540; margin-bottom: 10px; }
+      .macc { background: #fff; border-radius: 22px; padding: 16px; margin-bottom: 12px; box-shadow: 0 6px 18px rgba(10,37,64,.06); cursor: pointer; }
+      .macc-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+      .macc-name { font-size: 15.5px; font-weight: 800; color: #0a2540; }
+      .macc-sub { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+      .macc-bar { height: 7px; border-radius: 99px; background: #e6edf4; margin: 12px 0 7px; overflow: hidden; }
+      .macc-bar i { display: block; height: 100%; border-radius: 99px; background: linear-gradient(90deg, #14b8a6, #0d9488); }
+      .macc-meta { display: flex; justify-content: space-between; font-size: 11.5px; color: var(--text-muted); font-weight: 600; }
+      .tool-row-l1 { flex-wrap: nowrap !important; overflow-x: auto; padding-bottom: 6px; }
+      .tool-row-l1 .tool-card-sq { aspect-ratio: auto; flex: 1 1 0; min-width: 108px; max-width: none; padding: 14px 8px; }
+      .tool-row-l1 .tool-card-sq img { width: 38px !important; height: 38px !important; }
+      .tool-row-l1 .tool-card-sq .chip { display: none; }
     }
   </style>
 </head>
@@ -1033,7 +1064,7 @@ window.google = { script: { run: (function(){
         </div>
 
         <!-- RENEWAL ALERTS SECTION -->
-        <div class="section-head">
+        <div class="section-head" id="renewals-head">
           <h2 class="section-title">Renewal Alerts (Expiring ≤ 15 Days)</h2>
           <span style="font-size: 13px; color: var(--text-muted);">Urgent Follow-ups</span>
         </div>
@@ -1263,6 +1294,7 @@ window.google = { script: { run: (function(){
               </tbody>
             </table>
           </div>
+          <div id="customers-cards"></div>
         </div>
       </section>
 
@@ -1975,6 +2007,7 @@ window.google = { script: { run: (function(){
       const tbody = document.getElementById('customers-table-body');
       const badge = document.getElementById('cust-count-badge');
       badge.innerText = customers.length + ' Total';
+      if (window.buildMobileCustCards) buildMobileCustCards(customers);
 
       if (!customers || customers.length === 0) {
         tbody.innerHTML = '<tr><td colspan="9" style="text-align:center; color:var(--text-muted); padding:24px;">No customer records found.</td></tr>';
@@ -2324,7 +2357,7 @@ window.google = { script: { run: (function(){
           + '</div>';
       }).join('');
       box.innerHTML = '<div style="font-size:13.5px; color:var(--text-muted); margin-bottom:12px;">First select a <strong>tool</strong> — then its accounts, and then its customers.</div>'
-        + '<div class="tool-cards-row">' + toolCards + '</div>'
+        + '<div class="tool-cards-row tool-row-l1">' + toolCards + '</div>' + (window.mobileAccListHtml ? mobileAccListHtml(accounts, members) : '')
         + '<div style="margin-top:18px;"><button type="button" class="btn-primary" style="width:auto; padding:10px 22px;" onclick="accShowForm(null)"><span>➕ Add New Account</span></button></div>';
     }
     function renderAds(data) {
@@ -2756,6 +2789,54 @@ window.google = { script: { run: (function(){
         document.querySelectorAll('.nav-tab').forEach(function(t) { __mo.observe(t, { attributes: true, attributeFilter: ['class'] }); });
         syncMnav();
       })();
+
+      // Mobile app mode: customer cards + account list (mockup style)
+      window.buildMobileCustCards = function(customers) {
+        var box = document.getElementById('customers-cards');
+        if (!box) return;
+        if (!customers || !customers.length) { box.innerHTML = '<div class="cust-card-empty">No customer records found.</div>'; return; }
+        var MN = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+        function sd(ds) { if (!ds) return '—'; var p = String(ds).split('-'); return p.length === 3 ? Number(p[2]) + ' ' + MN[Number(p[1]) - 1] : ds; }
+        var PAL = [['#ccfbf1','#0f766e'],['#dbeafe','#1d4ed8'],['#dcfce7','#15803d'],['#fae8ff','#a21caf'],['#ffedd5','#c2410c'],['#fee2e2','#b91c1c']];
+        box.innerHTML = customers.map(function(c) {
+          var sum = 0; var nm = String(c.name || '?'); for (var i = 0; i < nm.length; i++) sum += nm.charCodeAt(i);
+          var pal = PAL[sum % PAL.length];
+          var days = c.days > 0 ? c.days + ' days left' : (c.days === 0 ? 'Expires today' : 'Expired ' + Math.abs(c.days) + 'd ago');
+          var st = c.status === 'Active' ? 'chip-active' : 'chip-expired';
+          return '<div class="cust-card"><div class="cc-ava" style="background:' + pal[0] + '; color:' + pal[1] + ';">' + escapeHtml(nm.charAt(0).toUpperCase()) + '</div>'
+            + '<div class="cc-mid"><div class="cc-name">' + escapeHtml(c.name) + '</div><div class="cc-sub">' + escapeHtml(c.tool) + ' · ' + escapeHtml(c.plan || '') + '</div>'
+            + '<div class="cc-actions"><a class="cc-act wa" href="' + escapeHtml(buildWaLink(c, 'renewal')) + '" target="_blank" rel="noopener noreferrer">WA Reminder</a>'
+            + '<button type="button" class="cc-act" data-hist="' + escapeHtml(c.number) + '">History</button>'
+            + (c.srow ? '<button type="button" class="cc-act" data-edit="' + c.srow + '">Edit</button>' : '') + '</div></div>'
+            + '<div class="cc-r"><div class="cc-exp">' + sd(c.expiry) + '</div><span class="chip ' + st + '">' + escapeHtml(c.status) + '</span><div class="cc-days">' + days + '</div></div></div>';
+        }).join('');
+      };
+      (function() {
+        var cc = document.getElementById('customers-cards');
+        if (cc) cc.addEventListener('click', function(e) {
+          var h = e.target.closest('[data-hist]');
+          if (h) { openHistory(h.getAttribute('data-hist')); return; }
+          var ed = e.target.closest('[data-edit]');
+          if (ed) openEditCustomer(Number(ed.getAttribute('data-edit')));
+        });
+      })();
+      window.mobileAccListHtml = function(accounts, members) {
+        var MN = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+        function sd(ds) { if (!ds) return ''; var p = String(ds).split('-'); return p.length === 3 ? Number(p[2]) + ' ' + MN[Number(p[1]) - 1] : ds; }
+        var cards = (accounts || []).map(function(a) {
+          var mem = (members || []).filter(function(m) { return m.accountId === a.id; }).length;
+          var d = daysUntil(a.expiry);
+          var pct = null;
+          if (a.start && a.expiry) { var st = new Date(a.start), en = new Date(a.expiry), nw = new Date(); if (!isNaN(st) && !isNaN(en) && en > st) pct = Math.max(2, Math.min(100, Math.round((nw - st) / (en - st) * 100))); }
+          var right = a.expiry ? ('Expires ' + sd(a.expiry) + (d !== null ? ' · ' + (d < 0 ? 'expired' : d + ' days left') : '')) : 'No expiry set';
+          var stc = a.status === 'Expired' ? 'chip-expired' : 'chip-active';
+          return '<div class="macc" onclick="accGoMembers(\'' + String(a.id).replace(/'/g, '') + '\', \'' + String(a.tool).replace(/'/g, '') + '\')">'
+            + '<div class="macc-top"><div><div class="macc-name">' + escapeHtml(a.name || a.tool) + '</div><div class="macc-sub">' + escapeHtml(a.tool) + ' · ' + escapeHtml(a.id) + '</div></div><span class="chip ' + stc + '">' + escapeHtml(a.status || 'Active') + '</span></div>'
+            + (pct !== null ? '<div class="macc-bar"><i style="width:' + pct + '%;"></i></div>' : '')
+            + '<div class="macc-meta"><span>' + mem + ' members</span><span>' + right + '</span></div></div>';
+        }).join('');
+        return '<div id="acc-mobile-list"><div class="macc-head">All Accounts</div>' + cards + '</div>';
+      };
 
       // Order Form Submission
       document.getElementById('order-form').addEventListener('submit', function(e) {
