@@ -1433,7 +1433,14 @@ window.google = { script: { run: (function(){
       return new Promise(function(res, rej) {
         if (hasGAS()) {
           google.script.run
-            .withSuccessHandler(res)
+            .withSuccessHandler(function(data) {
+              try {
+                const clone = JSON.parse(JSON.stringify(data));
+                if (clone && clone.accounts) clone.accounts = clone.accounts.map(a => Object.assign({}, a, { password: '' }));
+                localStorage.setItem('ar_data_cache_v2', JSON.stringify(clone));
+              } catch (e) {}
+              res(data);
+            })
             .withFailureHandler(rej)
             .getData(window.__tok || '');
         } else {
@@ -1591,7 +1598,20 @@ window.google = { script: { run: (function(){
        DATA FETCH & UI RENDERING
        ========================================================= */
     function fetchAndRenderData() {
-      showLoading(true);
+      let usedCache = false;
+      try {
+        const cached = localStorage.getItem('ar_data_cache_v2');
+        if (cached) {
+          const parsed = JSON.parse(cached);
+          if (parsed && parsed.customers) {
+            currentDataset = parsed;
+            renderDashboard(parsed);
+            applyCustomerFilters();
+            usedCache = true;
+          }
+        }
+      } catch (e) {}
+      if (!usedCache) showLoading(true);
       loadData()
         .then(function(data) {
           showLoading(false);
@@ -1601,7 +1621,7 @@ window.google = { script: { run: (function(){
         })
         .catch(function(err) {
           showLoading(false);
-          alert("Error loading data: " + (err.message || err));
+          if (!usedCache) alert("Error loading data: " + (err.message || err));
         });
     }
 
@@ -2009,6 +2029,10 @@ window.google = { script: { run: (function(){
         while (existing.some(x => x.id === id)) { n++; id = prefix + '-' + n; }
       }
       const d = { id: id, tool: tool, name: name, email: g('af-email'), password: g('af-password'), accessType: g('af-access'), vendor: g('af-vendor'), vendorNumber: g('af-vendor-number'), cost: g('af-cost'), start: g('af-start'), expiry: g('af-expiry'), status: g('af-status'), notes: g('af-notes') };
+      if (window.__accEditId && !d.password) {
+        const curAcc = ((currentDataset && currentDataset.accounts) || []).find(x => x.id === d.id);
+        if (curAcc && curAcc.password) d.password = curAcc.password;
+      }
       showLoading(true);
       const done = function(r) {
         showLoading(false);
