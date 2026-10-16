@@ -433,6 +433,10 @@ window.google = { script: { run: (function(){
     }
     .r-tool::after { content: ' • '; }
     .renewal-thead { display: none; }
+    #web-hero { display: none; }
+    .wh-label { font-size: 11px; letter-spacing: 2.4px; font-weight: 700; color: #c4b5fd; }
+    .wh-profit { font-size: 44px; font-weight: 900; margin-top: 4px; line-height: 1.1; }
+    .wh-sub { font-size: 13px; color: rgba(255,255,255,.82); margin-top: 3px; }
     .mpb-row { display: grid; grid-template-columns: 104px 1fr 118px; gap: 12px; align-items: center; margin: 13px 0; }
     .mpb-lab { font-size: 13px; font-weight: 700; color: var(--primary); white-space: nowrap; }
     .mpb-track { height: 20px; background: #eef3f7; border-radius: 99px; overflow: hidden; display: block; }
@@ -793,11 +797,11 @@ window.google = { script: { run: (function(){
       #tab-dashboard > #mobile-home-top { order: 0; }
       #tab-dashboard > #supply-alert-banner { order: 1; }
       #tab-dashboard > .kpi-grid { order: 2; }
-      #tab-dashboard > #renewals-head { order: 4; }
-      #tab-dashboard > #renewals-container { order: 5; }
-      #tab-dashboard > :nth-child(5) { order: 3; }
-      #tab-dashboard > :nth-child(3) { order: 6; }
-      #tab-dashboard > :nth-child(4) { order: 7; }
+      #tab-dashboard > #renewals-head { order: 5; }
+      #tab-dashboard > #renewals-container { order: 6; }
+      #tab-dashboard > :nth-child(6) { order: 3; }
+      #tab-dashboard > :nth-child(4) { order: 6; }
+      #tab-dashboard > :nth-child(5) { order: 7; }
       .kpi-grid { grid-template-columns: 1fr 1fr !important; gap: 12px; }
       .card { border-radius: 20px; }
       .kpi-card { padding: 15px; }
@@ -873,8 +877,8 @@ window.google = { script: { run: (function(){
       /* Sections clean-up + renewals compact (owner brief) */
       #supply-alert-banner { margin-top: 10px; }
       #tab-dashboard .section-head > span { display: none; }
-      #tab-dashboard > :nth-child(5) { padding: 10px 14px !important; gap: 8px; row-gap: 4px; }
-      #tab-dashboard > :nth-child(5) > span:last-child { display: none; }
+      #tab-dashboard > :nth-child(6) { padding: 10px 14px !important; gap: 8px; row-gap: 4px; }
+      #tab-dashboard > :nth-child(6) > span:last-child { display: none; }
       #tasks-container { padding: 14px 16px !important; }
       .renewals-card { padding: 12px; }
       .renewal-item { padding: 10px 11px; gap: 8px; flex-wrap: nowrap; }
@@ -920,19 +924,19 @@ window.google = { script: { run: (function(){
     @media (min-width: 861px) {
       #tab-dashboard.animate-in { display: flex !important; flex-direction: column; }
       #tab-dashboard > * { order: 10; }
-      #tab-dashboard > :nth-child(2) { order: 0; }
-      #tab-dashboard > :nth-child(5) { order: 1; background: transparent !important; border: none !important; box-shadow: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; padding: 2px 4px 6px !important; margin-bottom: 6px !important; }
-      #tab-dashboard > :nth-child(5) > span:nth-of-type(2) { display: none !important; }
+      #tab-dashboard > :nth-child(3) { order: 0; }
+      #tab-dashboard > :nth-child(6) { order: 3; background: transparent !important; border: none !important; box-shadow: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; padding: 2px 4px 6px !important; margin-bottom: 6px !important; }
+      #tab-dashboard > :nth-child(6) > span:nth-of-type(2) { display: none !important; }
       #df-target-line { display: block !important; margin-left: auto; }
-      #tab-dashboard > :nth-child(6) { order: 2; }
-      #tab-dashboard > :nth-child(8) { order: 3; }
+      #tab-dashboard > :nth-child(7) { order: 2; }
+      #tab-dashboard > :nth-child(9) { order: 4; }
       #tab-dashboard > #renewals-head { order: 4; }
       #tab-dashboard > #renewals-container { order: 5; }
-      #tab-dashboard > :nth-child(7) { display: none !important; }
-      #tab-dashboard > :nth-child(3) { order: 6; }
+      #tab-dashboard > :nth-child(8) { display: none !important; }
       #tab-dashboard > :nth-child(4) { order: 7; }
-      #tab-dashboard > :nth-child(11) { order: 8; }
+      #tab-dashboard > :nth-child(5) { order: 8; }
       #tab-dashboard > :nth-child(12) { order: 9; }
+      #tab-dashboard > :nth-child(13) { order: 10; }
       .sparkline-svg { display: none !important; }
       .charts-grid { grid-template-columns: 1fr 1.35fr !important; }
       .charts-grid > .chart-card:nth-child(2), .charts-grid > .chart-card:nth-child(4) { display: none !important; }
@@ -946,6 +950,38 @@ window.google = { script: { run: (function(){
       #renewals-container .renewal-item > div:last-child { display: contents; }
       #renewals-container .r-tool::after { content: '' !important; }
       #renewals-container .r-tool, #renewals-container .r-exp { font-size: 13px; color: #33506c; white-space: nowrap; }
+    }
+
+    /* ============================================================
+       WEB THEME — Premium 2 ROYAL GRADIENT (owner pick, desktop only)
+       Overrides the teal theme above on >=861px.
+       ============================================================ */
+    @media (min-width: 861px) {
+      body { background: #f7f8fc !important; }
+      .app-header { background: #312e81 !important; border-bottom: none !important; box-shadow: 0 12px 30px rgba(49,46,129,.28) !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
+      .brand-badge { background: rgba(255,255,255,.16) !important; border: 1px solid rgba(255,255,255,.35) !important; color: #ffffff !important; box-shadow: none !important; }
+      .brand-title { color: #ffffff !important; }
+      .brand-title small { color: rgba(255,255,255,.75) !important; }
+      .nav-tabs { background: transparent !important; border: none !important; box-shadow: none !important; backdrop-filter: none !important; }
+      .nav-tab { color: rgba(255,255,255,.85) !important; }
+      .nav-tab.active { background: #ffffff !important; color: #6d28d9 !important; }
+      #web-hero { display: block; order: -1; margin: -2px -24px 0; padding: 24px 30px 62px; background: radial-gradient(520px 240px at 92% -10%, rgba(34,211,238,.35), transparent 55%), linear-gradient(180deg, #312e81 0%, #6d28d9 62%, #7c3aed 100%); border-radius: 0 0 26px 26px; color: #ffffff; }
+      .kpi-grid { margin-top: -38px !important; position: relative; z-index: 3; }
+      .card { background: #ffffff !important; border: 1px solid #ece9f7 !important; box-shadow: 0 16px 38px rgba(76,29,149,.10) !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
+      .kpi-title { color: #8a84a8 !important; }
+      .kpi-val { color: #312e81 !important; }
+      .section-title, .chart-title { color: #312e81 !important; }
+      .btn-primary { background: #6d28d9 !important; box-shadow: none !important; }
+      .btn-primary:hover { background: #5b21b6 !important; }
+      .badge-icon { background: #ede9fe !important; color: #6d28d9 !important; border-color: #ddd6fe !important; }
+      .renewal-item, .task-item { background: #fbfaff !important; border-color: #efeaf9 !important; }
+      .mpb-track { background: #efeaf9 !important; }
+      .mpb-track i { background: linear-gradient(90deg, #7c3aed, #db2777) !important; }
+      th { color: #8a84a8 !important; }
+      .renewal-thead { color: #8a84a8 !important; border-bottom-color: #efeaf9 !important; }
+      #renewals-container .renewal-item { border-bottom-color: #f3effc !important; }
+      .form-input, .form-select, .filter-select { border-color: #ddd6fe !important; }
+      .form-input:focus, .form-select:focus, .filter-select:focus { border-color: #6d28d9 !important; box-shadow: 0 0 0 3px rgba(109,40,217,.15) !important; }
     }
 </style>
 </head>
@@ -1013,6 +1049,11 @@ window.google = { script: { run: (function(){
 
       <!-- ================= TAB: DASHBOARD ================= -->
       <section id="tab-dashboard" class="tab-pane animate-in">
+        <div id="web-hero">
+          <div class="wh-label" id="wh-label">NET PROFIT — THIS MONTH</div>
+          <div class="wh-profit" id="wh-profit">Rs 0</div>
+          <div class="wh-sub" id="wh-sub"></div>
+        </div>
         <!-- Mobile app mode: greeting + hero (phone only) -->
         <div id="mobile-home-top">
           <div class="mh-greet">
@@ -1177,7 +1218,7 @@ window.google = { script: { run: (function(){
 
         <!-- RENEWAL ALERTS SECTION -->
         <div class="section-head" id="renewals-head">
-          <h2 class="section-title">Renewal Alerts (Expiring ≤ 15 Days)</h2>
+          <h2 class="section-title">Renewal Alerts (Expiring ≤ 7 Days)</h2>
           <span style="font-size: 13px; color: var(--text-muted);">Urgent Follow-ups</span>
         </div>
         <div class="card renewals-card" id="renewals-container">
@@ -1935,18 +1976,21 @@ window.google = { script: { run: (function(){
       // 2. Date-filtered aggregates — KPI cards / charts / target / list isi range ke
       const dfRows = dfFilteredCustomers();
       const agg = dfAggregate(dfRows);
+      window.__lastAgg = agg; window.__lastAggOrders = dfRows.length;
       animateCount('kpi-active', agg.kpis.active);
       animateCount('kpi-revenue', agg.kpis.revenue, 'Rs');
       animateCount('kpi-profit', agg.kpis.profit, 'Rs');
       animateCount('kpi-customers', agg.kpis.customers);
       animateCount('kpi-pending', agg.kpis.pending);
       animateCount('kpi-expiring7', agg.kpis.expiring7);
+      if (window.syncMobileHero) syncMobileHero(agg, dfRows.length);
+      if (window.syncWebHero) syncWebHero(agg, dfRows.length);
 
       // 3. Render Charts (filtered)
       renderCharts({ byTool: agg.byTool, byMonth: agg.byMonth });
 
       // 4. Renewal Alerts List
-      renderRenewals(data.renewals || []);
+      renderRenewals((data.renewals || []).filter(r => Number(r.days) <= 7));
 
       // 5. New features
       renderTasks(data.customers || []);
@@ -1956,7 +2000,23 @@ window.google = { script: { run: (function(){
       renderAccounts(data);
       renderAds(data);
       appendAccountTasks(data.accounts || []);
-      if (window.syncMobileHero) syncMobileHero(agg, dfRows.length);
+      // Tasks / Pending sections sirf tab dikhte hain jab un mein kaam ho (owner rule)
+      (function () {
+        const tc = document.getElementById('tasks-container');
+        if (tc) {
+          const hasT = !!tc.querySelector('.renewal-item');
+          tc.style.display = hasT ? '' : 'none';
+          const th = tc.previousElementSibling;
+          if (th && th.classList.contains('section-head')) th.style.display = hasT ? '' : 'none';
+        }
+        const pc = document.getElementById('pending-container');
+        if (pc) {
+          const hasP = !!pc.querySelector('.renewal-item');
+          pc.style.display = hasP ? '' : 'none';
+          const ph = pc.previousElementSibling;
+          if (ph && ph.classList.contains('section-head')) ph.style.display = hasP ? '' : 'none';
+        }
+      })();
     }
 
     function renderCharts(data) {
@@ -1973,7 +2033,7 @@ window.google = { script: { run: (function(){
 
       // Chart Colors
       const palette = [
-        '#1F4E79', '#3b82f6', '#10b981', '#f59e0b',
+        '#6d28d9', '#3b82f6', '#10b981', '#f59e0b',
         '#8b5cf6', '#ec4899', '#06b6d4', '#64748b'
       ];
 
@@ -2011,7 +2071,7 @@ window.google = { script: { run: (function(){
           datasets: [{
             label: 'Revenue',
             data: toolRevenues,
-            backgroundColor: '#1F4E79',
+            backgroundColor: '#6d28d9',
             borderRadius: 6
           }]
         },
@@ -2071,7 +2131,7 @@ window.google = { script: { run: (function(){
     function renderRenewals(renewals) {
       const container = document.getElementById('renewals-container');
       if (!renewals || renewals.length === 0) {
-        container.innerHTML = '<div style="color:var(--text-muted); font-size:13px; text-align:center; padding:12px;">No urgent renewals within 15 days.</div>';
+        container.innerHTML = '<div style="color:var(--text-muted); font-size:13px; text-align:center; padding:12px;">No urgent renewals within 7 days.</div>';
         return;
       }
 
@@ -2879,7 +2939,15 @@ window.google = { script: { run: (function(){
       });
 
       // Mobile app mode: hero sync + bottom navigation
-      window.syncMobileHero = function(agg, orders) {
+      window.syncWebHero = function(agg, orders) {
+      const l = document.getElementById('wh-label'), pf = document.getElementById('wh-profit'), sb = document.getElementById('wh-sub');
+      if (!l || !agg) return;
+      l.innerText = 'NET PROFIT — ' + String(agg.rangeLabel || 'This Month').toUpperCase();
+      pf.innerText = 'Rs ' + Number(agg.profit || 0).toLocaleString('en-US');
+      sb.innerText = 'Revenue Rs ' + Number(agg.revenue || 0).toLocaleString('en-US') + ' \u00B7 ' + (orders || 0) + ' orders \u00B7 ' + ((agg.kpis && agg.kpis.customers) || 0) + ' customers';
+    };
+
+window.syncMobileHero = function(agg, orders) {
         try {
           if (!agg) return;
           var p = document.getElementById('mh-profit'); if (!p) return;
@@ -2888,6 +2956,7 @@ window.google = { script: { run: (function(){
           document.getElementById('mh-sub').innerText = 'Revenue Rs ' + Number(agg.revenue || 0).toLocaleString('en-US') + (orders != null ? ' · ' + orders + ' orders' : '') + ' · ' + (agg.kpis ? agg.kpis.active : 0) + ' active';
         } catch (e) {}
       };
+      if (window.__lastAgg) { if (window.syncMobileHero) syncMobileHero(window.__lastAgg, window.__lastAggOrders); if (window.syncWebHero) syncWebHero(window.__lastAgg, window.__lastAggOrders); }
       window.mnav = function(tab) {
         var b = document.querySelector('.nav-tab[data-tab="' + tab + '"]');
         if (b) b.click();
