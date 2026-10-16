@@ -662,6 +662,8 @@ window.google = { script: { run: (function(){
     .accounts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 18px; margin-bottom: 24px; }
     .tool-cards-row { display: flex; gap: 18px; flex-wrap: wrap; }
     .tool-card-sq { flex: 1 1 170px; max-width: 270px; aspect-ratio: 1 / 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 7px; cursor: pointer; padding: 18px; }
+    .tool-card-sq.acc-warn { box-shadow: 0 0 0 2px #f59e0b inset; }
+    .tool-card-sq.acc-danger { box-shadow: 0 0 0 2px var(--danger) inset; }
     .account-card { padding: 20px; }
     .member-line { font-size: 12.5px; padding: 5px 0; border-bottom: 1px dashed rgba(140,180,220,0.35); display: flex; justify-content: space-between; gap: 8px; }
     .member-line:last-child { border-bottom: none; }
@@ -1190,7 +1192,7 @@ window.google = { script: { run: (function(){
           <h2 class="section-title">Service Accounts</h2>
           <span id="accounts-count-badge" class="chip chip-tag">0 Accounts</span>
         </div>
-        <div class="accounts-grid" id="accounts-container">
+        <div id="accounts-container">
           <!-- Rendered in JS -->
         </div>
 
@@ -1925,6 +1927,7 @@ window.google = { script: { run: (function(){
     window.accGoTools = function() { accNav = { view: 'tools', tool: null, accountId: null }; if (currentDataset) renderAccounts(currentDataset); };
     window.accGoTool = function(tool) { accNav = { view: 'accounts', tool: tool, accountId: null }; if (currentDataset) renderAccounts(currentDataset); };
     window.accGoMembers = function(id, tool) { accNav = { view: 'members', tool: tool || accNav.tool, accountId: id }; if (currentDataset) renderAccounts(currentDataset); };
+    window.openHistory = openHistory;
     window.addMemberFromView = function(accountId, btn) {
       const wrap = btn.closest('.acc-add-strip');
       if (!wrap) return;
@@ -1958,14 +1961,14 @@ window.google = { script: { run: (function(){
       const vendorLine = (a.vendor || a.vendorNumber) ? escapeHtml(a.vendor || '') + (a.vendorNumber ? ' • ' + escapeHtml(a.vendorNumber) : '') : '—';
       const safeId = String(a.id).replace(/'/g, '');
       const clickAttr = clickable ? ' onclick="if(event.target.closest(\'button,select,input,a\'))return; accGoMembers(\'' + safeId + '\', \'' + String(a.tool).replace(/'/g, '') + '\')" style="cursor:pointer;"' : '';
-      return '<div class="card account-card' + cardClass + '"' + clickAttr + '>'
-        + '<div style="display:flex; justify-content:space-between; align-items:flex-start; gap:8px;">'
-        + '<div style="display:flex; gap:10px; align-items:center;">' + toolLogoHtml(a.tool, 34) + '<div><div style="font-weight:800; font-size:15.5px; color:var(--primary-dark);">' + escapeHtml(a.name || a.tool) + '</div>'
-        + '<div style="font-size:12px; color:var(--text-muted);">' + escapeHtml(a.tool) + ' • ' + escapeHtml(a.id) + '</div></div></div>'
-        + '<span class="chip ' + (a.status === 'Expired' ? 'chip-expired' : 'chip-active') + '">' + escapeHtml(a.status || 'Active') + '</span></div>'
-        + '<div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; align-items:center;">' + pill + '<span class="chip chip-tag">👥 ' + mem.length + ' members</span></div>'
-        + (matchedMember ? '<div style="margin-top:8px; font-size:12.5px; color:var(--primary); font-weight:600;">🔎 ' + escapeHtml(matchedMember.name) + ' is on this account</div>' : '')
-        + (clickable ? '<div style="margin-top:12px;"><button type="button" class="btn-primary" style="padding:9px 14px; font-size:13px;" onclick="accGoMembers(\'' + safeId + '\', \'' + String(a.tool).replace(/'/g, '') + '\')"><span>View Customers →</span></button></div>' : '')
+      return '<div class="card tool-card-sq' + cardClass + '"' + clickAttr + '>'
+        + toolLogoHtml(a.tool, 46)
+        + '<div style="font-weight:800; font-size:16px; color:var(--primary-dark); line-height:1.25;">' + escapeHtml(a.name || a.tool) + '</div>'
+        + '<div style="font-size:11.5px; color:var(--text-muted);">' + escapeHtml(a.tool) + ' • ' + escapeHtml(a.id) + '</div>'
+        + '<div style="display:flex; gap:6px; flex-wrap:wrap; justify-content:center; align-items:center;">' + pill + '<span class="chip ' + (a.status === 'Expired' ? 'chip-expired' : 'chip-active') + '">' + escapeHtml(a.status || 'Active') + '</span></div>'
+        + '<span class="chip chip-tag">👥 ' + mem.length + ' members</span>'
+        + (matchedMember ? '<div style="font-size:12.5px; color:var(--primary); font-weight:600;">🔎 ' + escapeHtml(matchedMember.name) + ' is on this account</div>' : '')
+        + '<div style="margin-top:4px; font-size:13px; font-weight:700; color:var(--primary);">View Customers →</div>'
         + '</div>';
     }
 
@@ -2009,11 +2012,17 @@ window.google = { script: { run: (function(){
             const nk = String(m.number || '').replace(/\D/g, '').slice(-10);
             const subs = (data.customers || []).filter(c => String(c.number || '').replace(/\D/g, '').slice(-10) === nk);
             const sub = subs.filter(c => c.tool === (m.tool || a.tool)).sort((x, y) => String(y.start || '').localeCompare(String(x.start || '')))[0] || subs.sort((x, y) => String(y.start || '').localeCompare(String(x.start || '')))[0] || null;
-            return '<tr class="table-row-hover"><td style="font-weight:600;">' + escapeHtml(m.name) + '</td><td>' + escapeHtml(m.number) + '</td>'
-              + '<td>' + escapeHtml(sub ? (sub.plan || '—') : '—') + '</td><td>' + escapeHtml(sub ? (sub.start || '—') : '—') + '</td><td>' + escapeHtml(sub ? (sub.expiry || '—') : '—') + '</td>'
-              + '<td>' + (sub ? '<span class="chip ' + (sub.status === 'Active' ? 'chip-active' : 'chip-expired') + '">' + escapeHtml(sub.status || '—') + '</span>' : '—') + '</td>'
-              + '<td>' + (sub ? '<span class="chip ' + (sub.payment === 'Paid' ? 'chip-paid' : 'chip-pending') + '">' + escapeHtml(sub.payment || '—') + '</span>' : '—') + '</td>'
-              + '<td>' + escapeHtml(m.added || '—') + '</td></tr>';
+            const cObj = sub || { name: m.name, number: m.number, tool: a.tool, plan: '', expiry: '', days: 0, status: '', payment: '', ctype: '' };
+            const daysLabel = sub ? (sub.days > 0 ? sub.days + ' Days' : (sub.days === 0 ? 'Today' : Math.abs(sub.days) + 'd ago')) : '—';
+            return '<tr class="table-row-hover"><td style="font-weight:700; color:var(--primary);">' + escapeHtml(m.name) + '</td>'
+              + '<td><span style="display:inline-flex; align-items:center; gap:7px;">' + toolLogoHtml(a.tool, 20) + '<span>' + escapeHtml(a.tool) + '</span></span></td>'
+              + '<td>' + escapeHtml(sub ? (sub.plan || '-') : '-') + '</td>'
+              + '<td style="color:var(--text-muted);">' + escapeHtml(sub ? (sub.expiry || '-') : '-') + '</td>'
+              + '<td><strong style="color:' + (sub && sub.days <= 7 ? 'var(--danger)' : 'var(--text-main)') + ';">' + daysLabel + '</strong></td>'
+              + '<td>' + (sub ? '<span class="chip ' + (sub.status === 'Active' ? 'chip-active' : 'chip-expired') + '">' + escapeHtml(sub.status || '-') + '</span>' : '—') + '</td>'
+              + '<td>' + (sub ? '<span class="chip ' + (sub.payment === 'Paid' ? 'chip-paid' : 'chip-pending') + '">' + escapeHtml(sub.payment || '-') + '</span>' : '—') + '</td>'
+              + '<td><span class="chip chip-tag">' + escapeHtml(sub ? (sub.ctype || 'Customer') : 'Customer') + '</span></td>'
+              + '<td><div class="action-cell">' + (sub ? waBtn(cObj, 'renewal') : '') + '<button type="button" class="btn-history" onclick="openHistory(\'' + String(m.number).replace(/'/g, '') + '\')">History</button></div></td></tr>';
           }).join('');
           box.innerHTML = '<button type="button" class="mini-btn" style="margin-bottom:14px;" onclick="accGoTool(\'' + String(a.tool).replace(/'/g, '') + '\')">← ' + escapeHtml(a.tool) + ' Accounts</button>'
             + '<div class="card" style="padding:18px 20px; margin-bottom:16px;"><div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap;">' + toolLogoHtml(a.tool, 40)
@@ -2021,8 +2030,8 @@ window.google = { script: { run: (function(){
             + '<div style="font-size:12.5px; color:var(--text-muted);">' + escapeHtml(a.tool) + ' • ' + escapeHtml(a.id) + ' • ' + escapeHtml(a.email || '—') + '</div></div>'
             + '<span class="chip ' + (a.status === 'Expired' ? 'chip-expired' : 'chip-active') + '">' + escapeHtml(a.status || 'Active') + '</span>' + pill
             + '<span class="chip chip-tag">Total Members: ' + mem.length + '</span></div></div>'
-            + '<div class="card" style="padding:6px 0; overflow:hidden;"><div class="table-container"><table><thead><tr><th>Client Name</th><th>WhatsApp Number</th><th>Plan</th><th>Start</th><th>Expiry</th><th>Status</th><th>Payment</th><th>Added to Account</th></tr></thead><tbody>'
-            + (rows || '<tr><td colspan="8" style="text-align:center; color:var(--text-muted); padding:18px;">No customers added to this account yet.</td></tr>')
+            + '<div class="card" style="padding:6px 0; overflow:hidden;"><div class="table-container"><table><thead><tr><th>Client Name</th><th>Tool</th><th>Plan</th><th>Expiry Date</th><th>Days Left</th><th>Status</th><th>Payment</th><th>Type</th><th>WhatsApp Reminder</th></tr></thead><tbody>'
+            + (rows || '<tr><td colspan="9" style="text-align:center; color:var(--text-muted); padding:18px;">No customers added to this account yet.</td></tr>')
             + '</tbody></table></div></div>'
             + '<div class="card acc-add-strip" style="padding:16px 20px; margin-top:16px;"><div style="font-weight:700; font-size:14px; margin-bottom:10px;">➕ Add a customer to this account</div>'
             + '<div class="grid-2"><div class="form-group"><label class="form-label">Select Customer</label><select class="form-select card-cust">' + custOptions + '</select></div>'
@@ -2042,7 +2051,7 @@ window.google = { script: { run: (function(){
           box.innerHTML = '<button type="button" class="mini-btn" style="margin-bottom:14px;" onclick="accGoTools()">← All Tools</button>'
             + '<div style="display:flex; gap:10px; align-items:center; margin-bottom:14px;">' + toolLogoHtml(accNav.tool, 30) + '<h3 style="font-size:17px; font-weight:800; color:var(--primary-dark);">' + escapeHtml(accNav.tool) + ' — Accounts (' + list.length + ')</h3></div>'
             + '<div style="font-size:13px; color:var(--text-muted); margin-bottom:12px;">Click an account card to see its customers.</div>'
-            + '<div class="accounts-grid" style="margin-bottom:0;">' + cards + '</div>'
+            + '<div class="tool-cards-row">' + cards + '</div>'
             + '<div style="margin-top:18px;"><button type="button" class="btn-primary" style="width:auto; padding:10px 24px;" onclick="accGoTools()"><span>← Back</span></button></div>';
           return;
         }
