@@ -994,6 +994,14 @@ window.google = { script: { run: (function(){
       .kpi-card { padding: 20px 22px !important; }
       .kpi-val { font-size: 30px !important; }
     }
+
+    /* P2 match round 2 — band full-width, donut chhota, cards shape (owner 00:06) */
+    @media (min-width: 861px) {
+      body { overflow-x: hidden !important; }
+      #web-hero { margin-top: -24px !important; margin-left: calc((100% - 100vw) / 2) !important; margin-right: calc((100% - 100vw) / 2) !important; padding-left: max(24px, calc((100vw - 1200px) / 2)) !important; padding-right: max(24px, calc((100vw - 1200px) / 2)) !important; }
+      .card { border-radius: 18px !important; }
+      .charts-grid > .chart-card:nth-child(1) .chart-box { min-height: 0 !important; height: 208px !important; max-width: 208px; width: 100%; margin: 8px auto 4px; }
+    }
 </style>
 </head>
 <body>
