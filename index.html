@@ -1760,7 +1760,8 @@ window.google = { script: { run: (function(){
        AUTHENTICATION & INITIALIZATION FLOW
        ========================================================= */
     document.addEventListener('DOMContentLoaded', function() {
-      // Check if already authenticated by host page
+      // Check if already authenticated by host page (ya saved login token)
+      try { const savedTok = localStorage.getItem('ar_auth_tok'); if (savedTok && !window.__tok) { window.__tok = savedTok; window.__ownerAuthed = true; } } catch (e) {}
       if (window.__ownerAuthed === true) {
         proceedToApp();
       } else {
@@ -1798,6 +1799,7 @@ window.google = { script: { run: (function(){
       loadData()
         .then(function(data) {
           showLoading(false);
+          if ((!data || !data.customers) && window.__tok && window.__forceRelogin) { __forceRelogin(); return; }
           currentDataset = data;
           renderDashboard(data);
           applyCustomerFilters();
@@ -2756,6 +2758,7 @@ window.google = { script: { run: (function(){
           showLoading(false);
           if (res && res.ok) {
             window.__tok = res.token || '';
+            try { if (res.token) localStorage.setItem('ar_auth_tok', res.token); } catch (e) {}
             proceedToApp();
           } else {
             errEl.innerText = (res && res.msg) ? res.msg : "Invalid username or password";
@@ -2863,6 +2866,15 @@ window.google = { script: { run: (function(){
             + '<div class="macc-meta"><span>' + mem + ' members</span><span>' + right + '</span></div></div>';
         }).join('');
         return '<div id="acc-mobile-list"><div class="macc-head">All Accounts</div>' + cards + '</div>';
+      };
+
+      // Saved login expire/reject ho jaye to wapas login screen
+      window.__forceRelogin = function() {
+        try { localStorage.removeItem('ar_auth_tok'); } catch (e) {}
+        window.__tok = '';
+        window.__ownerAuthed = false;
+        var sh = document.getElementById('app-shell'); if (sh) sh.style.display = 'none';
+        var av = document.getElementById('auth-view'); if (av) av.style.display = 'flex';
       };
 
       // Order Form Submission
@@ -2991,6 +3003,7 @@ window.google = { script: { run: (function(){
       // Settings: Logout Button
       document.getElementById('btn-logout').addEventListener('click', function() {
         window.__tok = '';
+        try { localStorage.removeItem('ar_auth_tok'); } catch (e) {}
         window.__ownerAuthed = false;
         document.getElementById('app-shell').style.display = 'none';
         document.getElementById('auth-view').style.display = 'flex';
