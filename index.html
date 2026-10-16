@@ -884,7 +884,36 @@ window.google = { script: { run: (function(){
       .days-pill { flex: none; white-space: nowrap; font-size: 11.5px; padding: 4px 9px; }
       .btn-wa { flex: none; white-space: nowrap; font-size: 11.5px !important; padding: 7px 11px !important; }
     }
-  </style>
+  
+    /* ============================================================
+       WEB THEME — Web 23 TEAL MONO (owner pick, desktop only >=861px)
+       Phone (<861px) keeps Style 11 — untouched.
+       ============================================================ */
+    @media (min-width: 861px) {
+      body { background: #e6f4f2 !important; }
+      body::before, body::after { display: none !important; }
+      .app-header { background: #ffffff !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; border-bottom: 1.5px solid #bfe3dd !important; box-shadow: none !important; }
+      .brand-badge { background: #0f766e !important; box-shadow: none !important; }
+      .brand-title { color: #083f39 !important; }
+      .brand-title small { color: #4a7a74 !important; }
+      .nav-tabs { background: rgba(15,118,110,.07) !important; border: 1px solid #bfe3dd !important; box-shadow: none !important; backdrop-filter: none !important; }
+      .nav-tab { color: #2c5f58 !important; }
+      .nav-tab.active { background: #0f766e !important; color: #ffffff !important; box-shadow: none !important; }
+      .card { background: #ffffff !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; border: 1.5px solid #bfe3dd !important; box-shadow: 0 4px 14px rgba(8,63,57,.05) !important; }
+      .section-title { color: #083f39 !important; }
+      .kpi-title { color: #4a7a74 !important; }
+      .kpi-val { color: #083f39 !important; }
+      .chart-title { color: #083f39 !important; }
+      .btn-primary { background: #0f766e !important; box-shadow: none !important; }
+      .btn-primary:hover { background: #115e59 !important; }
+      .renewal-item, .task-item { background: #f2faf8 !important; border-color: #dff0ec !important; }
+      .badge-icon { background: #ccfbf1 !important; color: #0f766e !important; border-color: #99f6e4 !important; }
+      .mpb-track { background: #dff0ec !important; }
+      th { color: #4a7a74 !important; }
+      .form-input, .form-select, .filter-select { border-color: #bfe3dd !important; }
+      .form-input:focus, .form-select:focus, .filter-select:focus { border-color: #0f766e !important; box-shadow: 0 0 0 3px rgba(15,118,110,.15) !important; outline: none !important; }
+    }
+</style>
 </head>
 <body>
 
