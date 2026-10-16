@@ -2005,6 +2005,66 @@ window.google = { script: { run: (function(){
       return '<span class="tool-logo-wrap" style="width:' + s + 'px; height:' + s + 'px; background:' + col + '; font-size:' + Math.round(s * 0.55) + 'px;">' + letter + '<img class="tool-logo-img" src="' + url + '" alt="" loading="lazy" onerror="this.style.display=\'none\'"></span>';
     }
 
+    /* ===== Accounts drill-down: Tools → Accounts → Customers ===== */
+    let accNav = { view: 'tools', tool: null, accountId: null };
+    window.accGoTools = function() { accNav = { view: 'tools', tool: null, accountId: null }; if (currentDataset) renderAccounts(currentDataset); };
+    window.accGoTool = function(tool) { accNav = { view: 'accounts', tool: tool, accountId: null }; if (currentDataset) renderAccounts(currentDataset); };
+    window.accGoMembers = function(id, tool) { accNav = { view: 'members', tool: tool || accNav.tool, accountId: id }; if (currentDataset) renderAccounts(currentDataset); };
+    window.addMemberFromView = function(accountId, btn) {
+      const wrap = btn.closest('.acc-add-strip');
+      if (!wrap) return;
+      const sel = wrap.querySelector('.card-cust');
+      const dateEl = wrap.querySelector('.card-date');
+      const msg = wrap.querySelector('.card-msg');
+      const parts = (sel.value || '').split('|');
+      const d = { accountId: accountId, number: parts[0] || '', name: parts[1] || '', tool: parts[2] || '', added: dateEl.value || fmtDate_(new Date()), notes: '' };
+      showLoading(true);
+      sendMember(d).then(function(r) {
+        showLoading(false);
+        if (r && r.ok === false) { msg.style.color = 'var(--danger)'; msg.innerText = 'Add nahi hua — dobara try karein.'; return; }
+        msg.style.color = 'var(--success)';
+        msg.innerText = 'Member add ho gaya ✔';
+        silentRefetch();
+      }).catch(function() { showLoading(false); msg.style.color = 'var(--danger)'; msg.innerText = 'Error — add nahi hua.'; });
+    };
+
+    function accCardHtml(a, mem, matchedMember, custOptions, today, clickable) {
+      const d = daysUntil(a.expiry);
+      let pill;
+      if (d === null) pill = '<span class="days-pill" style="background:rgba(255,255,255,0.6); color:var(--text-muted);">Expiry —</span>';
+      else if (d < 0) pill = '<span class="days-pill critical">Expired</span>';
+      else if (d <= 7) pill = '<span class="days-pill critical">' + d + ' din baqi</span>';
+      else if (d <= 30) pill = '<span class="days-pill warn">' + d + ' din baqi</span>';
+      else pill = '<span class="days-pill" style="background:var(--success-bg); color:#047857;">' + d + ' din baqi</span>';
+      const cardClass = (d !== null && d <= 7 && a.status !== 'Expired') ? ' acc-danger' : ((d !== null && d <= 15 && a.status !== 'Expired') ? ' acc-warn' : '');
+      const memHtml = mem.length
+        ? mem.map(m => '<div class="member-line"><span>' + escapeHtml(m.name) + '</span><span style="color:var(--text-muted);">' + escapeHtml(m.number) + '</span></div>').join('')
+        : '<div style="font-size:12.5px; color:var(--text-muted); padding:4px 0;">Abhi koi member record nahi</div>';
+      const vendorLine = (a.vendor || a.vendorNumber) ? escapeHtml(a.vendor || '') + (a.vendorNumber ? ' • ' + escapeHtml(a.vendorNumber) : '') : '—';
+      const safeId = String(a.id).replace(/'/g, '');
+      const clickAttr = clickable ? ' onclick="if(event.target.closest(\'button,select,input,a\'))return; accGoMembers(\'' + safeId + '\', \'' + String(a.tool).replace(/'/g, '') + '\')" style="cursor:pointer;"' : '';
+      return '<div class="card account-card' + cardClass + '"' + clickAttr + '>'
+        + '<div style="display:flex; justify-content:space-between; align-items:flex-start; gap:8px;">'
+        + '<div style="display:flex; gap:10px; align-items:center;">' + toolLogoHtml(a.tool, 34) + '<div><div style="font-weight:800; font-size:15.5px; color:var(--primary-dark);">' + escapeHtml(a.name || a.tool) + '</div>'
+        + '<div style="font-size:12px; color:var(--text-muted);">' + escapeHtml(a.tool) + ' • ' + escapeHtml(a.id) + '</div></div></div>'
+        + '<span class="chip ' + (a.status === 'Expired' ? 'chip-expired' : 'chip-active') + '">' + escapeHtml(a.status || 'Active') + '</span></div>'
+        + '<div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; align-items:center;">' + pill + '<span class="chip chip-tag">👥 ' + mem.length + ' members</span></div>'
+        + (matchedMember ? '<div style="margin-top:8px; font-size:12.5px; color:var(--primary); font-weight:600;">🔎 ' + escapeHtml(matchedMember.name) + ' is account mein hai</div>' : '')
+        + (clickable ? '<div style="margin-top:12px;"><button type="button" class="btn-primary" style="padding:9px 14px; font-size:13px;" onclick="accGoMembers(\'' + safeId + '\', \'' + String(a.tool).replace(/'/g, '') + '\')"><span>Customers dekhein →</span></button></div>' : '')
+        + '<div class="acc-actions"><button type="button" class="mini-btn" onclick="toggleAccBox(\'' + safeId + '\', \'det\')">Details ▾</button><button type="button" class="mini-btn" onclick="toggleAccBox(\'' + safeId + '\', \'asg\')">+ Member</button></div>'
+        + '<div id="det-' + escapeHtml(a.id) + '" class="acc-box" style="display:none;">'
+        + '<div style="font-size:13px; line-height:1.75;">📧 Email: <strong>' + escapeHtml(a.email || '—') + '</strong><br>🏪 Vendor: ' + vendorLine + '<br>💰 Cost: ' + (a.cost ? 'Rs ' + Number(a.cost).toLocaleString() : '—') + '<br>📅 ' + escapeHtml(a.start || '—') + ' → ' + escapeHtml(a.expiry || '—') + (a.notes ? '<br><span style="color:var(--text-muted);">' + escapeHtml(a.notes) + '</span>' : '') + '</div>'
+        + '<div style="margin-top:10px;"><div style="font-weight:700; font-size:13px; margin-bottom:4px;">Members (' + mem.length + ')</div>' + memHtml + '</div>'
+        + '</div>'
+        + '<div id="asg-' + escapeHtml(a.id) + '" class="acc-box" style="display:none;">'
+        + '<div class="form-group"><label class="form-label">Customer select karein</label><select class="form-select card-cust">' + custOptions + '</select></div>'
+        + '<div class="form-group"><label class="form-label">Added Date</label><input type="date" class="form-input card-date" value="' + today + '"></div>'
+        + '<button type="button" class="btn-primary" onclick="addMemberFromCard(\'' + safeId + '\', this)"><span>Member Add karein</span></button>'
+        + '<div class="card-msg" style="font-size:12.5px; margin-top:8px;"></div>'
+        + '</div>'
+        + '</div>';
+    }
+
     function renderAccounts(data) {
       const box = document.getElementById('accounts-container');
       if (!box) return;
@@ -2015,58 +2075,93 @@ window.google = { script: { run: (function(){
       const q = (window.__accQuery || '').trim().toLowerCase();
       const custOptions = (data.customers || []).map(c => '<option value="' + escapeHtml(c.number + '|' + c.name + '|' + c.tool) + '">' + escapeHtml(c.name + ' — ' + c.tool) + '</option>').join('');
       const today = fmtDate_(new Date());
-      let shown = 0;
-      const cards = accounts.map(a => {
-        const mem = members.filter(m => m.accountId === a.id);
-        let matchedMember = null;
-        if (q) {
-          const selfMatch = [a.name, a.tool, a.email, a.id].join(' ').toLowerCase().indexOf(q) !== -1;
-          matchedMember = mem.find(m => (m.name + ' ' + m.number).toLowerCase().indexOf(q) !== -1) || null;
-          if (!selfMatch && !matchedMember) return '';
-        }
-        shown++;
-        const d = daysUntil(a.expiry);
-        let pill;
-        if (d === null) pill = '<span class="days-pill" style="background:rgba(255,255,255,0.6); color:var(--text-muted);">Expiry —</span>';
-        else if (d < 0) pill = '<span class="days-pill critical">Expired</span>';
-        else if (d <= 7) pill = '<span class="days-pill critical">' + d + ' din baqi</span>';
-        else if (d <= 30) pill = '<span class="days-pill warn">' + d + ' din baqi</span>';
-        else pill = '<span class="days-pill" style="background:var(--success-bg); color:#047857;">' + d + ' din baqi</span>';
-        const cardClass = (d !== null && d <= 7 && a.status !== 'Expired') ? ' acc-danger' : ((d !== null && d <= 15 && a.status !== 'Expired') ? ' acc-warn' : '');
-        const memHtml = mem.length
-          ? mem.map(m => '<div class="member-line"><span>' + escapeHtml(m.name) + '</span><span style="color:var(--text-muted);">' + escapeHtml(m.number) + '</span></div>').join('')
-          : '<div style="font-size:12.5px; color:var(--text-muted); padding:4px 0;">Abhi koi member record nahi</div>';
-        const vendorLine = (a.vendor || a.vendorNumber) ? escapeHtml(a.vendor || '') + (a.vendorNumber ? ' • ' + escapeHtml(a.vendorNumber) : '') : '—';
-        const safeId = String(a.id).replace(/'/g, '');
-        return '<div class="card account-card' + cardClass + '">'
-          + '<div style="display:flex; justify-content:space-between; align-items:flex-start; gap:8px;">'
-          + '<div style="display:flex; gap:10px; align-items:center;">' + toolLogoHtml(a.tool, 34) + '<div><div style="font-weight:800; font-size:15.5px; color:var(--primary-dark);">' + escapeHtml(a.name || a.tool) + '</div>'
-          + '<div style="font-size:12px; color:var(--text-muted);">' + escapeHtml(a.tool) + ' • ' + escapeHtml(a.id) + '</div></div></div>'
-          + '<span class="chip ' + (a.status === 'Expired' ? 'chip-expired' : 'chip-active') + '">' + escapeHtml(a.status || 'Active') + '</span></div>'
-          + '<div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; align-items:center;">' + pill + '<span class="chip chip-tag">👥 ' + mem.length + ' members</span></div>'
-          + (matchedMember ? '<div style="margin-top:8px; font-size:12.5px; color:var(--primary); font-weight:600;">🔎 ' + escapeHtml(matchedMember.name) + ' is account mein hai</div>' : '')
-          + '<div class="acc-actions"><button type="button" class="mini-btn" onclick="toggleAccBox(\'' + safeId + '\', \'det\')">Details ▾</button><button type="button" class="mini-btn" onclick="toggleAccBox(\'' + safeId + '\', \'asg\')">+ Member</button></div>'
-          + '<div id="det-' + escapeHtml(a.id) + '" class="acc-box" style="display:none;">'
-          + '<div style="font-size:13px; line-height:1.75;">📧 Email: <strong>' + escapeHtml(a.email || '—') + '</strong><br>🏪 Vendor: ' + vendorLine + '<br>💰 Cost: ' + (a.cost ? 'Rs ' + Number(a.cost).toLocaleString() : '—') + '<br>📅 ' + escapeHtml(a.start || '—') + ' → ' + escapeHtml(a.expiry || '—') + (a.notes ? '<br><span style="color:var(--text-muted);">' + escapeHtml(a.notes) + '</span>' : '') + '</div>'
-          + '<div style="margin-top:10px;"><div style="font-weight:700; font-size:13px; margin-bottom:4px;">Members (' + mem.length + ')</div>' + memHtml + '</div>'
-          + '</div>'
-          + '<div id="asg-' + escapeHtml(a.id) + '" class="acc-box" style="display:none;">'
-          + '<div class="form-group"><label class="form-label">Customer select karein</label><select class="form-select card-cust">' + custOptions + '</select></div>'
-          + '<div class="form-group"><label class="form-label">Added Date</label><input type="date" class="form-input card-date" value="' + today + '"></div>'
-          + '<button type="button" class="btn-primary" onclick="addMemberFromCard(\'' + safeId + '\', this)"><span>Member Add karein</span></button>'
-          + '<div class="card-msg" style="font-size:12.5px; margin-top:8px;"></div>'
-          + '</div>'
-          + '</div>';
-      }).join('');
       if (!accounts.length) {
         box.innerHTML = '<div class="card" style="padding:20px; color:var(--text-muted); font-size:13.5px;">Abhi koi account record nahi — neeche wala form se pehla account add karein.</div>';
-      } else if (!shown) {
-        box.innerHTML = '<div class="card" style="padding:20px; color:var(--text-muted); font-size:13.5px;">Is naam ya number ka koi customer / account nahi mila.</div>';
-      } else {
-        box.innerHTML = cards;
+        return;
       }
+      /* --- Search mode: flat results (purana tareeqa) --- */
+      if (q) {
+        let shown = 0;
+        const cards = accounts.map(a => {
+          const mem = members.filter(m => m.accountId === a.id);
+          const selfMatch = [a.name, a.tool, a.email, a.id].join(' ').toLowerCase().indexOf(q) !== -1;
+          const matchedMember = mem.find(m => (m.name + ' ' + m.number).toLowerCase().indexOf(q) !== -1) || null;
+          if (!selfMatch && !matchedMember) return '';
+          shown++;
+          return accCardHtml(a, mem, matchedMember, custOptions, today, false);
+        }).join('');
+        box.innerHTML = shown ? '<div class="accounts-grid" style="margin-bottom:0;">' + cards + '</div>' : '<div class="card" style="padding:20px; color:var(--text-muted); font-size:13.5px;">Is naam ya number ka koi customer / account nahi mila.</div>';
+        return;
+      }
+      /* --- Level 3: ek account ke customers (table, Customer section jaisi) --- */
+      if (accNav.view === 'members' && accNav.accountId) {
+        const a = accounts.find(x => x.id === accNav.accountId);
+        if (!a) { accNav = { view: 'tools', tool: null, accountId: null }; }
+        else {
+          const mem = members.filter(m => m.accountId === a.id);
+          const d = daysUntil(a.expiry);
+          const pill = d === null ? '' : (d < 0 ? '<span class="days-pill critical">Expired</span>' : (d <= 7 ? '<span class="days-pill critical">' + d + ' din baqi</span>' : (d <= 30 ? '<span class="days-pill warn">' + d + ' din baqi</span>' : '<span class="days-pill" style="background:var(--success-bg); color:#047857;">' + d + ' din baqi</span>')));
+          const rows = mem.map(m => {
+            const nk = String(m.number || '').replace(/\D/g, '').slice(-10);
+            const subs = (data.customers || []).filter(c => String(c.number || '').replace(/\D/g, '').slice(-10) === nk);
+            const sub = subs.filter(c => c.tool === (m.tool || a.tool)).sort((x, y) => String(y.start || '').localeCompare(String(x.start || '')))[0] || subs.sort((x, y) => String(y.start || '').localeCompare(String(x.start || '')))[0] || null;
+            return '<tr class="table-row-hover"><td style="font-weight:600;">' + escapeHtml(m.name) + '</td><td>' + escapeHtml(m.number) + '</td>'
+              + '<td>' + escapeHtml(sub ? (sub.plan || '—') : '—') + '</td><td>' + escapeHtml(sub ? (sub.start || '—') : '—') + '</td><td>' + escapeHtml(sub ? (sub.expiry || '—') : '—') + '</td>'
+              + '<td>' + (sub ? '<span class="chip ' + (sub.status === 'Active' ? 'chip-active' : 'chip-expired') + '">' + escapeHtml(sub.status || '—') + '</span>' : '—') + '</td>'
+              + '<td>' + (sub ? '<span class="chip ' + (sub.payment === 'Paid' ? 'chip-paid' : 'chip-pending') + '">' + escapeHtml(sub.payment || '—') + '</span>' : '—') + '</td>'
+              + '<td>' + escapeHtml(m.added || '—') + '</td></tr>';
+          }).join('');
+          box.innerHTML = '<button type="button" class="mini-btn" style="margin-bottom:14px;" onclick="accGoTool(\'' + String(a.tool).replace(/'/g, '') + '\')">← ' + escapeHtml(a.tool) + ' Accounts</button>'
+            + '<div class="card" style="padding:18px 20px; margin-bottom:16px;"><div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap;">' + toolLogoHtml(a.tool, 40)
+            + '<div><div style="font-weight:800; font-size:17px; color:var(--primary-dark);">' + escapeHtml(a.name || a.tool) + '</div>'
+            + '<div style="font-size:12.5px; color:var(--text-muted);">' + escapeHtml(a.tool) + ' • ' + escapeHtml(a.id) + ' • ' + escapeHtml(a.email || '—') + '</div></div>'
+            + '<span class="chip ' + (a.status === 'Expired' ? 'chip-expired' : 'chip-active') + '">' + escapeHtml(a.status || 'Active') + '</span>' + pill
+            + '<span class="chip chip-tag">👥 ' + mem.length + ' customers</span></div></div>'
+            + '<div class="card" style="padding:6px 0; overflow:hidden;"><div class="table-container"><table><thead><tr><th>Client Name</th><th>WhatsApp Number</th><th>Plan</th><th>Start</th><th>Expiry</th><th>Status</th><th>Payment</th><th>Account Mein Add</th></tr></thead><tbody>'
+            + (rows || '<tr><td colspan="8" style="text-align:center; color:var(--text-muted); padding:18px;">Is account mein abhi koi customer add nahi.</td></tr>')
+            + '</tbody></table></div></div>'
+            + '<div class="card acc-add-strip" style="padding:16px 20px; margin-top:16px;"><div style="font-weight:700; font-size:14px; margin-bottom:10px;">➕ Is account mein customer add karein</div>'
+            + '<div class="grid-2"><div class="form-group"><label class="form-label">Customer select karein</label><select class="form-select card-cust">' + custOptions + '</select></div>'
+            + '<div class="form-group"><label class="form-label">Added Date</label><input type="date" class="form-input card-date" value="' + today + '"></div></div>'
+            + '<button type="button" class="btn-primary" onclick="addMemberFromView(\'' + String(a.id).replace(/'/g, '') + '\', this)"><span>Member Add karein</span></button>'
+            + '<div class="card-msg" style="font-size:12.5px; margin-top:8px;"></div></div>';
+          return;
+        }
+      }
+      /* --- Level 2: ek tool ke accounts --- */
+      if (accNav.view === 'accounts' && accNav.tool) {
+        const list = accounts.filter(a => a.tool === accNav.tool);
+        if (!list.length) { accNav = { view: 'tools', tool: null, accountId: null }; }
+        else {
+          const cards = list.map(a => accCardHtml(a, members.filter(m => m.accountId === a.id), null, custOptions, today, true)).join('');
+          box.innerHTML = '<button type="button" class="mini-btn" style="margin-bottom:14px;" onclick="accGoTools()">← Sab Tools</button>'
+            + '<div style="display:flex; gap:10px; align-items:center; margin-bottom:14px;">' + toolLogoHtml(accNav.tool, 30) + '<h3 style="font-size:17px; font-weight:800; color:var(--primary-dark);">' + escapeHtml(accNav.tool) + ' — Accounts (' + list.length + ')</h3></div>'
+            + '<div style="font-size:13px; color:var(--text-muted); margin-bottom:12px;">Kisi account ke customers dekhne ke liye us account ke card par click karein.</div>'
+            + '<div class="accounts-grid" style="margin-bottom:0;">' + cards + '</div>';
+          return;
+        }
+      }
+      /* --- Level 1: tool cards --- */
+      const toolNames = [];
+      accounts.forEach(a => { if (toolNames.indexOf(a.tool) === -1) toolNames.push(a.tool); });
+      const toolCards = toolNames.map(t => {
+        const list = accounts.filter(a => a.tool === t);
+        const memCount = members.filter(m => list.some(a => a.id === m.accountId)).length;
+        const activeCount = list.filter(a => a.status !== 'Expired').length;
+        let nearest = null;
+        list.forEach(a => { const dd = daysUntil(a.expiry); if (dd !== null && dd >= 0 && (nearest === null || dd < nearest)) nearest = dd; });
+        const warn = nearest !== null && nearest <= 15 ? '<span class="days-pill ' + (nearest <= 7 ? 'critical' : 'warn') + '">Ek account ki expiry mein ' + nearest + ' din baqi</span>' : '';
+        return '<div class="card account-card" style="cursor:pointer;" onclick="accGoTool(\'' + String(t).replace(/'/g, '') + '\')">'
+          + '<div style="display:flex; gap:12px; align-items:center;">' + toolLogoHtml(t, 44)
+          + '<div><div style="font-weight:800; font-size:17px; color:var(--primary-dark);">' + escapeHtml(t) + '</div>'
+          + '<div style="font-size:12.5px; color:var(--text-muted);">' + list.length + ' Accounts • ' + activeCount + ' Active</div></div></div>'
+          + '<div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; align-items:center;"><span class="chip chip-tag">👥 ' + memCount + ' customers</span>' + warn + '</div>'
+          + '<div style="margin-top:12px; font-size:13px; font-weight:700; color:var(--primary);">Accounts dekhein →</div>'
+          + '</div>';
+      }).join('');
+      box.innerHTML = '<div style="font-size:13.5px; color:var(--text-muted); margin-bottom:12px;">Pehle <strong>tool</strong> select karein — phir us tool ke accounts, aur phir account ke customers nazar ayenge.</div>'
+        + '<div class="accounts-grid" style="margin-bottom:0;">' + toolCards + '</div>';
     }
-
     function renderAds(data) {
       const ads = data.ads || [];
       const now = new Date();
