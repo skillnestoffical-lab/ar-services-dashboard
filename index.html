@@ -24,7 +24,7 @@ window.google = { script: { run: (function(){
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="manifest" href="manifest.webmanifest">
-  <meta name="theme-color" content="#1d4e79">
+  <meta name="theme-color" content="#0a2540">
   <meta name="mobile-web-app-capable" content="yes">
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
   <title>AR SERVICES — Digital Tools Dashboard</title>
@@ -764,6 +764,47 @@ window.google = { script: { run: (function(){
         grid-template-columns: repeat(2, 1fr);
       }
     }
+    /* ===== Mobile App Mode (phone / home-screen app only) ===== */
+    #mobile-home-top, #mobile-nav { display: none; }
+    @media (max-width: 860px) {
+      .nav-tabs { display: none !important; }
+      .header-content { flex-direction: row !important; align-items: center; padding: 10px 16px; }
+      .main-body { padding: 14px 14px 108px !important; }
+      #mobile-home-top { display: block; }
+      .mh-greet { display: flex; justify-content: space-between; align-items: center; margin: 4px 0 14px; }
+      .mh-hi { font-size: 12.5px; color: var(--text-muted); }
+      .mh-name { font-size: 21px; font-weight: 800; color: #0a2540; }
+      .mh-avatar { width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, #0a2540, #11456f); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 15px; border: 2px solid #14b8a6; }
+      .mh-hero { background: linear-gradient(135deg, #081c33, #0a2540 55%, #11456f); border-radius: 26px; padding: 20px; color: #fff; position: relative; overflow: hidden; box-shadow: 0 14px 30px rgba(10,37,64,.25); }
+      .mh-hero::after { content: ''; position: absolute; width: 170px; height: 170px; border-radius: 50%; background: radial-gradient(circle, rgba(20,184,166,.5), rgba(20,184,166,0) 70%); top: -60px; right: -40px; }
+      .mh-lbl { font-size: 11px; letter-spacing: 1.6px; color: #9fd8d0; font-weight: 700; }
+      .mh-big { font-size: 34px; font-weight: 800; margin: 5px 0 2px; }
+      .mh-sub { font-size: 12.5px; color: #c7d6e6; }
+      #tab-dashboard.animate-in { display: flex !important; flex-direction: column; }
+      #tab-dashboard > * { order: 6; }
+      #tab-dashboard > #mobile-home-top { order: 0; }
+      #tab-dashboard > #supply-alert-banner { order: 1; }
+      #tab-dashboard > .kpi-grid { order: 2; }
+      #tab-dashboard > :nth-child(5) { order: 3; }
+      #tab-dashboard > :nth-child(3) { order: 4; }
+      #tab-dashboard > :nth-child(4) { order: 5; }
+      .kpi-grid { grid-template-columns: 1fr 1fr !important; gap: 12px; }
+      .card { border-radius: 20px; }
+      .kpi-card { padding: 15px; }
+      .kpi-val { font-size: 23px !important; }
+      .section-title { font-size: 17px; }
+      th, td { padding: 9px 8px !important; font-size: 12.5px; white-space: nowrap; }
+      .modal-card { width: 94vw !important; max-height: 92vh; overflow-y: auto; }
+      .tool-cards-row { flex-wrap: wrap; }
+      .tool-card-sq { flex: 1 1 44%; max-width: 48%; }
+      .btn-primary, .btn-history, .mini-btn { min-height: 40px; }
+      #mobile-nav { display: flex; position: fixed; left: 0; right: 0; bottom: 0; height: 72px; background: #ffffff; border-top: 1px solid #e6edf4; box-shadow: 0 -6px 24px rgba(10,37,64,.08); z-index: 900; padding: 6px 4px calc(6px + env(safe-area-inset-bottom)); align-items: flex-start; }
+      .mnav-item { flex: 1; background: none; border: none; text-align: center; font-size: 10.5px; font-weight: 700; color: #93a5bb; padding: 4px 0 0; cursor: pointer; font-family: inherit; }
+      .mnav-item svg { display: block; margin: 0 auto 2px; }
+      .mnav-item.on { color: #0d9488; }
+      .mnav-plus-wrap { flex: 1; display: flex; justify-content: center; }
+      .mnav-plus { width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(135deg, #14b8a6, #0d9488); color: #fff; font-size: 27px; line-height: 1; display: flex; align-items: center; justify-content: center; margin-top: -22px; box-shadow: 0 10px 22px rgba(13,148,136,.45); border: 4px solid #eef3f8; cursor: pointer; padding: 0; font-family: inherit; }
+    }
   </style>
 </head>
 <body>
@@ -830,6 +871,18 @@ window.google = { script: { run: (function(){
 
       <!-- ================= TAB: DASHBOARD ================= -->
       <section id="tab-dashboard" class="tab-pane animate-in">
+        <!-- Mobile app mode: greeting + hero (phone only) -->
+        <div id="mobile-home-top">
+          <div class="mh-greet">
+            <div><div class="mh-hi">Assalam o Alaikum 👋</div><div class="mh-name">Ali Haider</div></div>
+            <div class="mh-avatar">AH</div>
+          </div>
+          <div class="mh-hero">
+            <div class="mh-lbl" id="mh-label">NET PROFIT</div>
+            <div class="mh-big" id="mh-profit">Rs 0</div>
+            <div class="mh-sub" id="mh-sub">Revenue Rs 0</div>
+          </div>
+        </div>
         <!-- Supply Alert Banner -->
         <div id="supply-alert-banner" class="supply-alert" style="display:none;">
           <div class="supply-alert-info">
@@ -1351,6 +1404,15 @@ window.google = { script: { run: (function(){
       </section>
 
     </main>
+
+    <!-- Mobile app mode: bottom navigation (phone only) -->
+    <nav id="mobile-nav">
+      <button type="button" class="mnav-item on" data-mtab="dashboard" onclick="mnav('dashboard')"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.8V21h14V9.8"/><path d="M9.5 21v-6h5v6"/></svg>Home</button>
+      <button type="button" class="mnav-item" data-mtab="customers" onclick="mnav('customers')"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"/><path d="M3.5 20c.7-3.4 2.9-5.2 5.5-5.2s4.8 1.8 5.5 5.2"/><path d="M16 5.2a3.5 3.5 0 0 1 0 5.9"/><path d="M18.5 15.3c1.1.8 1.8 2 2.1 3.7"/></svg>Customers</button>
+      <div class="mnav-plus-wrap"><button type="button" class="mnav-plus" onclick="mnav('entry')" aria-label="New Entry">+</button></div>
+      <button type="button" class="mnav-item" data-mtab="accounts" onclick="mnav('accounts')"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 3 8l9 5 9-5-9-5Z"/><path d="M3 12.8 12 17.8l9-5"/></svg>Accounts</button>
+      <button type="button" class="mnav-item" data-mtab="ads" onclick="mnav('ads')"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="6" y1="20" x2="6" y2="12"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="18" y1="20" x2="18" y2="9"/></svg>Ads</button>
+    </nav>
   </div>
 
   <!-- CUSTOMER HISTORY MODAL -->
@@ -1748,6 +1810,7 @@ window.google = { script: { run: (function(){
       renderAccounts(data);
       renderAds(data);
       appendAccountTasks(data.accounts || []);
+      if (window.syncMobileHero) syncMobileHero(agg, dfRows.length);
     }
 
     function renderCharts(data) {
@@ -2667,6 +2730,32 @@ window.google = { script: { run: (function(){
           }
         });
       });
+
+      // Mobile app mode: hero sync + bottom navigation
+      window.syncMobileHero = function(agg, orders) {
+        try {
+          if (!agg) return;
+          var p = document.getElementById('mh-profit'); if (!p) return;
+          p.innerText = 'Rs ' + Number(agg.profit || 0).toLocaleString('en-US');
+          document.getElementById('mh-label').innerText = 'NET PROFIT — ' + String(agg.rangeLabel || 'This Month').toUpperCase();
+          document.getElementById('mh-sub').innerText = 'Revenue Rs ' + Number(agg.revenue || 0).toLocaleString('en-US') + (orders != null ? ' · ' + orders + ' orders' : '') + ' · ' + (agg.kpis ? agg.kpis.active : 0) + ' active';
+        } catch (e) {}
+      };
+      window.mnav = function(tab) {
+        var b = document.querySelector('.nav-tab[data-tab="' + tab + '"]');
+        if (b) b.click();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      };
+      (function() {
+        function syncMnav() {
+          var act = document.querySelector('.nav-tab.active');
+          var tab = act ? act.getAttribute('data-tab') : 'dashboard';
+          document.querySelectorAll('#mobile-nav .mnav-item').forEach(function(it) { it.classList.toggle('on', it.getAttribute('data-mtab') === tab); });
+        }
+        var __mo = new MutationObserver(syncMnav);
+        document.querySelectorAll('.nav-tab').forEach(function(t) { __mo.observe(t, { attributes: true, attributeFilter: ['class'] }); });
+        syncMnav();
+      })();
 
       // Order Form Submission
       document.getElementById('order-form').addEventListener('submit', function(e) {
