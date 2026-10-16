@@ -657,6 +657,8 @@ window.google = { script: { run: (function(){
     }
 
 
+    .tool-logo-wrap { position: relative; display: inline-flex; align-items: center; justify-content: center; border-radius: 7px; color: #fff; font-weight: 800; overflow: hidden; flex: none; vertical-align: middle; }
+    .tool-logo-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; background: #fff; padding: 2px; box-sizing: border-box; }
     .accounts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 18px; margin-bottom: 24px; }
     .account-card { padding: 20px; }
     .member-line { font-size: 12.5px; padding: 5px 0; border-bottom: 1px dashed rgba(140,180,220,0.35); display: flex; justify-content: space-between; gap: 8px; }
@@ -1123,6 +1125,22 @@ window.google = { script: { run: (function(){
           <div class="section-head">
             <h2 class="section-title">All Customer Subscriptions</h2>
             <span id="cust-count-badge" class="chip chip-tag">0 Total</span>
+          </div>
+
+          <div style="display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 12px;">
+            <strong style="font-size: 13px;">📅 Date Range:</strong>
+            <select id="df-preset-2" class="filter-select">
+              <option value="today">Today</option>
+              <option value="last7">Last 7 Days</option>
+              <option value="last30">Last 30 Days</option>
+              <option value="thismonth" selected>This Month</option>
+              <option value="lastmonth">Last Month</option>
+              <option value="max">Maximum (All Time)</option>
+              <option value="custom">Custom Range</option>
+            </select>
+            <input type="date" id="df-from-2" class="form-input" style="width: auto; display: none;">
+            <input type="date" id="df-to-2" class="form-input" style="width: auto; display: none;">
+            <span id="df-label-2" style="font-size: 12px; color: var(--text-muted);"></span>
           </div>
 
           <div class="filter-bar">
@@ -1877,7 +1895,7 @@ window.google = { script: { run: (function(){
         html += `
           <tr class="table-row-hover animate-in" style="animation-delay: ${Math.min(idx * 0.03, 0.3)}s">
             <td style="font-weight: 700; color: var(--primary);">${escapeHtml(c.name)}</td>
-            <td>${escapeHtml(c.tool)}</td>
+            <td><span style="display:inline-flex; align-items:center; gap:7px;">${toolLogoHtml(c.tool, 20)}<span>${escapeHtml(c.tool)}</span></span></td>
             <td>${escapeHtml(c.plan)}</td>
             <td style="color: var(--text-muted);">${escapeHtml(c.expiry || '-')}</td>
             <td><strong style="color: ${c.days <= 7 ? 'var(--danger)' : 'var(--text-main)'}">${daysLabel}</strong></td>
@@ -1964,6 +1982,29 @@ window.google = { script: { run: (function(){
       }).catch(function() { showLoading(false); msg.style.color = 'var(--danger)'; msg.innerText = 'Error — add nahi hua.'; });
     }
 
+    const TOOL_LOGOS = {
+      'Surfshark VPN': 'https://cdn.simpleicons.org/surfshark',
+      'Canva Pro': 'https://www.google.com/s2/favicons?domain=canva.com&sz=128',
+      'Gemini': 'https://cdn.simpleicons.org/googlegemini',
+      'CapCut Pro': 'https://www.google.com/s2/favicons?domain=capcut.com&sz=128',
+      'Netflix': 'https://cdn.simpleicons.org/netflix',
+      'YouTube Premium': 'https://cdn.simpleicons.org/youtube',
+      'MS Office 365 Plus': 'https://www.google.com/s2/favicons?domain=microsoft365.com&sz=128',
+      'Adobe Express': 'https://www.google.com/s2/favicons?domain=adobe.com&sz=128',
+      'iLovePDF': 'https://cdn.simpleicons.org/ilovepdf',
+      'QuillBot': 'https://www.google.com/s2/favicons?domain=quillbot.com&sz=128',
+      'Super Duolingo': 'https://cdn.simpleicons.org/duolingo'
+    };
+    const TOOL_COLORS = { 'Surfshark VPN': '#178a9c', 'Canva Pro': '#7d2ae8', 'Gemini': '#1ba0ff', 'CapCut Pro': '#111111', 'Netflix': '#e50914', 'YouTube Premium': '#ff0000', 'MS Office 365 Plus': '#d83b01', 'Adobe Express': '#eb1000', 'iLovePDF': '#e5322d', 'QuillBot': '#499557', 'Super Duolingo': '#58cc02' };
+    function toolLogoHtml(tool, size) {
+      const url = TOOL_LOGOS[tool];
+      if (!url) return '';
+      const s = size || 20;
+      const col = TOOL_COLORS[tool] || '#64748b';
+      const letter = escapeHtml(String(tool || '?').trim().charAt(0).toUpperCase() || '?');
+      return '<span class="tool-logo-wrap" style="width:' + s + 'px; height:' + s + 'px; background:' + col + '; font-size:' + Math.round(s * 0.55) + 'px;">' + letter + '<img class="tool-logo-img" src="' + url + '" alt="" loading="lazy" onerror="this.style.display=\'none\'"></span>';
+    }
+
     function renderAccounts(data) {
       const box = document.getElementById('accounts-container');
       if (!box) return;
@@ -1999,8 +2040,8 @@ window.google = { script: { run: (function(){
         const safeId = String(a.id).replace(/'/g, '');
         return '<div class="card account-card' + cardClass + '">'
           + '<div style="display:flex; justify-content:space-between; align-items:flex-start; gap:8px;">'
-          + '<div><div style="font-weight:800; font-size:15.5px; color:var(--primary-dark);">' + escapeHtml(a.name || a.tool) + '</div>'
-          + '<div style="font-size:12px; color:var(--text-muted);">' + escapeHtml(a.tool) + ' • ' + escapeHtml(a.id) + '</div></div>'
+          + '<div style="display:flex; gap:10px; align-items:center;">' + toolLogoHtml(a.tool, 34) + '<div><div style="font-weight:800; font-size:15.5px; color:var(--primary-dark);">' + escapeHtml(a.name || a.tool) + '</div>'
+          + '<div style="font-size:12px; color:var(--text-muted);">' + escapeHtml(a.tool) + ' • ' + escapeHtml(a.id) + '</div></div></div>'
           + '<span class="chip ' + (a.status === 'Expired' ? 'chip-expired' : 'chip-active') + '">' + escapeHtml(a.status || 'Active') + '</span></div>'
           + '<div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; align-items:center;">' + pill + '<span class="chip chip-tag">👥 ' + mem.length + ' members</span></div>'
           + (matchedMember ? '<div style="margin-top:8px; font-size:12.5px; color:var(--primary); font-weight:600;">🔎 ' + escapeHtml(matchedMember.name) + ' is account mein hai</div>' : '')
@@ -2421,30 +2462,41 @@ window.google = { script: { run: (function(){
       // Customer Search + Filters
       document.getElementById('cust-search').addEventListener('input', applyCustomerFilters);
 
-      // Date Filter wiring
+      // Date Filter wiring — do jagah ke controls (Dashboard card + Customers tab) ek hi state par, hamesha sync
+      window.__dfPreset = 'thismonth';
       dfRange = dfComputeRange('thismonth');
-      dfSetLabel_();
-      const dfPresetEl = document.getElementById('df-preset');
-      if (dfPresetEl) dfPresetEl.addEventListener('change', function() {
-        const v = dfPresetEl.value;
-        const fromEl = document.getElementById('df-from');
-        const toEl = document.getElementById('df-to');
-        if (v === 'custom') {
-          fromEl.style.display = ''; toEl.style.display = '';
-          if (fromEl.value && toEl.value) { dfRange = { from: fromEl.value, to: toEl.value, label: 'Custom range' }; dfSetLabel_(); dfRefresh_(); }
-        } else {
-          fromEl.style.display = 'none'; toEl.style.display = 'none';
-          dfRange = dfComputeRange(v); dfSetLabel_(); dfRefresh_();
-        }
-      });
-      ['df-from', 'df-to'].forEach(function(id) {
-        const el = document.getElementById(id);
-        if (el) el.addEventListener('change', function() {
-          const f = document.getElementById('df-from').value;
-          const t = document.getElementById('df-to').value;
-          if (f && t) { dfRange = { from: f, to: t, label: 'Custom range' }; dfSetLabel_(); dfRefresh_(); }
+      function dfSyncUI_() {
+        const p = window.__dfPreset || 'thismonth';
+        [['df-preset', 'df-from', 'df-to', 'df-label'], ['df-preset-2', 'df-from-2', 'df-to-2', 'df-label-2']].forEach(function(ids) {
+          const sel = document.getElementById(ids[0]); if (sel) sel.value = p;
+          const f = document.getElementById(ids[1]); const t = document.getElementById(ids[2]);
+          if (f && t) {
+            const show = (p === 'custom');
+            f.style.display = show ? '' : 'none'; t.style.display = show ? '' : 'none';
+            if (show && dfRange) { f.value = dfRange.from; t.value = dfRange.to; }
+          }
+          const lb = document.getElementById(ids[3]); if (lb && dfRange) lb.innerText = 'Data: ' + dfRange.from + ' \u2192 ' + dfRange.to;
         });
-      });
+      }
+      function dfPresetChanged_(v) {
+        window.__dfPreset = v;
+        if (v === 'custom') {
+          const f = (document.getElementById('df-from').value || document.getElementById('df-from-2').value || '');
+          const t = (document.getElementById('df-to').value || document.getElementById('df-to-2').value || '');
+          dfSyncUI_();
+          if (f && t) { dfRange = { from: f, to: t, label: 'Custom range' }; dfSyncUI_(); dfRefresh_(); }
+          return;
+        }
+        dfRange = dfComputeRange(v); dfSyncUI_(); dfRefresh_();
+      }
+      function dfDatesChanged_() {
+        const f = document.getElementById('df-from').value || document.getElementById('df-from-2').value;
+        const t = document.getElementById('df-to').value || document.getElementById('df-to-2').value;
+        if (f && t) { window.__dfPreset = 'custom'; dfRange = { from: f, to: t, label: 'Custom range' }; dfSyncUI_(); dfRefresh_(); }
+      }
+      ['df-preset', 'df-preset-2'].forEach(function(id) { const el = document.getElementById(id); if (el) el.addEventListener('change', function() { dfPresetChanged_(el.value); }); });
+      ['df-from', 'df-to', 'df-from-2', 'df-to-2'].forEach(function(id) { const el = document.getElementById(id); if (el) el.addEventListener('change', dfDatesChanged_); });
+      dfSyncUI_();
 
       // Settings: Update Password
       document.getElementById('settings-password-form').addEventListener('submit', function(e) {
