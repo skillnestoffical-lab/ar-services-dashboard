@@ -785,9 +785,9 @@ window.google = { script: { run: (function(){
       #tab-dashboard > #mobile-home-top { order: 0; }
       #tab-dashboard > #supply-alert-banner { order: 1; }
       #tab-dashboard > .kpi-grid { order: 2; }
-      #tab-dashboard > #renewals-head { order: 3; }
-      #tab-dashboard > #renewals-container { order: 4; }
-      #tab-dashboard > :nth-child(5) { order: 5; }
+      #tab-dashboard > #renewals-head { order: 4; }
+      #tab-dashboard > #renewals-container { order: 5; }
+      #tab-dashboard > :nth-child(5) { order: 3; }
       #tab-dashboard > :nth-child(3) { order: 6; }
       #tab-dashboard > :nth-child(4) { order: 7; }
       .kpi-grid { grid-template-columns: 1fr 1fr !important; gap: 12px; }
@@ -862,6 +862,21 @@ window.google = { script: { run: (function(){
       .kpi-grid > .kpi-card:nth-child(6) { background: linear-gradient(140deg, #134e6f, #0a2540) !important; }
       .kpi-grid > .kpi-card:nth-child(6) .kpi-title { color: #8fd8cf; }
       .kpi-grid > .kpi-card:nth-child(6) .kpi-val { color: #ffffff; }
+      /* Sections clean-up + renewals compact (owner brief) */
+      #supply-alert-banner { margin-top: 10px; }
+      #tab-dashboard .section-head > span { display: none; }
+      #tab-dashboard > :nth-child(5) { padding: 10px 14px !important; gap: 8px; row-gap: 4px; }
+      #tab-dashboard > :nth-child(5) > span:last-child { display: none; }
+      #tasks-container { padding: 14px 16px !important; }
+      .renewals-card { padding: 12px; }
+      .renewal-item { padding: 10px 11px; gap: 8px; flex-wrap: nowrap; }
+      .renewal-item > .renewal-meta { flex: 1; min-width: 0; gap: 9px; }
+      .renewal-item > div:last-child { flex: none; }
+      .badge-icon { flex: none; width: 38px; height: 38px; border-radius: 50%; }
+      .renewal-meta > div:last-child { min-width: 0; }
+      .renewal-meta > div:last-child > div:last-child { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 11.5px !important; }
+      .days-pill { flex: none; white-space: nowrap; font-size: 11.5px; padding: 4px 9px; }
+      .btn-wa { flex: none; white-space: nowrap; font-size: 11.5px !important; padding: 7px 11px !important; }
     }
   </style>
 </head>
@@ -1839,7 +1854,7 @@ window.google = { script: { run: (function(){
       const supplyDaysCount = document.getElementById('supply-days-count');
       const supplyAlertText = document.getElementById('supply-alert-text');
 
-      if (data.supplyDays !== undefined && Number(data.supplyDays) <= 45) {
+      if (data.supplyDays !== undefined && Number(data.supplyDays) <= 3) {
         supplyAlertText.innerText = "Surfshark trial ends in " + data.supplyDays + " days";
         supplyDaysCount.innerText = data.supplyDays + " Days Left";
         supplyBanner.style.display = 'flex';
@@ -2018,7 +2033,7 @@ window.google = { script: { run: (function(){
               <div class="badge-icon">${escapeHtml(item.tool.substring(0, 2).toUpperCase())}</div>
               <div>
                 <div style="font-weight: 700; font-size: 14px; color: var(--primary);">${escapeHtml(item.name)}</div>
-                <div style="font-size: 12px; color: var(--text-muted);">${escapeHtml(item.tool)} • Expiry: ${escapeHtml(item.expiry)}</div>
+                <div style="font-size: 12px; color: var(--text-muted);">${escapeHtml(item.tool)} • Exp: ${escapeHtml(fmtShortDate_(item.expiry))}</div>
               </div>
             </div>
             <div style="display:flex; gap:8px; align-items:center;">
@@ -2077,6 +2092,14 @@ window.google = { script: { run: (function(){
     /* =========================================================
        ACCOUNTS & ADS
        ========================================================= */
+    function fmtShortDate_(ds) {
+      if (!ds) return '-';
+      const p = String(ds).split('-');
+      if (p.length !== 3) return ds;
+      const MN = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      return Number(p[2]) + ' ' + MN[Number(p[1]) - 1] + ' ' + p[0];
+    }
+
     function daysUntil(dateStr) {
       if (!dateStr) return null;
       const p = String(dateStr).split('-').map(Number);
