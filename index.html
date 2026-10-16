@@ -660,6 +660,8 @@ window.google = { script: { run: (function(){
     .tool-logo-wrap { position: relative; display: inline-flex; align-items: center; justify-content: center; border-radius: 7px; color: #fff; font-weight: 800; overflow: hidden; flex: none; vertical-align: middle; }
     .tool-logo-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; background: #fff; padding: 2px; box-sizing: border-box; }
     .accounts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 18px; margin-bottom: 24px; }
+    .tool-cards-row { display: flex; gap: 18px; flex-wrap: wrap; }
+    .tool-card-sq { flex: 1 1 170px; max-width: 270px; aspect-ratio: 1 / 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 7px; cursor: pointer; padding: 18px; }
     .account-card { padding: 20px; }
     .member-line { font-size: 12.5px; padding: 5px 0; border-bottom: 1px dashed rgba(140,180,220,0.35); display: flex; justify-content: space-between; gap: 8px; }
     .member-line:last-child { border-bottom: none; }
@@ -785,7 +787,7 @@ window.google = { script: { run: (function(){
       </form>
 
       <div class="auth-google-note">
-        Ya apne Google (Skill Nest) account se sign-in karke kholein — woh khud login ho jayega.
+        Or open this page while signed in to your Google (Skill Nest) account — you will be logged in automatically.
       </div>
     </div>
   </div>
@@ -821,15 +823,15 @@ window.google = { script: { run: (function(){
         <div id="supply-alert-banner" class="supply-alert" style="display:none;">
           <div class="supply-alert-info">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-            <span id="supply-alert-text">Surfshark trial khatam honay mein baqi din</span>
+            <span id="supply-alert-text">Surfshark trial ending soon</span>
           </div>
-          <span class="supply-days-tag" id="supply-days-count">0 din</span>
+          <span class="supply-days-tag" id="supply-days-count">0 Days</span>
         </div>
 
         <!-- AAJ KE TASKS -->
         <div class="section-head">
-          <h2 class="section-title">📌 Aaj ke Tasks</h2>
-          <span style="font-size: 13px; color: var(--text-muted);">Aaj / 3 din mein expire + expired follow-ups</span>
+          <h2 class="section-title">📌 Today's Tasks</h2>
+          <span style="font-size: 13px; color: var(--text-muted);">Expiring today / within 3 days + expired follow-ups</span>
         </div>
         <div class="card renewals-card" id="tasks-container" style="margin-bottom: 24px;">
           <!-- Rendered in JS -->
@@ -850,7 +852,7 @@ window.google = { script: { run: (function(){
           <input type="date" id="df-from" class="form-input" style="width: auto; display: none;">
           <input type="date" id="df-to" class="form-input" style="width: auto; display: none;">
           <span id="df-label" style="font-size: 12.5px; color: var(--text-muted);"></span>
-          <span style="font-size: 12.5px; color: var(--text-muted);">— neeche ke numbers, charts aur customer list isi range ke hain</span>
+          <span style="font-size: 12.5px; color: var(--text-muted);">— the numbers, charts and customer list below follow this range</span>
         </div>
 
         <!-- 6 KPI CARDS -->
@@ -978,7 +980,7 @@ window.google = { script: { run: (function(){
         <!-- PENDING PAYMENTS SECTION -->
         <div class="section-head" style="margin-top: 26px;">
           <h2 class="section-title">💰 Pending Payments</h2>
-          <span style="font-size: 13px; color: var(--text-muted);">Jin ki payment abhi baqi hai</span>
+          <span style="font-size: 13px; color: var(--text-muted);">Customers whose payment is still pending</span>
         </div>
         <div class="card renewals-card" id="pending-container">
           <!-- Rendered in JS -->
@@ -1052,7 +1054,7 @@ window.google = { script: { run: (function(){
                   <input type="number" id="ent-selling" class="form-input" placeholder="Selling Price" required min="0">
                 </div>
                 <div class="form-group">
-                  <label class="form-label">Cost Price (Rs) — Auto, badal bhi sakte hain</label>
+                  <label class="form-label">Cost Price (Rs) — Auto-filled, editable</label>
                   <input type="number" id="ent-cost" class="form-input" placeholder="Cost Price" min="0">
                 </div>
               </div>
@@ -1071,11 +1073,11 @@ window.google = { script: { run: (function(){
               <div class="grid-2">
                 <div class="form-group">
                   <label class="form-label">Account Email</label>
-                  <input type="text" id="ent-email" class="form-input" placeholder="Woh email jis par account/access active hai">
+                  <input type="text" id="ent-email" class="form-input" placeholder="Email where the account/access is active">
                 </div>
                 <div class="form-group">
                   <label class="form-label">Note (Optional)</label>
-                  <input type="text" id="ent-note" class="form-input" placeholder="Is entry ke baare mein koi note">
+                  <input type="text" id="ent-note" class="form-input" placeholder="Any note about this entry">
                 </div>
               </div>
 
@@ -1102,7 +1104,7 @@ window.google = { script: { run: (function(){
               </button>
 
               <div class="form-note">
-                "Start Date khud aaj ki lagi hogi — badal bhi sakte hain. Expiry Date plan ke hisaab se khud ban jayegi, zaroorat ho to woh bhi badal sakte hain."
+                "The Start Date is set to today — you can change it. The Expiry Date is calculated from the plan automatically; you can adjust it if needed."
               </div>
             </form>
           </div>
@@ -1110,7 +1112,7 @@ window.google = { script: { run: (function(){
           <!-- Success State -->
           <div id="entry-success-container" class="success-box">
             <div class="success-icon">✓</div>
-            <h2 style="font-size: 22px; color: var(--primary); margin-bottom: 8px;">Entry ho gayi!</h2>
+            <h2 style="font-size: 22px; color: var(--primary); margin-bottom: 8px;">Entry Saved!</h2>
             <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 24px;">Customer order has been recorded into the system.</p>
             <button type="button" class="btn-primary" id="btn-another-entry" style="display:inline-flex; width: auto; padding: 12px 28px;">
               Add Another Entry
@@ -1188,9 +1190,6 @@ window.google = { script: { run: (function(){
           <h2 class="section-title">Service Accounts</h2>
           <span id="accounts-count-badge" class="chip chip-tag">0 Accounts</span>
         </div>
-        <div style="margin-bottom: 16px;">
-          <input type="text" id="acc-search" class="form-input" placeholder="Customer ka naam ya number likhein — kis account mein hai?">
-        </div>
         <div class="accounts-grid" id="accounts-container">
           <!-- Rendered in JS -->
         </div>
@@ -1201,19 +1200,19 @@ window.google = { script: { run: (function(){
       <!-- ================= TAB: ADS ================= -->
       <section id="tab-ads" class="tab-pane animate-in" style="display:none;">
         <div class="section-head">
-          <h2 class="section-title">Ads — Kharcha aur Result</h2>
-          <span style="font-size: 13px; color: var(--text-muted);">Is mahine ka hisaab</span>
+          <h2 class="section-title">Ads — Spend & Results</h2>
+          <span style="font-size: 13px; color: var(--text-muted);">This month's summary</span>
         </div>
         <div class="kpi-grid">
-          <div class="card kpi-card"><span class="kpi-title">Is Mah Kharcha</span><div class="kpi-value-row"><span class="kpi-val" id="ads-month-spend">Rs 0</span></div></div>
+          <div class="card kpi-card"><span class="kpi-title">This Month's Spend</span><div class="kpi-value-row"><span class="kpi-val" id="ads-month-spend">Rs 0</span></div></div>
           <div class="card kpi-card"><span class="kpi-title">Cost / Conversation</span><div class="kpi-value-row"><span class="kpi-val" id="ads-cost-conv">Rs 0</span></div><div style="font-size:12px; color:var(--text-muted); margin-top:4px;" id="ads-month-conv"></div></div>
-          <div class="card kpi-card"><span class="kpi-title">Orders (Ads se)</span><div class="kpi-value-row"><span class="kpi-val" id="ads-month-orders">0</span></div></div>
+          <div class="card kpi-card"><span class="kpi-title">Orders (from Ads)</span><div class="kpi-value-row"><span class="kpi-val" id="ads-month-orders">0</span></div></div>
         </div>
 
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; align-items: start;">
           <div class="card form-wrapper" style="margin: 0; max-width: 100%;">
             <div class="section-head" style="margin-bottom: 16px;">
-              <h2 class="section-title">Roz ka Ad Kharcha Add karein</h2>
+              <h2 class="section-title">Add Daily Ad Spend</h2>
             </div>
             <form id="ad-form">
               <div class="form-group">
@@ -1227,7 +1226,7 @@ window.google = { script: { run: (function(){
               </div>
               <div class="grid-2">
                 <div class="form-group">
-                  <label class="form-label">Kharcha (Rs) *</label>
+                  <label class="form-label">Spend (Rs) *</label>
                   <input type="number" id="ad-spend" class="form-input" placeholder="Spend" min="0" required>
                 </div>
                 <div class="form-group">
@@ -1236,10 +1235,10 @@ window.google = { script: { run: (function(){
                 </div>
               </div>
               <div class="form-group">
-                <label class="form-label">Orders (is ad se) — optional</label>
+                <label class="form-label">Orders (from this ad) — optional</label>
                 <input type="number" id="ad-orders" class="form-input" placeholder="Orders" min="0">
               </div>
-              <button type="submit" class="btn-primary"><span>Kharcha Save karein</span></button>
+              <button type="submit" class="btn-primary"><span>Save Spend</span></button>
               <div id="ad-msg" style="font-size: 12.5px; margin-top: 8px;"></div>
             </form>
           </div>
@@ -1252,7 +1251,7 @@ window.google = { script: { run: (function(){
             <div class="table-container">
               <table>
                 <thead>
-                  <tr><th>Date</th><th>Campaign</th><th>Kharcha</th><th>Conv.</th><th>Orders</th><th>Cost/Conv</th></tr>
+                  <tr><th>Date</th><th>Campaign</th><th>Spend</th><th>Conv.</th><th>Orders</th><th>Cost/Conv</th></tr>
                 </thead>
                 <tbody id="ads-table-body"></tbody>
               </table>
@@ -1301,7 +1300,7 @@ window.google = { script: { run: (function(){
               <div class="form-group" style="margin-bottom: 16px;">
                 <label class="form-label">Monthly Net Profit Target (Rs)</label>
                 <div style="display: flex; gap: 8px;">
-                  <input type="number" id="set-target" class="form-input" placeholder="Masalan: 30000" min="0">
+                  <input type="number" id="set-target" class="form-input" placeholder="Example: 30000" min="0">
                   <button type="button" class="btn-primary" id="btn-save-target" style="width: auto; padding: 10px 20px;">Save</button>
                 </div>
                 <div id="target-msg" style="font-size: 12px; color: var(--success); margin-top: 6px;"></div>
@@ -1329,15 +1328,15 @@ window.google = { script: { run: (function(){
     <div class="card modal-card">
       <div class="section-head" style="margin-bottom: 12px;">
         <h2 class="section-title" id="hist-title">Customer History</h2>
-        <button type="button" id="hist-close" class="btn-history">✕ Band karein</button>
+        <button type="button" id="hist-close" class="btn-history">✕ Close</button>
       </div>
       <div id="hist-account" style="font-size: 13.5px; margin-bottom: 8px;"></div>
       <div id="hist-body"></div>
       <div class="form-group" style="margin-top: 14px;">
         <label class="form-label">Note (ye note sirf is device par save hota hai)</label>
-        <textarea id="hist-note" class="form-input note-area" placeholder="Masalan: 2 devices hain, VIP customer..."></textarea>
+        <textarea id="hist-note" class="form-input note-area" placeholder="Example: 2 devices, VIP customer..."></textarea>
       </div>
-      <button type="button" id="hist-save-note" class="btn-primary" style="width: auto; padding: 10px 22px;">Note Save karein</button>
+      <button type="button" id="hist-save-note" class="btn-primary" style="width: auto; padding: 10px 22px;">Save Note</button>
       <span id="hist-note-msg" style="font-size: 12px; color: var(--success); margin-left: 10px;"></span>
     </div>
   </div>
@@ -1601,7 +1600,7 @@ window.google = { script: { run: (function(){
       const supplyAlertText = document.getElementById('supply-alert-text');
 
       if (data.supplyDays !== undefined && Number(data.supplyDays) <= 45) {
-        supplyAlertText.innerText = "Surfshark trial khatam honay mein " + data.supplyDays + " din baqi";
+        supplyAlertText.innerText = "Surfshark trial ends in " + data.supplyDays + " days";
         supplyDaysCount.innerText = data.supplyDays + " Days Left";
         supplyBanner.style.display = 'flex';
       } else {
@@ -1770,7 +1769,7 @@ window.google = { script: { run: (function(){
       sorted.forEach(item => {
         const isCritical = item.days <= 3;
         const pillClass = isCritical ? 'days-pill critical' : 'days-pill warn';
-        const daysText = item.days <= 0 ? 'Expired' : item.days + ' days baqi';
+        const daysText = item.days <= 0 ? 'Expired' : item.days + ' days left';
 
         html += `
           <div class="renewal-item">
@@ -1865,8 +1864,8 @@ window.google = { script: { run: (function(){
       list.forEach(a => {
         const d = daysUntil(a.expiry);
         const pillClass = d <= 3 ? 'days-pill critical' : 'days-pill warn';
-        const daysText = d < 0 ? 'Expired' : (d === 0 ? 'Aaj expire' : d + ' din baqi');
-        box.innerHTML += '<div class="renewal-item"><div class="renewal-meta"><div class="badge-icon">' + escapeHtml((a.tool || '?').substring(0, 2).toUpperCase()) + '</div><div><div style="font-weight: 700; font-size: 14px; color: var(--primary);">' + escapeHtml(a.name || a.email || a.id) + ' <span class="chip chip-tag">Account</span></div><div style="font-size: 12px; color: var(--text-muted);">' + escapeHtml(a.tool) + ' account ki expiry: ' + escapeHtml(a.expiry || '-') + '</div></div></div><span class="' + pillClass + '">' + daysText + '</span></div>';
+        const daysText = d < 0 ? 'Expired' : (d === 0 ? 'Expires today' : d + ' days left');
+        box.innerHTML += '<div class="renewal-item"><div class="renewal-meta"><div class="badge-icon">' + escapeHtml((a.tool || '?').substring(0, 2).toUpperCase()) + '</div><div><div style="font-weight: 700; font-size: 14px; color: var(--primary);">' + escapeHtml(a.name || a.email || a.id) + ' <span class="chip chip-tag">Account</span></div><div style="font-size: 12px; color: var(--text-muted);">' + escapeHtml(a.tool) + ' account expiry: ' + escapeHtml(a.expiry || '-') + '</div></div></div><span class="' + pillClass + '">' + daysText + '</span></div>';
       });
     }
 
@@ -1891,11 +1890,11 @@ window.google = { script: { run: (function(){
       showLoading(true);
       sendMember(d).then(function(r) {
         showLoading(false);
-        if (r && r.ok === false) { msg.style.color = 'var(--danger)'; msg.innerText = 'Add nahi hua — dobara try karein.'; return; }
+        if (r && r.ok === false) { msg.style.color = 'var(--danger)'; msg.innerText = 'Could not add — please try again.'; return; }
         msg.style.color = 'var(--success)';
-        msg.innerText = 'Member add ho gaya ✔';
+        msg.innerText = 'Member added ✔';
         silentRefetch();
-      }).catch(function() { showLoading(false); msg.style.color = 'var(--danger)'; msg.innerText = 'Error — add nahi hua.'; });
+      }).catch(function() { showLoading(false); msg.style.color = 'var(--danger)'; msg.innerText = 'Error — could not add.'; });
     }
 
     const TOOL_LOGOS = {
@@ -1937,11 +1936,11 @@ window.google = { script: { run: (function(){
       showLoading(true);
       sendMember(d).then(function(r) {
         showLoading(false);
-        if (r && r.ok === false) { msg.style.color = 'var(--danger)'; msg.innerText = 'Add nahi hua — dobara try karein.'; return; }
+        if (r && r.ok === false) { msg.style.color = 'var(--danger)'; msg.innerText = 'Could not add — please try again.'; return; }
         msg.style.color = 'var(--success)';
-        msg.innerText = 'Member add ho gaya ✔';
+        msg.innerText = 'Member added ✔';
         silentRefetch();
-      }).catch(function() { showLoading(false); msg.style.color = 'var(--danger)'; msg.innerText = 'Error — add nahi hua.'; });
+      }).catch(function() { showLoading(false); msg.style.color = 'var(--danger)'; msg.innerText = 'Error — could not add.'; });
     };
 
     function accCardHtml(a, mem, matchedMember, custOptions, today, clickable) {
@@ -1949,13 +1948,13 @@ window.google = { script: { run: (function(){
       let pill;
       if (d === null) pill = '<span class="days-pill" style="background:rgba(255,255,255,0.6); color:var(--text-muted);">Expiry —</span>';
       else if (d < 0) pill = '<span class="days-pill critical">Expired</span>';
-      else if (d <= 7) pill = '<span class="days-pill critical">' + d + ' din baqi</span>';
-      else if (d <= 30) pill = '<span class="days-pill warn">' + d + ' din baqi</span>';
-      else pill = '<span class="days-pill" style="background:var(--success-bg); color:#047857;">' + d + ' din baqi</span>';
+      else if (d <= 7) pill = '<span class="days-pill critical">' + d + ' days left</span>';
+      else if (d <= 30) pill = '<span class="days-pill warn">' + d + ' days left</span>';
+      else pill = '<span class="days-pill" style="background:var(--success-bg); color:#047857;">' + d + ' days left</span>';
       const cardClass = (d !== null && d <= 7 && a.status !== 'Expired') ? ' acc-danger' : ((d !== null && d <= 15 && a.status !== 'Expired') ? ' acc-warn' : '');
       const memHtml = mem.length
         ? mem.map(m => '<div class="member-line"><span>' + escapeHtml(m.name) + '</span><span style="color:var(--text-muted);">' + escapeHtml(m.number) + '</span></div>').join('')
-        : '<div style="font-size:12.5px; color:var(--text-muted); padding:4px 0;">Abhi koi member record nahi</div>';
+        : '<div style="font-size:12.5px; color:var(--text-muted); padding:4px 0;">No members recorded yet</div>';
       const vendorLine = (a.vendor || a.vendorNumber) ? escapeHtml(a.vendor || '') + (a.vendorNumber ? ' • ' + escapeHtml(a.vendorNumber) : '') : '—';
       const safeId = String(a.id).replace(/'/g, '');
       const clickAttr = clickable ? ' onclick="if(event.target.closest(\'button,select,input,a\'))return; accGoMembers(\'' + safeId + '\', \'' + String(a.tool).replace(/'/g, '') + '\')" style="cursor:pointer;"' : '';
@@ -1965,19 +1964,8 @@ window.google = { script: { run: (function(){
         + '<div style="font-size:12px; color:var(--text-muted);">' + escapeHtml(a.tool) + ' • ' + escapeHtml(a.id) + '</div></div></div>'
         + '<span class="chip ' + (a.status === 'Expired' ? 'chip-expired' : 'chip-active') + '">' + escapeHtml(a.status || 'Active') + '</span></div>'
         + '<div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; align-items:center;">' + pill + '<span class="chip chip-tag">👥 ' + mem.length + ' members</span></div>'
-        + (matchedMember ? '<div style="margin-top:8px; font-size:12.5px; color:var(--primary); font-weight:600;">🔎 ' + escapeHtml(matchedMember.name) + ' is account mein hai</div>' : '')
-        + (clickable ? '<div style="margin-top:12px;"><button type="button" class="btn-primary" style="padding:9px 14px; font-size:13px;" onclick="accGoMembers(\'' + safeId + '\', \'' + String(a.tool).replace(/'/g, '') + '\')"><span>Customers dekhein →</span></button></div>' : '')
-        + '<div class="acc-actions"><button type="button" class="mini-btn" onclick="toggleAccBox(\'' + safeId + '\', \'det\')">Details ▾</button><button type="button" class="mini-btn" onclick="toggleAccBox(\'' + safeId + '\', \'asg\')">+ Member</button></div>'
-        + '<div id="det-' + escapeHtml(a.id) + '" class="acc-box" style="display:none;">'
-        + '<div style="font-size:13px; line-height:1.75;">📧 Email: <strong>' + escapeHtml(a.email || '—') + '</strong><br>🏪 Vendor: ' + vendorLine + '<br>💰 Cost: ' + (a.cost ? 'Rs ' + Number(a.cost).toLocaleString() : '—') + '<br>📅 ' + escapeHtml(a.start || '—') + ' → ' + escapeHtml(a.expiry || '—') + (a.notes ? '<br><span style="color:var(--text-muted);">' + escapeHtml(a.notes) + '</span>' : '') + '</div>'
-        + '<div style="margin-top:10px;"><div style="font-weight:700; font-size:13px; margin-bottom:4px;">Members (' + mem.length + ')</div>' + memHtml + '</div>'
-        + '</div>'
-        + '<div id="asg-' + escapeHtml(a.id) + '" class="acc-box" style="display:none;">'
-        + '<div class="form-group"><label class="form-label">Customer select karein</label><select class="form-select card-cust">' + custOptions + '</select></div>'
-        + '<div class="form-group"><label class="form-label">Added Date</label><input type="date" class="form-input card-date" value="' + today + '"></div>'
-        + '<button type="button" class="btn-primary" onclick="addMemberFromCard(\'' + safeId + '\', this)"><span>Member Add karein</span></button>'
-        + '<div class="card-msg" style="font-size:12.5px; margin-top:8px;"></div>'
-        + '</div>'
+        + (matchedMember ? '<div style="margin-top:8px; font-size:12.5px; color:var(--primary); font-weight:600;">🔎 ' + escapeHtml(matchedMember.name) + ' is on this account</div>' : '')
+        + (clickable ? '<div style="margin-top:12px;"><button type="button" class="btn-primary" style="padding:9px 14px; font-size:13px;" onclick="accGoMembers(\'' + safeId + '\', \'' + String(a.tool).replace(/'/g, '') + '\')"><span>View Customers →</span></button></div>' : '')
         + '</div>';
     }
 
@@ -1992,7 +1980,7 @@ window.google = { script: { run: (function(){
       const custOptions = (data.customers || []).map(c => '<option value="' + escapeHtml(c.number + '|' + c.name + '|' + c.tool) + '">' + escapeHtml(c.name + ' — ' + c.tool) + '</option>').join('');
       const today = fmtDate_(new Date());
       if (!accounts.length) {
-        box.innerHTML = '<div class="card" style="padding:20px; color:var(--text-muted); font-size:13.5px;">Abhi koi account record nahi — neeche wala form se pehla account add karein.</div>';
+        box.innerHTML = '<div class="card" style="padding:20px; color:var(--text-muted); font-size:13.5px;">No accounts yet.</div>';
         return;
       }
       /* --- Search mode: flat results (purana tareeqa) --- */
@@ -2006,7 +1994,7 @@ window.google = { script: { run: (function(){
           shown++;
           return accCardHtml(a, mem, matchedMember, custOptions, today, false);
         }).join('');
-        box.innerHTML = shown ? '<div class="accounts-grid" style="margin-bottom:0;">' + cards + '</div>' : '<div class="card" style="padding:20px; color:var(--text-muted); font-size:13.5px;">Is naam ya number ka koi customer / account nahi mila.</div>';
+        box.innerHTML = shown ? '<div class="accounts-grid" style="margin-bottom:0;">' + cards + '</div>' : '<div class="card" style="padding:20px; color:var(--text-muted); font-size:13.5px;">No customer or account found for this name or number.</div>';
         return;
       }
       /* --- Level 3: ek account ke customers (table, Customer section jaisi) --- */
@@ -2016,7 +2004,7 @@ window.google = { script: { run: (function(){
         else {
           const mem = members.filter(m => m.accountId === a.id);
           const d = daysUntil(a.expiry);
-          const pill = d === null ? '' : (d < 0 ? '<span class="days-pill critical">Expired</span>' : (d <= 7 ? '<span class="days-pill critical">' + d + ' din baqi</span>' : (d <= 30 ? '<span class="days-pill warn">' + d + ' din baqi</span>' : '<span class="days-pill" style="background:var(--success-bg); color:#047857;">' + d + ' din baqi</span>')));
+          const pill = d === null ? '' : (d < 0 ? '<span class="days-pill critical">Expired</span>' : (d <= 7 ? '<span class="days-pill critical">' + d + ' days left</span>' : (d <= 30 ? '<span class="days-pill warn">' + d + ' days left</span>' : '<span class="days-pill" style="background:var(--success-bg); color:#047857;">' + d + ' days left</span>')));
           const rows = mem.map(m => {
             const nk = String(m.number || '').replace(/\D/g, '').slice(-10);
             const subs = (data.customers || []).filter(c => String(c.number || '').replace(/\D/g, '').slice(-10) === nk);
@@ -2032,15 +2020,16 @@ window.google = { script: { run: (function(){
             + '<div><div style="font-weight:800; font-size:17px; color:var(--primary-dark);">' + escapeHtml(a.name || a.tool) + '</div>'
             + '<div style="font-size:12.5px; color:var(--text-muted);">' + escapeHtml(a.tool) + ' • ' + escapeHtml(a.id) + ' • ' + escapeHtml(a.email || '—') + '</div></div>'
             + '<span class="chip ' + (a.status === 'Expired' ? 'chip-expired' : 'chip-active') + '">' + escapeHtml(a.status || 'Active') + '</span>' + pill
-            + '<span class="chip chip-tag">👥 ' + mem.length + ' customers</span></div></div>'
-            + '<div class="card" style="padding:6px 0; overflow:hidden;"><div class="table-container"><table><thead><tr><th>Client Name</th><th>WhatsApp Number</th><th>Plan</th><th>Start</th><th>Expiry</th><th>Status</th><th>Payment</th><th>Account Mein Add</th></tr></thead><tbody>'
-            + (rows || '<tr><td colspan="8" style="text-align:center; color:var(--text-muted); padding:18px;">Is account mein abhi koi customer add nahi.</td></tr>')
+            + '<span class="chip chip-tag">Total Members: ' + mem.length + '</span></div></div>'
+            + '<div class="card" style="padding:6px 0; overflow:hidden;"><div class="table-container"><table><thead><tr><th>Client Name</th><th>WhatsApp Number</th><th>Plan</th><th>Start</th><th>Expiry</th><th>Status</th><th>Payment</th><th>Added to Account</th></tr></thead><tbody>'
+            + (rows || '<tr><td colspan="8" style="text-align:center; color:var(--text-muted); padding:18px;">No customers added to this account yet.</td></tr>')
             + '</tbody></table></div></div>'
-            + '<div class="card acc-add-strip" style="padding:16px 20px; margin-top:16px;"><div style="font-weight:700; font-size:14px; margin-bottom:10px;">➕ Is account mein customer add karein</div>'
-            + '<div class="grid-2"><div class="form-group"><label class="form-label">Customer select karein</label><select class="form-select card-cust">' + custOptions + '</select></div>'
+            + '<div class="card acc-add-strip" style="padding:16px 20px; margin-top:16px;"><div style="font-weight:700; font-size:14px; margin-bottom:10px;">➕ Add a customer to this account</div>'
+            + '<div class="grid-2"><div class="form-group"><label class="form-label">Select Customer</label><select class="form-select card-cust">' + custOptions + '</select></div>'
             + '<div class="form-group"><label class="form-label">Added Date</label><input type="date" class="form-input card-date" value="' + today + '"></div></div>'
-            + '<button type="button" class="btn-primary" onclick="addMemberFromView(\'' + String(a.id).replace(/'/g, '') + '\', this)"><span>Member Add karein</span></button>'
-            + '<div class="card-msg" style="font-size:12.5px; margin-top:8px;"></div></div>';
+            + '<button type="button" class="btn-primary" onclick="addMemberFromView(\'' + String(a.id).replace(/'/g, '') + '\', this)"><span>Add Member</span></button>'
+            + '<div class="card-msg" style="font-size:12.5px; margin-top:8px;"></div></div>'
+            + '<div style="margin-top:18px;"><button type="button" class="btn-primary" style="width:auto; padding:10px 24px;" onclick="accGoTool(\'' + String(a.tool).replace(/'/g, '') + '\')"><span>← Back</span></button></div>';
           return;
         }
       }
@@ -2050,10 +2039,11 @@ window.google = { script: { run: (function(){
         if (!list.length) { accNav = { view: 'tools', tool: null, accountId: null }; }
         else {
           const cards = list.map(a => accCardHtml(a, members.filter(m => m.accountId === a.id), null, custOptions, today, true)).join('');
-          box.innerHTML = '<button type="button" class="mini-btn" style="margin-bottom:14px;" onclick="accGoTools()">← Sab Tools</button>'
+          box.innerHTML = '<button type="button" class="mini-btn" style="margin-bottom:14px;" onclick="accGoTools()">← All Tools</button>'
             + '<div style="display:flex; gap:10px; align-items:center; margin-bottom:14px;">' + toolLogoHtml(accNav.tool, 30) + '<h3 style="font-size:17px; font-weight:800; color:var(--primary-dark);">' + escapeHtml(accNav.tool) + ' — Accounts (' + list.length + ')</h3></div>'
-            + '<div style="font-size:13px; color:var(--text-muted); margin-bottom:12px;">Kisi account ke customers dekhne ke liye us account ke card par click karein.</div>'
-            + '<div class="accounts-grid" style="margin-bottom:0;">' + cards + '</div>';
+            + '<div style="font-size:13px; color:var(--text-muted); margin-bottom:12px;">Click an account card to see its customers.</div>'
+            + '<div class="accounts-grid" style="margin-bottom:0;">' + cards + '</div>'
+            + '<div style="margin-top:18px;"><button type="button" class="btn-primary" style="width:auto; padding:10px 24px;" onclick="accGoTools()"><span>← Back</span></button></div>';
           return;
         }
       }
@@ -2066,17 +2056,17 @@ window.google = { script: { run: (function(){
         const activeCount = list.filter(a => a.status !== 'Expired').length;
         let nearest = null;
         list.forEach(a => { const dd = daysUntil(a.expiry); if (dd !== null && dd >= 0 && (nearest === null || dd < nearest)) nearest = dd; });
-        const warn = nearest !== null && nearest <= 15 ? '<span class="days-pill ' + (nearest <= 7 ? 'critical' : 'warn') + '">Ek account ki expiry mein ' + nearest + ' din baqi</span>' : '';
-        return '<div class="card account-card" style="cursor:pointer;" onclick="accGoTool(\'' + String(t).replace(/'/g, '') + '\')">'
-          + '<div style="display:flex; gap:12px; align-items:center;">' + toolLogoHtml(t, 44)
-          + '<div><div style="font-weight:800; font-size:17px; color:var(--primary-dark);">' + escapeHtml(t) + '</div>'
-          + '<div style="font-size:12.5px; color:var(--text-muted);">' + list.length + ' Accounts • ' + activeCount + ' Active</div></div></div>'
-          + '<div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; align-items:center;"><span class="chip chip-tag">👥 ' + memCount + ' customers</span>' + warn + '</div>'
-          + '<div style="margin-top:12px; font-size:13px; font-weight:700; color:var(--primary);">Accounts dekhein →</div>'
+        const warn = nearest !== null && nearest <= 15 ? '<span class="days-pill ' + (nearest <= 7 ? 'critical' : 'warn') + '">One account expires in ' + nearest + ' days</span>' : '';
+        return '<div class="card tool-card-sq" onclick="accGoTool(\'' + String(t).replace(/'/g, '') + '\')">'
+          + toolLogoHtml(t, 56)
+          + '<div style="font-weight:800; font-size:18px; color:var(--primary-dark);">' + escapeHtml(t) + '</div>'
+          + '<div style="font-size:12.5px; color:var(--text-muted);">' + list.length + ' Accounts • ' + activeCount + ' Active</div>'
+          + '<span class="chip chip-tag">👥 ' + memCount + ' customers</span>' + warn
+          + '<div style="margin-top:6px; font-size:13px; font-weight:700; color:var(--primary);">View Accounts →</div>'
           + '</div>';
       }).join('');
-      box.innerHTML = '<div style="font-size:13.5px; color:var(--text-muted); margin-bottom:12px;">Pehle <strong>tool</strong> select karein — phir us tool ke accounts, aur phir account ke customers nazar ayenge.</div>'
-        + '<div class="accounts-grid" style="margin-bottom:0;">' + toolCards + '</div>';
+      box.innerHTML = '<div style="font-size:13.5px; color:var(--text-muted); margin-bottom:12px;">First select a <strong>tool</strong> — then its accounts, and then its customers.</div>'
+        + '<div class="tool-cards-row">' + toolCards + '</div>';
     }
     function renderAds(data) {
       const ads = data.ads || [];
@@ -2088,7 +2078,7 @@ window.google = { script: { run: (function(){
       const orders = month.reduce((s, a) => s + (Number(a.orders) || 0), 0);
       const set = (id, v) => { const el = document.getElementById(id); if (el) el.innerText = v; };
       set('ads-month-spend', 'Rs ' + spend.toLocaleString());
-      set('ads-month-conv', '(' + conv.toLocaleString() + ' conversations is mahine)');
+      set('ads-month-conv', '(' + conv.toLocaleString() + ' conversations this month)');
       set('ads-cost-conv', conv > 0 ? 'Rs ' + Math.round(spend / conv).toLocaleString() : 'Rs 0');
       set('ads-month-orders', orders.toLocaleString());
       const dl = document.getElementById('campaign-list');
@@ -2102,7 +2092,7 @@ window.google = { script: { run: (function(){
       const tbody = document.getElementById('ads-table-body');
       if (!tbody) return;
       if (!ads.length) {
-        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:var(--text-muted); padding:18px;">Abhi koi ad record nahi.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:var(--text-muted); padding:18px;">No ad records yet.</td></tr>';
         return;
       }
       const sorted = ads.slice().sort((a, b) => String(b.date).localeCompare(String(a.date)));
@@ -2186,7 +2176,7 @@ window.google = { script: { run: (function(){
       }).sort((a, b) => Number(a.days) - Number(b.days));
       window.__tasksEmpty = list.length === 0;
       if (!list.length) {
-        box.innerHTML = '<div style="color:var(--text-muted); font-size:13px; text-align:center; padding:12px;">Aaj koi urgent task nahi \u2014 sab theek hai. \u2714</div>';
+        box.innerHTML = '<div style="color:var(--text-muted); font-size:13px; text-align:center; padding:12px;">No urgent tasks today \u2014 all clear. \u2714</div>';
         return;
       }
       let html = '';
@@ -2194,7 +2184,7 @@ window.google = { script: { run: (function(){
         const d = Number(c.days);
         const isExp = c.status === 'Expired' || d < 0;
         const pillClass = (isExp || d <= 1) ? 'days-pill critical' : 'days-pill warn';
-        const daysText = isExp ? 'Expired \u2014 follow-up' : (d === 0 ? 'Aaj expire' : d + ' din baqi');
+        const daysText = isExp ? 'Expired \u2014 follow-up' : (d === 0 ? 'Expires today' : d + ' days left');
         html += '<div class="renewal-item"><div class="renewal-meta"><div class="badge-icon">' + escapeHtml((c.tool || '?').substring(0, 2).toUpperCase()) + '</div><div><div style="font-weight: 700; font-size: 14px; color: var(--primary);">' + escapeHtml(c.name) + '</div><div style="font-size: 12px; color: var(--text-muted);">' + escapeHtml(c.tool) + ' \u2022 Expiry: ' + escapeHtml(c.expiry || '-') + '</div></div></div><div style="display:flex; gap:8px; align-items:center;"><span class="' + pillClass + '">' + daysText + '</span>' + waBtn(c, 'renewal') + '</div></div>';
       });
       box.innerHTML = html;
@@ -2205,7 +2195,7 @@ window.google = { script: { run: (function(){
       if (!box) return;
       const list = (customers || []).filter(c => c.payment === 'Pending');
       if (!list.length) {
-        box.innerHTML = '<div style="color:var(--text-muted); font-size:13px; text-align:center; padding:12px;">Koi pending payment nahi. \u2714</div>';
+        box.innerHTML = '<div style="color:var(--text-muted); font-size:13px; text-align:center; padding:12px;">No pending payments. \u2714</div>';
         return;
       }
       let html = '';
@@ -2221,12 +2211,12 @@ window.google = { script: { run: (function(){
     function dfComputeRange(preset) {
       const now = new Date(); const y = now.getFullYear(), m = now.getMonth(), day = now.getDate();
       switch (preset) {
-        case 'today': return { from: dfFmt_(now), to: dfFmt_(now), label: 'Aaj' };
-        case 'last7': return { from: dfFmt_(new Date(y, m, day - 6)), to: dfFmt_(now), label: 'Pichhle 7 din' };
-        case 'last30': return { from: dfFmt_(new Date(y, m, day - 29)), to: dfFmt_(now), label: 'Pichhle 30 din' };
-        case 'lastmonth': return { from: dfFmt_(new Date(y, m - 1, 1)), to: dfFmt_(new Date(y, m, 0)), label: 'Pichhla mahina' };
+        case 'today': return { from: dfFmt_(now), to: dfFmt_(now), label: 'Today' };
+        case 'last7': return { from: dfFmt_(new Date(y, m, day - 6)), to: dfFmt_(now), label: 'Last 7 Days' };
+        case 'last30': return { from: dfFmt_(new Date(y, m, day - 29)), to: dfFmt_(now), label: 'Last 30 Days' };
+        case 'lastmonth': return { from: dfFmt_(new Date(y, m - 1, 1)), to: dfFmt_(new Date(y, m, 0)), label: 'Last Month' };
         case 'max': return { from: '0000-01-01', to: '9999-12-31', label: 'Maximum (All Time)' };
-        default: return { from: dfFmt_(new Date(y, m, 1)), to: dfFmt_(new Date(y, m + 1, 0)), label: 'Is mahina' };
+        default: return { from: dfFmt_(new Date(y, m, 1)), to: dfFmt_(new Date(y, m + 1, 0)), label: 'This Month' };
       }
     }
     function dfFilteredCustomers() {
@@ -2259,7 +2249,7 @@ window.google = { script: { run: (function(){
         byTool: Object.keys(toolMap).map(k => toolMap[k]).sort((a, b) => b.revenue - a.revenue),
         byMonth: Object.keys(monthMap).sort().map(k => monthMap[k]),
         revenue: revenue, profit: profit,
-        rangeLabel: dfRange ? dfRange.label : 'Is mahina'
+        rangeLabel: dfRange ? dfRange.label : 'This Month'
       };
     }
     function dfRefresh_() { if (currentDataset) { renderDashboard(currentDataset); applyCustomerFilters(); } }
@@ -2273,14 +2263,14 @@ window.google = { script: { run: (function(){
       const prof = Number((agg && agg.profit) || 0);
       const rev = Number((agg && agg.revenue) || 0);
       const lbl = (agg && agg.rangeLabel) || 'Is range';
-      if (summary) summary.innerText = lbl + ' ka net profit target';
+      if (summary) summary.innerText = lbl + ' — Net Profit Target';
       if (!target) {
-        body.innerHTML = '<div style="font-size:13.5px; margin-bottom:6px;">' + lbl + ' ka <strong>Net Profit: Rs ' + prof.toLocaleString() + '</strong> \u2022 Revenue: Rs ' + rev.toLocaleString() + '</div><div style="color:var(--text-muted); font-size:13.5px;">Abhi koi target set nahi. <strong>Settings</strong> mein ja kar monthly <strong>net profit</strong> target likhein \u2014 phir yahan progress bar nazar ayega.</div>';
+        body.innerHTML = '<div style="font-size:13.5px; margin-bottom:6px;">' + lbl + ' — <strong>Net Profit: Rs ' + prof.toLocaleString() + '</strong> \u2022 Revenue: Rs ' + rev.toLocaleString() + '</div><div style="color:var(--text-muted); font-size:13.5px;">No target set yet. Go to <strong>Settings</strong> and enter a monthly <strong>net profit</strong> target — the progress bar will appear here.</div>';
         return;
       }
       const pct = Math.max(0, Math.min(100, Math.round(prof / target * 100)));
       const left = Math.max(0, target - prof);
-      body.innerHTML = '<div style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:6px; font-size:13.5px; margin-bottom:8px;"><span>Net Profit: <strong>Rs ' + prof.toLocaleString() + '</strong> / Rs ' + target.toLocaleString() + '</span><span style="color:var(--text-muted);">' + pct + '% poora' + (left > 0 ? ' \u2022 Rs ' + left.toLocaleString() + ' baqi' : ' \u2022 Target poora! \uD83C\uDF89') + '</span></div><div class="progress-track"><div class="progress-fill" style="width:' + pct + '%;"></div></div><div style="font-size:13px; color:var(--text-muted); margin-top:8px;">' + lbl + ' ki Revenue: <strong style="color:var(--text);">Rs ' + rev.toLocaleString() + '</strong> (target profit par hai, revenue par nahi)</div>';
+      body.innerHTML = '<div style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:6px; font-size:13.5px; margin-bottom:8px;"><span>Net Profit: <strong>Rs ' + prof.toLocaleString() + '</strong> / Rs ' + target.toLocaleString() + '</span><span style="color:var(--text-muted);">' + pct + '% done' + (left > 0 ? ' \u2022 Rs ' + left.toLocaleString() + ' left' : ' \u2022 Target achieved! \uD83C\uDF89') + '</span></div><div class="progress-track"><div class="progress-fill" style="width:' + pct + '%;"></div></div><div style="font-size:13px; color:var(--text-muted); margin-top:8px;">' + lbl + ' ki Revenue: <strong style="color:var(--text);">Rs ' + rev.toLocaleString() + '</strong> (the target is on profit, not revenue)</div>';
     }
 
     function populateToolFilter(customers) {
@@ -2315,7 +2305,7 @@ window.google = { script: { run: (function(){
       const name = rows[0].name || 'Customer';
       document.getElementById('hist-title').innerText = name + ' \u2014 History';
       const sorted = rows.slice().sort((a, b) => String(b.start || '').localeCompare(String(a.start || '')));
-      let html = '<div style="font-size:13.5px; margin-bottom:10px;">Number: <strong>' + escapeHtml(number) + '</strong> \u2022 Kul orders: <strong>' + rows.length + '</strong>' + (rows.length > 1 ? ' \u2022 <span class="chip chip-tag">Repeat Customer \u2B50</span>' : '') + '</div>';
+      let html = '<div style="font-size:13.5px; margin-bottom:10px;">Number: <strong>' + escapeHtml(number) + '</strong> \u2022 Total orders: <strong>' + rows.length + '</strong>' + (rows.length > 1 ? ' \u2022 <span class="chip chip-tag">Repeat Customer \u2B50</span>' : '') + '</div>';
       sorted.forEach(c => {
         html += '<div class="hist-row"><strong>' + escapeHtml(c.tool) + '</strong> \u2022 ' + escapeHtml(c.plan || '') + '<br><span style="color:var(--text-muted);">Start: ' + escapeHtml(c.start || '-') + ' \u2192 Expiry: ' + escapeHtml(c.expiry || '-') + '</span> <span class="chip ' + (c.status === 'Active' ? 'chip-active' : 'chip-expired') + '">' + escapeHtml(c.status) + '</span> <span class="chip ' + (c.payment === 'Paid' ? 'chip-paid' : 'chip-pending') + '">' + escapeHtml(c.payment) + '</span>';
         const exList = ((currentDataset && currentDataset.entryExtras) || []).filter(x => String(x.number || '').replace(/\D/g, '').slice(-10) === String(c.number || '').replace(/\D/g, '').slice(-10) && x.tool === c.tool);
@@ -2336,7 +2326,7 @@ window.google = { script: { run: (function(){
             return '📌 Account: <strong>' + escapeHtml(m.accountId) + (acc ? ' (' + escapeHtml(acc.name || acc.tool) + ')' : '') + '</strong>';
           }).join('<br>');
         } else {
-          accEl.innerHTML = '📌 Account: kisi account mein assign nahi';
+          accEl.innerHTML = '📌 Account: not assigned to any account';
         }
       }
       document.getElementById('hist-note').value = loadNotes()[histNumber] || '';
@@ -2347,7 +2337,7 @@ window.google = { script: { run: (function(){
 
     function downloadCSV() {
       const rows = window.__lastList || (currentDataset ? currentDataset.customers || [] : []);
-      if (!rows.length) { alert('CSV ke liye koi record nahi.'); return; }
+      if (!rows.length) { alert('No records available for CSV.'); return; }
       const head = ['Name', 'Number', 'Tool', 'Plan', 'Start', 'Expiry', 'Days Left', 'Status', 'Payment', 'Type'];
       const esc = v => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"';
       const lines = [head.join(',')].concat(rows.map(c => [c.name, c.number, c.tool, c.plan, c.start, c.expiry, c.days, c.status, c.payment, c.ctype].map(esc).join(',')));
@@ -2583,12 +2573,6 @@ window.google = { script: { run: (function(){
       const adDateEl = document.getElementById('ad-date');
       if (adDateEl) adDateEl.value = todayStr;
 
-      const accSearchEl = document.getElementById('acc-search');
-      if (accSearchEl) accSearchEl.addEventListener('input', function() {
-        window.__accQuery = accSearchEl.value;
-        if (currentDataset) renderAccounts(currentDataset);
-      });
-
       document.getElementById('ad-form').addEventListener('submit', function(e) {
         e.preventDefault();
         const d = {
@@ -2603,13 +2587,13 @@ window.google = { script: { run: (function(){
         showLoading(true);
         sendAd(d).then(function(r) {
           showLoading(false);
-          if (r && r.ok === false) { msg.style.color = 'var(--danger)'; msg.innerText = 'Save nahi hua — dobara try karein.'; return; }
+          if (r && r.ok === false) { msg.style.color = 'var(--danger)'; msg.innerText = 'Could not save — please try again.'; return; }
           msg.style.color = 'var(--success)';
-          msg.innerText = 'Ad kharcha save ho gaya ✔';
+          msg.innerText = 'Ad spend saved ✔';
           document.getElementById('ad-form').reset();
           document.getElementById('ad-date').value = todayStr;
           silentRefetch();
-        }).catch(function() { showLoading(false); msg.style.color = 'var(--danger)'; msg.innerText = 'Error — save nahi hua.'; });
+        }).catch(function() { showLoading(false); msg.style.color = 'var(--danger)'; msg.innerText = 'Error — could not save.'; });
       });
 
       // New features wiring
@@ -2617,9 +2601,9 @@ window.google = { script: { run: (function(){
       if (savedTarget) document.getElementById('set-target').value = savedTarget;
       document.getElementById('btn-save-target').addEventListener('click', function() {
         const v = document.getElementById('set-target').value;
-        if (v === '' || Number(v) < 0) { document.getElementById('target-msg').innerText = 'Sahi target likhein.'; return; }
+        if (v === '' || Number(v) < 0) { document.getElementById('target-msg').innerText = 'Please enter a valid target.'; return; }
         localStorage.setItem('ar_monthly_target', String(Number(v)));
-        document.getElementById('target-msg').innerText = 'Target save ho gaya \u2714';
+        document.getElementById('target-msg').innerText = 'Target saved \u2714';
         if (currentDataset) renderTarget(currentDataset);
       });
       document.getElementById('btn-csv').addEventListener('click', downloadCSV);
@@ -2639,7 +2623,7 @@ window.google = { script: { run: (function(){
         const notes = loadNotes();
         notes[histNumber] = document.getElementById('hist-note').value;
         localStorage.setItem('ar_notes_v1', JSON.stringify(notes));
-        document.getElementById('hist-note-msg').innerText = 'Note save ho gaya \u2714';
+        document.getElementById('hist-note-msg').innerText = 'Note saved \u2714';
       });
     }
   </script>
