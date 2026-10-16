@@ -13,6 +13,10 @@ window.google = { script: { run: (function(){
   Runner.prototype.submitOrder=function(d,t){ var self=this; __api({action:'submit', data:d, token:t}).then(function(r){ if(self._s) self._s(r); }).catch(function(e){ if(self._f) self._f(e); }); };
   Runner.prototype.checkLogin=function(u,p){ var self=this; __api({action:'login', u:u, p:p}).then(function(r){ if(self._s) self._s(r); }).catch(function(e){ if(self._f) self._f(e); }); };
   Runner.prototype.setPassword=function(u,p){ var self=this; __api({action:'setpass', u:u, p:p, token:window.__tok||''}).then(function(r){ if(self._s) self._s(r); }).catch(function(e){ if(self._f) self._f(e); }); };
+  Runner.prototype.addAccount=function(d,t){ var self=this; __api({action:'account', data:d, token:t}).then(function(r){ if(self._s) self._s(r); }).catch(function(e){ if(self._f) self._f(e); }); };
+  Runner.prototype.addMember=function(d,t){ var self=this; __api({action:'member', data:d, token:t}).then(function(r){ if(self._s) self._s(r); }).catch(function(e){ if(self._f) self._f(e); }); };
+  Runner.prototype.addAdSpend=function(d,t){ var self=this; __api({action:'ad', data:d, token:t}).then(function(r){ if(self._s) self._s(r); }).catch(function(e){ if(self._f) self._f(e); }); };
+  Runner.prototype.updateAccount=function(d,t){ var self=this; __api({action:'updateaccount', data:d, token:t}).then(function(r){ if(self._s) self._s(r); }).catch(function(e){ if(self._f) self._f(e); }); };
   return new Runner();
 })() } };
 </script>
@@ -1085,6 +1089,24 @@ window.google = { script: { run: (function(){
 
               <div class="grid-2">
                 <div class="form-group">
+                  <label class="form-label">Access Type</label>
+                  <select id="ent-access" class="form-select">
+                    <option value="">— Select —</option>
+                    <option value="Own Email">Own Email (customer's own email)</option>
+                    <option value="Login Provided">Login Provided (email + password dete hain)</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
+                <div class="form-group" id="ent-account-wrap" style="display:none;">
+                  <label class="form-label">Kaun sa account diya?</label>
+                  <select id="ent-account" class="form-select">
+                    <option value="">— Select Account —</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="grid-2">
+                <div class="form-group">
                   <label class="form-label">Payment Status *</label>
                   <select id="ent-payment" class="form-select" required>
                     <option value="Paid">Paid</option>
@@ -1195,6 +1217,7 @@ window.google = { script: { run: (function(){
         <div id="accounts-container">
           <!-- Rendered in JS -->
         </div>
+        <div id="acc-form-wrap" style="margin-top:20px;"></div>
 
         
       </section>
@@ -1459,6 +1482,16 @@ window.google = { script: { run: (function(){
           google.script.run.withSuccessHandler(res).withFailureHandler(rej).addAccount(d, window.__tok || '');
         } else {
           setTimeout(function() { (MOCK_DATA.accounts = MOCK_DATA.accounts || []).push(d); res({ ok: true }); }, 300);
+        }
+      });
+    }
+
+    function sendUpdateAccount(d) {
+      return new Promise(function(res, rej) {
+        if (hasGAS()) {
+          google.script.run.withSuccessHandler(res).withFailureHandler(rej).updateAccount(d, window.__tok || '');
+        } else {
+          setTimeout(function() { res({ ok: true }); }, 300);
         }
       });
     }
@@ -1928,6 +1961,65 @@ window.google = { script: { run: (function(){
     window.accGoTool = function(tool) { accNav = { view: 'accounts', tool: tool, accountId: null }; if (currentDataset) renderAccounts(currentDataset); };
     window.accGoMembers = function(id, tool) { accNav = { view: 'members', tool: tool || accNav.tool, accountId: id }; if (currentDataset) renderAccounts(currentDataset); };
     window.openHistory = openHistory;
+    window.__accEditId = null;
+    window.accTogglePw = function(btn) {
+      const el = document.getElementById('acc-pw-view'); if (!el) return;
+      if (el.innerText === '••••••••') { el.innerText = window.__accPw || ''; btn.innerText = 'Hide'; }
+      else { el.innerText = '••••••••'; btn.innerText = 'Show'; }
+    };
+    window.accHideForm = function() { const w = document.getElementById('acc-form-wrap'); if (w) w.innerHTML = ''; window.__accEditId = null; };
+    window.accShowForm = function(id) {
+      const w = document.getElementById('acc-form-wrap'); if (!w) return;
+      const a = id ? ((currentDataset && currentDataset.accounts) || []).find(x => x.id === id) : null;
+      window.__accEditId = a ? a.id : null;
+      const TOOLS = ['Surfshark VPN','CapCut Pro','Canva Pro','Gemini','Netflix','YouTube Premium','MS Office 365 Plus','Adobe Express','iLovePDF','QuillBot','Super Duolingo'];
+      const toolOpts = TOOLS.map(t => '<option value="' + t + '"' + (a && a.tool === t ? ' selected' : '') + '>' + t + '</option>').join('');
+      const accOpts = ['', 'Own Email', 'Login Provided', 'Other'].map(v => '<option value="' + v + '"' + (a && a.accessType === v ? ' selected' : '') + '>' + (v || '— Select —') + '</option>').join('');
+      const stOpts = ['Active', 'Active (Trial)', 'Expired'].map(v => '<option value="' + v + '"' + ((a ? a.status : 'Active') === v ? ' selected' : '') + '>' + v + '</option>').join('');
+      const V = function(x) { return escapeHtml(x == null ? '' : String(x)); };
+      w.innerHTML = '<div class="card" style="padding:20px;">'
+        + '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;"><h3 style="font-size:16px; font-weight:800; color:var(--primary-dark);">' + (a ? ('✏️ Edit Account — ' + V(a.id)) : '➕ Add New Account') + '</h3><button type="button" class="mini-btn" onclick="accHideForm()">✕ Close</button></div>'
+        + '<div class="grid-2"><div class="form-group"><label class="form-label">Tool *</label><select id="af-tool" class="form-select">' + toolOpts + '</select></div>'
+        + '<div class="form-group"><label class="form-label">Account Name *</label><input type="text" id="af-name" class="form-input" value="' + (a ? V(a.name) : '') + '" placeholder="Account / team name"></div></div>'
+        + '<div class="grid-2"><div class="form-group"><label class="form-label">Email</label><input type="text" id="af-email" class="form-input" value="' + (a ? V(a.email) : '') + '"></div>'
+        + '<div class="form-group"><label class="form-label">Password</label><input type="text" id="af-password" class="form-input" value="' + (a ? V(a.password) : '') + '" autocomplete="off"></div></div>'
+        + '<div class="grid-2"><div class="form-group"><label class="form-label">Access Type</label><select id="af-access" class="form-select">' + accOpts + '</select></div>'
+        + '<div class="form-group"><label class="form-label">Status</label><select id="af-status" class="form-select">' + stOpts + '</select></div></div>'
+        + '<div class="grid-2"><div class="form-group"><label class="form-label">Vendor Name</label><input type="text" id="af-vendor" class="form-input" value="' + (a ? V(a.vendor) : '') + '"></div>'
+        + '<div class="form-group"><label class="form-label">Vendor Number</label><input type="text" id="af-vendor-number" class="form-input" value="' + (a ? V(a.vendorNumber) : '') + '"></div></div>'
+        + '<div class="grid-2"><div class="form-group"><label class="form-label">Cost (Rs)</label><input type="number" id="af-cost" class="form-input" value="' + (a ? V(a.cost) : '') + '"></div>'
+        + '<div class="form-group"><label class="form-label">Start Date</label><input type="date" id="af-start" class="form-input" value="' + (a ? V(a.start) : '') + '"></div></div>'
+        + '<div class="grid-2"><div class="form-group"><label class="form-label">Expiry Date</label><input type="date" id="af-expiry" class="form-input" value="' + (a ? V(a.expiry) : '') + '"></div>'
+        + '<div class="form-group"><label class="form-label">Notes</label><input type="text" id="af-notes" class="form-input" value="' + (a ? V(a.notes) : '') + '"></div></div>'
+        + '<button type="button" class="btn-primary" style="width:auto; padding:11px 26px;" onclick="accSaveForm()"><span>' + (a ? 'Save Changes' : 'Add Account') + '</span></button>'
+        + '<div id="af-msg" style="font-size:13px; margin-top:10px;"></div></div>';
+      w.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    };
+    window.accSaveForm = function() {
+      const g = function(id) { const el = document.getElementById(id); return el ? el.value.trim() : ''; };
+      const tool = g('af-tool'); const name = g('af-name');
+      const msg = document.getElementById('af-msg');
+      if (!name) { if (msg) { msg.style.color = 'var(--danger)'; msg.innerText = 'Account Name is required.'; } return; }
+      let id = window.__accEditId;
+      if (!id) {
+        const prefix = tool.indexOf('Surfshark') === 0 ? 'SS' : (tool.indexOf('Canva') === 0 ? 'CV' : 'AC');
+        const existing = (currentDataset && currentDataset.accounts) || [];
+        let n = existing.filter(x => String(x.id || '').indexOf(prefix + '-') === 0).length + 1;
+        id = prefix + '-' + n;
+        while (existing.some(x => x.id === id)) { n++; id = prefix + '-' + n; }
+      }
+      const d = { id: id, tool: tool, name: name, email: g('af-email'), password: g('af-password'), accessType: g('af-access'), vendor: g('af-vendor'), vendorNumber: g('af-vendor-number'), cost: g('af-cost'), start: g('af-start'), expiry: g('af-expiry'), status: g('af-status'), notes: g('af-notes') };
+      showLoading(true);
+      const done = function(r) {
+        showLoading(false);
+        if (r && r.ok === false) { if (msg) { msg.style.color = 'var(--danger)'; msg.innerText = 'Could not save — please try again.'; } return; }
+        window.accHideForm();
+        silentRefetch();
+      };
+      const fail = function() { showLoading(false); if (msg) { msg.style.color = 'var(--danger)'; msg.innerText = 'Error — could not save.'; } };
+      if (window.__accEditId) sendUpdateAccount(d).then(done).catch(fail);
+      else sendAccount(d).then(done).catch(fail);
+    };
     window.addMemberFromView = function(accountId, btn) {
       const wrap = btn.closest('.acc-add-strip');
       if (!wrap) return;
@@ -1991,6 +2083,7 @@ window.google = { script: { run: (function(){
         let shown = 0;
         const cards = accounts.map(a => {
           const mem = members.filter(m => m.accountId === a.id);
+          window.__accPw = a.password || '';
           const selfMatch = [a.name, a.tool, a.email, a.id].join(' ').toLowerCase().indexOf(q) !== -1;
           const matchedMember = mem.find(m => (m.name + ' ' + m.number).toLowerCase().indexOf(q) !== -1) || null;
           if (!selfMatch && !matchedMember) return '';
@@ -2030,6 +2123,12 @@ window.google = { script: { run: (function(){
             + '<div style="font-size:12.5px; color:var(--text-muted);">' + escapeHtml(a.tool) + ' • ' + escapeHtml(a.id) + ' • ' + escapeHtml(a.email || '—') + '</div></div>'
             + '<span class="chip ' + (a.status === 'Expired' ? 'chip-expired' : 'chip-active') + '">' + escapeHtml(a.status || 'Active') + '</span>' + pill
             + '<span class="chip chip-tag">Total Members: ' + mem.length + '</span></div></div>'
+            + '<div class="card" style="padding:16px 20px; margin-bottom:16px;"><div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;"><div style="font-weight:700; font-size:14px;">🔐 Login Details</div><button type="button" class="mini-btn" onclick="accShowForm(\'' + String(a.id).replace(/'/g, '') + '\')">✏️ Edit Account</button></div>'
+            + '<div style="font-size:13.5px; margin-top:10px; display:grid; gap:5px;">'
+            + '<div>Email: <strong>' + escapeHtml(a.email || '—') + '</strong></div>'
+            + (a.password ? '<div>Password: <strong id="acc-pw-view">••••••••</strong> <button type="button" class="mini-btn" onclick="accTogglePw(this)">Show</button></div>' : '<div>Password: <strong>—</strong></div>')
+            + (a.accessType ? '<div>Access Type: <span class="chip chip-tag">' + escapeHtml(a.accessType) + '</span></div>' : '')
+            + '</div></div>'
             + '<div class="card" style="padding:6px 0; overflow:hidden;"><div class="table-container"><table><thead><tr><th>Client Name</th><th>Tool</th><th>Plan</th><th>Expiry Date</th><th>Days Left</th><th>Status</th><th>Payment</th><th>Type</th><th>WhatsApp Reminder</th></tr></thead><tbody>'
             + (rows || '<tr><td colspan="9" style="text-align:center; color:var(--text-muted); padding:18px;">No customers added to this account yet.</td></tr>')
             + '</tbody></table></div></div>'
@@ -2075,7 +2174,8 @@ window.google = { script: { run: (function(){
           + '</div>';
       }).join('');
       box.innerHTML = '<div style="font-size:13.5px; color:var(--text-muted); margin-bottom:12px;">First select a <strong>tool</strong> — then its accounts, and then its customers.</div>'
-        + '<div class="tool-cards-row">' + toolCards + '</div>';
+        + '<div class="tool-cards-row">' + toolCards + '</div>'
+        + '<div style="margin-top:18px;"><button type="button" class="btn-primary" style="width:auto; padding:10px 22px;" onclick="accShowForm(null)"><span>➕ Add New Account</span></button></div>';
     }
     function renderAds(data) {
       const ads = data.ads || [];
@@ -2319,8 +2419,14 @@ window.google = { script: { run: (function(){
         html += '<div class="hist-row"><strong>' + escapeHtml(c.tool) + '</strong> \u2022 ' + escapeHtml(c.plan || '') + '<br><span style="color:var(--text-muted);">Start: ' + escapeHtml(c.start || '-') + ' \u2192 Expiry: ' + escapeHtml(c.expiry || '-') + '</span> <span class="chip ' + (c.status === 'Active' ? 'chip-active' : 'chip-expired') + '">' + escapeHtml(c.status) + '</span> <span class="chip ' + (c.payment === 'Paid' ? 'chip-paid' : 'chip-pending') + '">' + escapeHtml(c.payment) + '</span>';
         const exList = ((currentDataset && currentDataset.entryExtras) || []).filter(x => String(x.number || '').replace(/\D/g, '').slice(-10) === String(c.number || '').replace(/\D/g, '').slice(-10) && x.tool === c.tool);
         const ex = exList.length ? exList[exList.length - 1] : null;
-        if (ex && (ex.email || ex.team || ex.note)) {
+        if (ex && (ex.email || ex.team || ex.note || ex.accountId)) {
           html += '<br><span style="color:var(--text-muted); font-size:12.5px;">' + (ex.email ? '\uD83D\uDCE7 ' + escapeHtml(ex.email) + '  ' : '') + (ex.team ? '\uD83D\uDC65 ' + escapeHtml(ex.team) + '  ' : '') + (ex.note ? '\uD83D\uDCDD ' + escapeHtml(ex.note) : '') + '</span>';
+        }
+        if (ex && ex.accountId) {
+          const accL = ((currentDataset && currentDataset.accounts) || []).find(a2 => a2.id === ex.accountId);
+          if (accL && (accL.email || accL.password)) {
+            html += '<br><span style="font-size:12.5px;">🔐 Login: <strong>' + escapeHtml(accL.name || accL.id) + '</strong>' + (accL.email ? ' • ' + escapeHtml(accL.email) : '') + (accL.password ? ' • Password: <strong class="hist-pw" data-pw="' + escapeHtml(accL.password) + '">••••••••</strong> <a href="javascript:void(0)" onclick="histTogglePw(this)">Show</a>' : '') + '</span>';
+          }
         }
         html += '</div>';
       });
@@ -2343,6 +2449,11 @@ window.google = { script: { run: (function(){
       document.getElementById('history-modal').style.display = 'flex';
     }
     function closeHistory() { document.getElementById('history-modal').style.display = 'none'; }
+    window.histTogglePw = function(link) {
+      const el = link.previousElementSibling; if (!el) return;
+      if (el.innerText === '••••••••') { el.innerText = el.getAttribute('data-pw') || ''; link.innerText = 'Hide'; }
+      else { el.innerText = '••••••••'; link.innerText = 'Show'; }
+    };
 
     function downloadCSV() {
       const rows = window.__lastList || (currentDataset ? currentDataset.customers || [] : []);
@@ -2438,7 +2549,9 @@ window.google = { script: { run: (function(){
           source: document.getElementById('ent-source').value,
           note: (document.getElementById('ent-note').value || '').trim(),
           email: (document.getElementById('ent-email').value || '').trim(),
-          team: document.getElementById('ent-tool').value === 'Canva Pro' ? document.getElementById('ent-team').value : ''
+          team: document.getElementById('ent-tool').value === 'Canva Pro' ? document.getElementById('ent-team').value : '',
+          accessType: document.getElementById('ent-access') ? document.getElementById('ent-access').value : '',
+          accountId: (document.getElementById('ent-access') && document.getElementById('ent-access').value === 'Login Provided' && document.getElementById('ent-account')) ? document.getElementById('ent-account').value : ''
         };
 
         showLoading(true);
@@ -2566,6 +2679,12 @@ window.google = { script: { run: (function(){
         const tool = toolEl.value;
         const plan = document.getElementById('ent-plan').value;
         document.getElementById('ent-team-wrap').style.display = (tool === 'Canva Pro') ? 'grid' : 'none';
+        const accSel = document.getElementById('ent-access');
+        if (accSel) {
+          let amap = {}; try { amap = JSON.parse(localStorage.getItem('ar_tool_access') || '{}'); } catch (e) {}
+          if (amap[tool]) accSel.value = amap[tool];
+          refreshEntAccount_();
+        }
         const base = TOOL_COSTS[tool];
         if (base != null) {
           let c = base;
@@ -2573,6 +2692,26 @@ window.google = { script: { run: (function(){
           document.getElementById('ent-cost').value = c;
         }
       }
+      function refreshEntAccount_() {
+        const accSel = document.getElementById('ent-access');
+        const wrap = document.getElementById('ent-account-wrap');
+        const sel = document.getElementById('ent-account');
+        if (!accSel || !wrap || !sel) return;
+        const tool = document.getElementById('ent-tool').value;
+        const list = ((currentDataset && currentDataset.accounts) || []).filter(a => a.tool === tool);
+        const cur = sel.value;
+        sel.innerHTML = '<option value="">— Select Account —</option>' + list.map(a => '<option value="' + escapeHtml(a.id) + '">' + escapeHtml(a.id) + ' — ' + escapeHtml(a.name || a.tool) + '</option>').join('');
+        if (cur && list.some(a => a.id === cur)) sel.value = cur;
+        wrap.style.display = (accSel.value === 'Login Provided') ? 'block' : 'none';
+      }
+      const entAccessEl = document.getElementById('ent-access');
+      if (entAccessEl) entAccessEl.addEventListener('change', function() {
+        const tool = document.getElementById('ent-tool').value;
+        let amap = {}; try { amap = JSON.parse(localStorage.getItem('ar_tool_access') || '{}'); } catch (e) {}
+        if (entAccessEl.value) amap[tool] = entAccessEl.value; else delete amap[tool];
+        try { localStorage.setItem('ar_tool_access', JSON.stringify(amap)); } catch (e) {}
+        refreshEntAccount_();
+      });
       document.getElementById('ent-tool').addEventListener('change', applyToolDefaults);
       document.getElementById('ent-plan').addEventListener('change', applyToolDefaults);
       applyToolDefaults();
