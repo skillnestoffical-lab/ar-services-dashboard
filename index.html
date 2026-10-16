@@ -431,6 +431,8 @@ window.google = { script: { run: (function(){
       display: flex;
       flex-direction: column;
     }
+    .r-tool::after { content: ' • '; }
+    .renewal-thead { display: none; }
     .mpb-row { display: grid; grid-template-columns: 104px 1fr 118px; gap: 12px; align-items: center; margin: 13px 0; }
     .mpb-lab { font-size: 13px; font-weight: 700; color: var(--primary); white-space: nowrap; }
     .mpb-track { height: 20px; background: #eef3f7; border-radius: 99px; overflow: hidden; display: block; }
@@ -913,6 +915,38 @@ window.google = { script: { run: (function(){
       .form-input, .form-select, .filter-select { border-color: #bfe3dd !important; }
       .form-input:focus, .form-select:focus, .filter-select:focus { border-color: #0f766e !important; box-shadow: 0 0 0 3px rgba(15,118,110,.15) !important; outline: none !important; }
     }
+
+    /* Desktop layout — bilkul Web 23 mockup jaisa (owner: "each and everything") */
+    @media (min-width: 861px) {
+      #tab-dashboard.animate-in { display: flex !important; flex-direction: column; }
+      #tab-dashboard > * { order: 10; }
+      #tab-dashboard > :nth-child(2) { order: 0; }
+      #tab-dashboard > :nth-child(5) { order: 1; background: transparent !important; border: none !important; box-shadow: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; padding: 2px 4px 6px !important; margin-bottom: 6px !important; }
+      #tab-dashboard > :nth-child(5) > span:nth-of-type(2) { display: none !important; }
+      #df-target-line { display: block !important; margin-left: auto; }
+      #tab-dashboard > :nth-child(6) { order: 2; }
+      #tab-dashboard > :nth-child(8) { order: 3; }
+      #tab-dashboard > #renewals-head { order: 4; }
+      #tab-dashboard > #renewals-container { order: 5; }
+      #tab-dashboard > :nth-child(7) { display: none !important; }
+      #tab-dashboard > :nth-child(3) { order: 6; }
+      #tab-dashboard > :nth-child(4) { order: 7; }
+      #tab-dashboard > :nth-child(11) { order: 8; }
+      #tab-dashboard > :nth-child(12) { order: 9; }
+      .sparkline-svg { display: none !important; }
+      .charts-grid { grid-template-columns: 1fr 1.35fr !important; }
+      .charts-grid > .chart-card:nth-child(2), .charts-grid > .chart-card:nth-child(4) { display: none !important; }
+      #renewals-container { padding: 6px 18px 12px !important; }
+      .renewal-thead { display: grid; grid-template-columns: 1.3fr 1fr .9fr auto auto; gap: 12px; padding: 8px 2px; font-size: 11px; letter-spacing: 1px; font-weight: 700; color: #4a7a74; text-transform: uppercase; border-bottom: 1px solid #dff0ec; }
+      #renewals-container .renewal-item { display: grid !important; grid-template-columns: 1.3fr 1fr .9fr auto auto; gap: 12px; align-items: center; background: transparent !important; border: none !important; border-bottom: 1px solid #eef6f3 !important; border-radius: 0 !important; padding: 11px 2px !important; margin: 0 !important; box-shadow: none !important; }
+      #renewals-container .renewal-item > .renewal-meta { display: contents; }
+      #renewals-container .renewal-meta > .badge-icon { display: none !important; }
+      #renewals-container .renewal-meta > div:last-child { display: contents; }
+      #renewals-container .renewal-meta > div:last-child > div:last-child { display: contents; }
+      #renewals-container .renewal-item > div:last-child { display: contents; }
+      #renewals-container .r-tool::after { content: '' !important; }
+      #renewals-container .r-tool, #renewals-container .r-exp { font-size: 13px; color: #33506c; white-space: nowrap; }
+    }
 </style>
 </head>
 <body>
@@ -1025,6 +1059,7 @@ window.google = { script: { run: (function(){
           <input type="date" id="df-to" class="form-input" style="width: auto; display: none;">
           <span id="df-label" style="font-size: 12.5px; color: var(--text-muted);"></span>
           <span style="font-size: 12.5px; color: var(--text-muted);">— the numbers, charts and customer list below follow this range</span>
+          <span id="df-target-line" style="display: none; font-size: 12.5px; color: #4a7a74; font-weight: 600;"></span>
         </div>
 
         <!-- 6 KPI CARDS -->
@@ -2043,7 +2078,7 @@ window.google = { script: { run: (function(){
       // Sort ascending by days left
       const sorted = renewals.slice().sort((a, b) => a.days - b.days);
 
-      let html = '';
+      let html = '<div class="renewal-thead"><span>Customer</span><span>Tool</span><span>Expiry</span><span>Days</span><span></span></div>';
       sorted.forEach(item => {
         const isCritical = item.days <= 3;
         const pillClass = isCritical ? 'days-pill critical' : 'days-pill warn';
@@ -2055,7 +2090,7 @@ window.google = { script: { run: (function(){
               <div class="badge-icon">${escapeHtml(item.tool.substring(0, 2).toUpperCase())}</div>
               <div>
                 <div style="font-weight: 700; font-size: 14px; color: var(--primary);">${escapeHtml(item.name)}</div>
-                <div style="font-size: 12px; color: var(--text-muted);">${escapeHtml(item.tool)} • Exp: ${escapeHtml(fmtShortDate_(item.expiry))}</div>
+                <div style="font-size: 12px; color: var(--text-muted);"><span class="r-tool">${escapeHtml(item.tool)}</span><span class="r-exp">${escapeHtml(fmtShortDate_(item.expiry))}</span></div>
               </div>
             </div>
             <div style="display:flex; gap:8px; align-items:center;">
@@ -2632,11 +2667,15 @@ window.google = { script: { run: (function(){
       if (summary) summary.innerText = lbl + ' — Net Profit Target';
       if (!target) {
         body.innerHTML = '<div style="font-size:13.5px; margin-bottom:6px;">' + lbl + ' — <strong>Net Profit: Rs ' + prof.toLocaleString() + '</strong> \u2022 Revenue: Rs ' + rev.toLocaleString() + '</div><div style="color:var(--text-muted); font-size:13.5px;">No target set yet. Go to <strong>Settings</strong> and enter a monthly <strong>net profit</strong> target — the progress bar will appear here.</div>';
+        const tl0 = document.getElementById('df-target-line');
+        if (tl0) tl0.innerText = '\uD83C\uDFAF Monthly Target — Net Profit Rs ' + prof.toLocaleString() + ' · target set nahi';
         return;
       }
       const pct = Math.max(0, Math.min(100, Math.round(prof / target * 100)));
       const left = Math.max(0, target - prof);
       body.innerHTML = '<div style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:6px; font-size:13.5px; margin-bottom:8px;"><span>Net Profit: <strong>Rs ' + prof.toLocaleString() + '</strong> / Rs ' + target.toLocaleString() + '</span><span style="color:var(--text-muted);">' + pct + '% done' + (left > 0 ? ' \u2022 Rs ' + left.toLocaleString() + ' left' : ' \u2022 Target achieved! \uD83C\uDF89') + '</span></div><div class="progress-track"><div class="progress-fill" style="width:' + pct + '%;"></div></div><div style="font-size:13px; color:var(--text-muted); margin-top:8px;">' + lbl + ' ki Revenue: <strong style="color:var(--text);">Rs ' + rev.toLocaleString() + '</strong> (the target is on profit, not revenue)</div>';
+      const tl1 = document.getElementById('df-target-line');
+      if (tl1) tl1.innerText = '\uD83C\uDFAF Monthly Target — Net Profit Rs ' + prof.toLocaleString() + ' / Rs ' + target.toLocaleString() + ' (' + pct + '%)';
     }
 
     function populateToolFilter(customers) {
