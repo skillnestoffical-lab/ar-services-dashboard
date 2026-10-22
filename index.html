@@ -2011,7 +2011,7 @@ window.google = { script: { run: (function(){
 
       // 2. Date-filtered aggregates — KPI cards / charts / target / list isi range ke
       const dfRows = dfFilteredCustomers();
-      const agg = dfAggregate(dfRows);
+      const agg = dfAggregate(dfRows.concat(dfOldMoneyRows_()));
       window.__lastAgg = agg; window.__lastAggOrders = dfRows.length;
       window.__lastData = data;
       animateCount('kpi-active', agg.kpis.active);
@@ -2232,7 +2232,7 @@ window.google = { script: { run: (function(){
       customers.forEach((c, idx) => {
         const statusClass = c.status === 'Active' ? 'chip-active' : 'chip-expired';
         const paymentClass = c.payment === 'Paid' ? 'chip-paid' : 'chip-pending';
-        const daysLabel = c.days > 0 ? c.days + ' Days' : (c.days === 0 ? 'Today' : Math.abs(c.days) + 'd ago');
+        const daysLabel = (c.days === null || c.days === undefined || c.days === '') ? '—' : (c.days > 0 ? c.days + ' Days' : (c.days === 0 ? 'Today' : Math.abs(c.days) + 'd ago'));
 
         html += `
           <tr class="table-row-hover animate-in" style="animation-delay: ${Math.min(idx * 0.03, 0.3)}s">
@@ -2240,13 +2240,13 @@ window.google = { script: { run: (function(){
             <td><span style="display:inline-flex; align-items:center; gap:7px;">${toolLogoHtml(c.tool, 20)}<span>${escapeHtml(c.tool)}</span></span></td>
             <td>${escapeHtml(c.plan)}</td>
             <td style="color: var(--text-muted);">${escapeHtml(c.expiry || '-')}</td>
-            <td><strong style="color: ${c.days <= 7 ? 'var(--danger)' : 'var(--text-main)'}">${daysLabel}</strong></td>
+            <td><strong style="color: ${c.days !== null && c.days !== undefined && c.days !== '' && c.days <= 7 ? 'var(--danger)' : 'var(--text-main)'}">${daysLabel}</strong></td>
             <td><span class="chip ${statusClass}">${escapeHtml(c.status)}</span></td>
             <td><span class="chip ${paymentClass}">${escapeHtml(c.payment)}</span></td>
-            <td><span class="chip chip-tag">${escapeHtml(c.ctype || 'Customer')}</span></td>
+            <td>${c.old ? '<span class="chip" style="background:#fef3c7; color:#92400e;">Old</span>' : '<span class="chip chip-tag">' + escapeHtml(c.ctype || 'Customer') + '</span>'}</td>
             <td>
               <div class="action-cell">
-                <a href="${escapeHtml(buildWaLink(c, 'renewal'))}" target="_blank" rel="noopener noreferrer" class="btn-wa">
+                <a href="${escapeHtml(c.old ? waHref_(c) : buildWaLink(c, 'renewal'))}" target="_blank" rel="noopener noreferrer" class="btn-wa">
                   <span>WA Reminder</span>
                 </a>
                 <button type="button" class="btn-history" data-hist="${escapeHtml(c.number)}">History</button>
@@ -2804,6 +2804,16 @@ window.google = { script: { run: (function(){
       sel.value = current;
     }
 
+    function waHref_(c) { var d = String(c.number || '').replace(/\D/g, ''); return d ? 'https://wa.me/' + d : '#'; }
+    function dfOldMoneyRows_() {
+      if (!currentDataset || !currentDataset.oldCustomers) return [];
+      if (!dfRange) dfRange = dfComputeRange('thismonth');
+      return currentDataset.oldCustomers.filter(function(c) { return Number(c.selling || 0) > 0; }).filter(function(c) {
+        var s = String(c.start || '').slice(0, 10);
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(s)) return dfRange.from === '0000-01-01';
+        return s >= dfRange.from && s <= dfRange.to;
+      }).map(function(c) { return { name: c.name, number: '', tool: c.tool, start: c.start, selling: Number(c.selling || 0), profit: Number(c.profit || 0), net: Number(c.profit || 0), status: 'OldRecord', payment: 'OldRecord' }; });
+    }
     function applyCustomerFilters() {
       if (!currentDataset || !currentDataset.customers) return;
       const q = (document.getElementById('cust-search').value || '').toLowerCase().trim();
@@ -2814,7 +2824,11 @@ window.google = { script: { run: (function(){
         const matchQ = !q || (c.name && c.name.toLowerCase().includes(q)) || (c.tool && c.tool.toLowerCase().includes(q)) || (c.number && c.number.toLowerCase().includes(q));
         return matchQ && (!tool || c.tool === tool) && (!status || c.status === status) && (!payment || c.payment === payment);
       });
-      renderCustomers(filtered);
+      const oldFiltered = (currentDataset.oldCustomers || []).filter(c => {
+        const matchQ = !q || (c.name && c.name.toLowerCase().includes(q)) || (c.tool && c.tool.toLowerCase().includes(q)) || (c.number && c.number.toLowerCase().includes(q));
+        return matchQ && (!tool || c.tool === tool) && (!status || c.status === status) && (!payment || c.payment === payment);
+      });
+      renderCustomers(filtered.concat(oldFiltered));
     }
 
     function loadNotes() { try { return JSON.parse(localStorage.getItem('ar_notes_v1') || '{}'); } catch (e) { return {}; } }
@@ -3042,11 +3056,11 @@ window.syncMobileHero = function(agg, orders) {
         box.innerHTML = customers.map(function(c) {
           var sum = 0; var nm = String(c.name || '?'); for (var i = 0; i < nm.length; i++) sum += nm.charCodeAt(i);
           var pal = PAL[sum % PAL.length];
-          var days = c.days > 0 ? c.days + ' days left' : (c.days === 0 ? 'Expires today' : 'Expired ' + Math.abs(c.days) + 'd ago');
+          var days = (c.days === null || c.days === undefined || c.days === '') ? 'Old record' : (c.days > 0 ? c.days + ' days left' : (c.days === 0 ? 'Expires today' : 'Expired ' + Math.abs(c.days) + 'd ago'));
           var st = c.status === 'Active' ? 'chip-active' : 'chip-expired';
           return '<div class="cust-card"><div class="cc-ava" style="background:' + pal[0] + '; color:' + pal[1] + ';">' + escapeHtml(nm.charAt(0).toUpperCase()) + '</div>'
-            + '<div class="cc-mid"><div class="cc-name">' + escapeHtml(c.name) + '</div><div class="cc-sub">' + escapeHtml(c.tool) + ' · ' + escapeHtml(c.plan || '') + '</div>'
-            + '<div class="cc-actions"><a class="cc-act wa" href="' + escapeHtml(buildWaLink(c, 'renewal')) + '" target="_blank" rel="noopener noreferrer">WA Reminder</a>'
+            + '<div class="cc-mid"><div class="cc-name">' + escapeHtml(c.name) + (c.old ? ' <span style="background:#fef3c7; color:#92400e; font-size:10.5px; font-weight:700; padding:2px 7px; border-radius:999px; vertical-align:middle;">Old</span>' : '') + '</div><div class="cc-sub">' + escapeHtml(c.tool) + ' · ' + escapeHtml(c.plan || '') + '</div>'
+            + '<div class="cc-actions"><a class="cc-act wa" href="' + escapeHtml(c.old ? waHref_(c) : buildWaLink(c, 'renewal')) + '" target="_blank" rel="noopener noreferrer">WA Reminder</a>'
             + '<button type="button" class="cc-act" data-hist="' + escapeHtml(c.number) + '">History</button>'
             + (c.srow ? '<button type="button" class="cc-act" data-edit="' + c.srow + '">Edit</button>' : '') + '</div></div>'
             + '<div class="cc-r"><div class="cc-exp">' + sd(c.expiry) + '</div><span class="chip ' + st + '">' + escapeHtml(c.status) + '</span><div class="cc-days">' + days + '</div></div></div>';
