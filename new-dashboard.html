@@ -434,15 +434,16 @@ function forceLock(msg){
 }
 
 /* ---------- WA templates (spec 3.11) ---------- */
+function waNum(c){ return c.phoneDigits || String(c.phone || '').replace(/\D/g, ''); }
 function waRenewal(c){
   var msg = 'Salam! ' + BIZ + ' se — aap ka ' + c.tool + ' plan ' + (c.expiry||'') + ' ko expire ho raha hai. Renew karwana hai to bata dein, hum foran kar dein ge. Shukriya!';
-  return 'https://wa.me/' + c.phoneDigits + '?text=' + encodeURIComponent(msg);
+  return 'https://wa.me/' + waNum(c) + '?text=' + encodeURIComponent(msg);
 }
 function waWinback(c){
   var msg = 'Assalam-o-Alaikum! ' + BIZ + ' se — aap ka ' + c.tool + ' (' + (c.plan||'') + ') plan ' + (c.expiry||'') + ' ko expire ho gaya tha. Dobara activate karwana chahein to bata dein, aaj hi kar dein ge. Shukriya!';
-  return 'https://wa.me/' + c.phoneDigits + '?text=' + encodeURIComponent(msg);
+  return 'https://wa.me/' + waNum(c) + '?text=' + encodeURIComponent(msg);
 }
-function waChat(c){ return 'https://wa.me/' + c.phoneDigits; }
+function waChat(c){ return 'https://wa.me/' + waNum(c); }
 function daysPill(d){
   if(d===null) return '<span class="pill g-gry">—</span>';
   var cls = d<=3 ? 'red' : (d<=7 ? 'org' : 'grn');
