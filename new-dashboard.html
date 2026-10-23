@@ -1,0 +1,1132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AR SERVICES — Business Dashboard</title>
+<style>
+:root{
+  --primary:#0a2540; --accent:#2563eb; --text:#1a2332; --muted:#64748b;
+  --bg:#f4f6fb; --bg-soft:#e9eef7; --card:#ffffff; --border:#dde4ee; --cta:#15803d;
+  --danger:#b42318; --warn:#b54708; --ok:#027a48;
+}
+*{box-sizing:border-box} html,body{margin:0;padding:0}
+body{font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text);font-size:14.5px;line-height:1.45}
+a{color:var(--accent)}
+button{font-family:inherit;cursor:pointer}
+input,select,textarea{font-family:inherit;font-size:14.5px;padding:9px 10px;border:1px solid var(--border);border-radius:8px;background:#fff;color:var(--text);width:100%}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--accent);outline-offset:0;border-color:var(--accent)}
+label{display:block;font-size:12.5px;font-weight:bold;color:var(--muted);margin:10px 0 4px}
+.wrap{max-width:1024px;margin:0 auto;padding:14px 12px 40px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:14px;box-shadow:0 1px 4px rgba(16,24,40,.05);padding:16px;margin-bottom:14px}
+.btn{display:inline-block;border:none;border-radius:9px;padding:10px 16px;font-size:14px;font-weight:bold;background:var(--primary);color:#fff;text-decoration:none;text-align:center}
+.btn.secondary{background:#fff;color:var(--primary);border:1px solid var(--border)}
+.btn.wa{background:var(--cta);color:#fff}
+.btn.danger{background:#fff;color:var(--danger);border:1px solid var(--danger)}
+.btn.small{padding:6px 10px;font-size:13px;border-radius:7px}
+.btn:disabled{opacity:.55;cursor:wait}
+.muted{color:var(--muted)} .small{font-size:12.5px}
+.err{color:var(--danger);font-size:13.5px;min-height:18px;margin-top:8px}
+.okmsg{color:var(--ok);font-size:13.5px;margin-top:8px}
+/* header */
+header{position:sticky;top:0;z-index:30;background:#fff;border-bottom:1px solid var(--border)}
+.hbar{max-width:1024px;margin:0 auto;padding:10px 12px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.logo{width:40px;height:40px;border-radius:10px;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:17px;flex:none}
+.hname{font-size:17px;font-weight:900;line-height:1.1}
+.hsub{font-size:11.5px;color:var(--muted)}
+nav{display:flex;gap:6px;flex-wrap:wrap;width:100%;margin-top:8px}
+nav button{background:var(--bg-soft);border:1px solid var(--border);color:var(--text);border-radius:999px;padding:7px 13px;font-size:13.5px;font-weight:bold}
+nav button.on{background:var(--primary);color:#fff;border-color:var(--primary)}
+.hgrow{flex:1}
+.linkbtn{background:none;border:none;color:var(--accent);font-size:12.5px;text-decoration:underline;padding:2px}
+/* lock */
+#lockView .card{max-width:430px;margin:48px auto;padding:26px}
+#lockView .logo{width:52px;height:52px;font-size:22px;margin:0 auto}
+#lockView h1{text-align:center;font-size:20px;margin:12px 0 2px}
+#lockView .sub{text-align:center;color:var(--muted);font-size:13px;margin-bottom:8px}
+/* dashboard */
+.periods{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.periods button{background:#fff;border:1px solid var(--border);border-radius:999px;padding:7px 14px;font-weight:bold;font-size:13.5px}
+.periods button.on{background:var(--primary);color:#fff;border-color:var(--primary)}
+.hero{background:linear-gradient(135deg,#0a2540 0%,#1d4e79 55%,#2563eb 100%);color:#fff;border-radius:14px;padding:20px;margin-bottom:14px}
+.hero .lab{font-size:13px;opacity:.85}
+.hero .big{font-size:38px;font-weight:900;line-height:1.15;margin:2px 0}
+.hero .sub2{font-size:14px;opacity:.92}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:14px}
+.kpi{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px;box-shadow:0 1px 4px rgba(16,24,40,.05)}
+.kpi .v{font-size:24px;font-weight:900}
+.kpi .l{font-size:12.5px;color:var(--muted);font-weight:bold}
+.strip{background:var(--bg-soft);border:1px solid var(--border);border-radius:12px;padding:11px 14px;font-size:14px;margin-bottom:14px}
+.donutrow{display:flex;gap:18px;align-items:center;flex-wrap:wrap}
+.donut{width:170px;height:170px;border-radius:50%;flex:none;position:relative}
+.donut .ctr{position:absolute;inset:26%;background:var(--card);border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.donut .ctr b{font-size:22px}
+.legend{font-size:14px;line-height:1.9}
+.dot{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:7px;vertical-align:-1px}
+.bar-row{display:flex;align-items:center;gap:10px;margin:7px 0;font-size:13.5px}
+.bar-lab{width:86px;flex:none;color:var(--muted);font-weight:bold}
+.bar-track{flex:1;background:var(--bg-soft);border-radius:6px;height:16px;overflow:hidden}
+.bar-fill{height:100%;background:var(--accent);border-radius:6px}
+.bar-val{width:130px;flex:none;text-align:right}
+table{border-collapse:collapse;width:100%;font-size:13.8px}
+th{ text-align:left;color:var(--muted);font-size:12px;padding:8px 8px;border-bottom:2px solid var(--border);white-space:nowrap}
+td{padding:8px;border-bottom:1px solid var(--border);vertical-align:top}
+.tscroll{overflow-x:auto}
+.pill{display:inline-block;padding:2px 9px;border-radius:999px;font-size:12px;font-weight:bold;white-space:nowrap}
+.pill.red{background:#fef3f2;color:var(--danger)} .pill.org{background:#fffaeb;color:var(--warn)} .pill.grn{background:#ecfdf3;color:var(--ok)}
+.pill.g-act{background:#dcfae6;color:#027a48}.pill.g-exp{background:#fee4e2;color:#b42318}.pill.g-due{background:#fef0c7;color:#b54708}.pill.g-old{background:#fef3c7;color:#92400e}.pill.g-gry{background:#eaecf0;color:#475467}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}
+.chips button{background:#fff;border:1px solid var(--border);border-radius:999px;padding:6px 12px;font-size:13px;font-weight:bold}
+.chips button.on{background:var(--primary);color:#fff;border-color:var(--primary)}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:0 14px}
+.banner{background:#fffaeb;border:1px solid #fedf89;border-radius:10px;padding:10px 12px;font-size:13.5px;margin-bottom:10px;display:flex;justify-content:space-between;gap:10px;align-items:center}
+.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:var(--text);color:#fff;padding:11px 18px;border-radius:10px;font-size:14px;z-index:99;box-shadow:0 6px 20px rgba(0,0,0,.25);max-width:92vw;text-align:center}
+.view{display:none}.view.on{display:block}
+.sent{opacity:.55}
+h2.sec{font-size:16.5px;margin:4px 0 10px}
+.editbox{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:10px 12px;margin:6px 0}
+@media (max-width:560px){ .hero .big{font-size:30px} .bar-val{width:104px} th,td{padding:7px 5px} }
+</style>
+</head>
+<body>
+
+<!-- ============ LOCK SCREEN ============ -->
+<div id="lockView">
+  <div class="card">
+    <div class="logo">AR</div>
+    <h1>AR SERVICES</h1>
+    <div class="sub">Business Dashboard</div>
+    <label>Apps Script Web App URL</label>
+    <input id="lock-url" type="url" placeholder="https://script.google.com/macros/s/…/exec" autocomplete="off">
+    <label>Password</label>
+    <input id="lock-pass" type="password" placeholder="Dashboard password" autocomplete="current-password">
+    <div style="margin-top:16px"><button class="btn" id="lock-btn" style="width:100%">Open Dashboard</button></div>
+    <div class="err" id="lock-err"></div>
+    <div class="small muted" style="text-align:center;margin-top:6px">URL aur password sirf aap ke apne browser mein save hote hain.</div>
+  </div>
+</div>
+
+<!-- ============ APP ============ -->
+<div id="appView" style="display:none">
+<header>
+  <div class="hbar">
+    <div class="logo">AR</div>
+    <div><div class="hname">AR SERVICES</div><div class="hsub">Business Dashboard</div></div>
+    <div class="hgrow"></div>
+    <div class="small muted">Last update: <span id="lastUpdate">—</span></div>
+    <button class="btn small secondary" id="refreshBtn">🔄 Refresh</button>
+    <button class="linkbtn" id="changeCreds">change link / password</button>
+    <nav id="mainNav">
+      <button data-view="dashboard" class="on">📊 Dashboard</button>
+      <button data-view="customers">👥 Customers</button>
+      <button data-view="order">➕ New Order</button>
+      <button data-view="renewals">⏰ Renewals</button>
+      <button data-view="adspend">💸 Ad Spend</button>
+      <button data-view="reports">📈 Reports</button>
+      <button data-view="accounts">🏦 Accounts</button>
+    </nav>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <!-- ======= VIEW: DASHBOARD ======= -->
+  <section id="view-dashboard" class="view on">
+    <div class="periods" id="periodBtns">
+      <button data-p="this" class="on">This Month</button>
+      <button data-p="last">Last Month</button>
+      <button data-p="all">All Time</button>
+      <button data-p="custom">📅 Custom</button>
+    </div>
+    <div class="card" id="customBox" style="display:none">
+      <div class="grid2">
+        <div><label>From</label><input type="date" id="custFrom"></div>
+        <div><label>To</label><input type="date" id="custTo"></div>
+      </div>
+      <div style="margin-top:12px"><button class="btn" id="custApply">Apply</button></div>
+      <div class="err" id="custErr"></div>
+      <div class="small muted" id="custNote"></div>
+    </div>
+    <div class="hero">
+      <div class="lab" id="heroLabel">Net Profit — This Month</div>
+      <div class="big" id="heroProfit">Rs 0</div>
+      <div class="sub2" id="heroSub">Revenue Rs 0 · 0 orders · 0 customers</div>
+    </div>
+    <div class="kpis">
+      <div class="kpi"><div class="v" id="kpiActive">0</div><div class="l">Active Plans</div></div>
+      <div class="kpi"><div class="v" id="kpiRevenue">Rs 0</div><div class="l">Total Revenue</div></div>
+      <div class="kpi"><div class="v" id="kpiNet">Rs 0</div><div class="l">Net Profit</div></div>
+      <div class="kpi"><div class="v" id="kpiCustomers">0</div><div class="l">Customers</div></div>
+    </div>
+    <div class="strip" id="adStrip">Ad Spend Rs 0 · Cost Per Order — · Revenue per Ad Rupee —</div>
+    <div class="card">
+      <h2 class="sec">Orders by Tool</h2>
+      <div class="donutrow">
+        <div class="donut" id="donut"><div class="ctr"><b id="donutTotal">0</b><span class="small muted">orders</span></div></div>
+        <div class="legend" id="donutLegend"></div>
+      </div>
+    </div>
+    <div class="card">
+      <h2 class="sec">Monthly Profit</h2>
+      <div id="monthBars"></div>
+    </div>
+    <div class="card">
+      <h2 class="sec">Renewal Alerts</h2>
+      <div class="tscroll"><table>
+        <thead><tr><th>Customer</th><th>Tool</th><th>Expiry</th><th>Days</th><th>Action</th></tr></thead>
+        <tbody id="alertRows"></tbody>
+      </table></div>
+    </div>
+  </section>
+
+  <!-- ======= VIEW: CUSTOMERS ======= -->
+  <section id="view-customers" class="view">
+    <div class="card">
+      <div class="grid2">
+        <div><label>Search</label><input id="custSearch" type="search" placeholder="Naam / phone / tool / plan…"></div>
+        <div><label>Status</label><select id="custStatus"><option value="">All</option></select></div>
+      </div>
+      <div class="chips" id="toolChips"></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+        <div class="small muted" id="custCount"></div>
+        <button class="btn small secondary" id="csvBtn">⬇️ CSV Backup</button>
+      </div>
+      <div class="okmsg" id="custMsg"></div>
+    </div>
+    <div class="card">
+      <h2 class="sec">🏆 Top Customers</h2>
+      <div id="topCust"></div>
+    </div>
+    <div id="histBanner"></div>
+    <div class="card">
+      <div class="tscroll"><table>
+        <thead><tr><th>Tool</th><th>Customer</th><th>Phone</th><th>Plan</th><th>Purchase</th><th>Expiry</th><th>Days</th><th>Selling</th><th>Profit</th><th>Status</th><th>Actions</th></tr></thead>
+        <tbody id="custRows"></tbody>
+      </table></div>
+      <div class="small muted" id="custLoading">Loading…</div>
+    </div>
+  </section>
+
+  <!-- ======= VIEW: NEW ORDER ======= -->
+  <section id="view-order" class="view">
+    <div class="card">
+      <h2 class="sec">➕ New Order</h2>
+      <label>Tool</label>
+      <select id="ordTool"></select>
+      <div id="ordToolNewWrap" style="display:none">
+        <label>Tool Name</label>
+        <input id="ordToolName" list="toolNameList" placeholder="Tool ka naam chunein ya likhein">
+        <datalist id="toolNameList"></datalist>
+      </div>
+      <div class="grid2">
+        <div><label>Customer Name *</label><input id="ordName" autocomplete="off"></div>
+        <div><label>Phone / WhatsApp *</label><input id="ordPhone" inputmode="tel" autocomplete="off"></div>
+      </div>
+      <div class="grid2">
+        <div><label>Plan Duration *</label><input id="ordPlan" list="planList" placeholder="1 Month">
+          <datalist id="planList"><option value="7 Days"></option><option value="1 Month"></option><option value="2 Months"></option><option value="3 Months"></option><option value="4 Months"></option><option value="6 Months"></option><option value="1 Year"></option><option value="18 Months"></option></datalist></div>
+        <div><label>Purchase Date</label><input id="ordDate" type="date"></div>
+      </div>
+      <div class="grid2">
+        <div><label>Access Type</label><select id="ordAccess"><option value="">—</option><option>Own Email</option><option>Login Provided</option><option>Other</option></select></div>
+        <div><label>Customer Email (agar chahiye — Canva waghera)</label><input id="ordEmail" type="email" autocomplete="off"></div>
+      </div>
+      <div id="nfWrap" style="display:none" class="editbox">
+        <div class="small" style="font-weight:bold;margin-bottom:2px">Netflix — shared profile details</div>
+        <div class="grid2">
+          <div><label>Profile No.</label><input id="nfProfile" inputmode="numeric"></div>
+          <div><label>PIN Code</label><input id="nfPin" inputmode="numeric"></div>
+        </div>
+        <label>Account Gmail</label><input id="nfGmail" type="email" autocomplete="off">
+        <div class="small muted" id="nfPreview" style="margin-top:6px"></div>
+      </div>
+      <div class="grid2">
+        <div><label>Cost Price (Rs)</label><input id="ordCost" type="number" min="0" step="any"></div>
+        <div><label>Selling Price (Rs) *</label><input id="ordSelling" type="number" min="0" step="any"></div>
+      </div>
+      <div class="grid2">
+        <div><label>Lead Source</label><input id="ordLead" placeholder="Ad / Organic / Repeat…"></div>
+        <div><label>Payment</label><select id="ordPayment"><option>Paid</option><option>Pending</option></select></div>
+      </div>
+      <div class="grid2">
+        <div><label>Status</label><select id="ordStatus"><option>Active</option><option>Expiring Soon</option><option>Expired</option></select></div>
+        <div><label>Notes</label><input id="ordNotes"></div>
+      </div>
+      <div style="margin-top:16px"><button class="btn" id="ordSubmit" style="width:100%">Order Save Karein</button></div>
+      <div class="err" id="ordErr"></div>
+      <div class="okmsg" id="ordOk"></div>
+    </div>
+  </section>
+
+  <!-- ======= VIEW: RENEWALS ======= -->
+  <section id="view-renewals" class="view">
+    <div class="card">
+      <h2 class="sec">📣 Aaj Ke Follow-ups (days ≤ 7)</h2>
+      <div class="tscroll"><table>
+        <thead><tr><th>Customer</th><th>Tool</th><th>Plan</th><th>Expiry</th><th>Days</th><th>Action</th><th>Sent</th></tr></thead>
+        <tbody id="fuRows"></tbody>
+      </table></div>
+      <div class="small muted" style="margin-top:8px">✔ Bhej diya wala nishan sirf isi browser mein save hota hai — Sheet mein nahi jata. Roz naye din par khud saaf ho jata hai.</div>
+    </div>
+    <div class="card">
+      <h2 class="sec">⏰ Tamam Renewals</h2>
+      <div class="tscroll"><table>
+        <thead><tr><th>Customer</th><th>Tool</th><th>Plan</th><th>Expiry</th><th>Days</th><th>Action</th></tr></thead>
+        <tbody id="renRows"></tbody>
+      </table></div>
+    </div>
+    <div class="card">
+      <h2 class="sec">🔁 Win-back — expire ho gaye, renew nahi kiya (<span id="wbCount">0</span>)</h2>
+      <div class="tscroll"><table>
+        <thead><tr><th>Customer</th><th>Phone</th><th>Last Tool</th><th>Plan</th><th>Expiry</th><th>Action</th></tr></thead>
+        <tbody id="wbRows"></tbody>
+      </table></div>
+      <div class="small muted" id="wbLoading"></div>
+    </div>
+  </section>
+
+  <!-- ======= VIEW: AD SPEND ======= -->
+  <section id="view-adspend" class="view">
+    <div class="card">
+      <h2 class="sec">💸 Naya Ad Spend</h2>
+      <div class="grid2">
+        <div><label>Date</label><input id="adDate" type="date"></div>
+        <div><label>Platform / Campaign</label><input id="adPlatform" list="adPlatList" placeholder="Meta/Facebook">
+          <datalist id="adPlatList"><option value="Meta/Facebook"></option><option value="Instagram"></option><option value="TikTok"></option><option value="Google"></option><option value="Other"></option></datalist></div>
+      </div>
+      <div class="grid2">
+        <div><label>Amount (Rs) *</label><input id="adAmount" type="number" min="0" step="any"></div>
+        <div><label>Remarks</label><input id="adRemarks"></div>
+      </div>
+      <div style="margin-top:14px"><button class="btn" id="adSubmit">Save Karein</button></div>
+      <div class="err" id="adErr"></div>
+      <div class="okmsg" id="adOk"></div>
+    </div>
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+        <h2 class="sec" style="margin:0">Entries</h2>
+        <button class="btn small secondary" id="adRefresh">🔄 Refresh</button>
+      </div>
+      <div class="strip" id="adSummary" style="margin-top:10px">—</div>
+      <div class="tscroll"><table>
+        <thead><tr><th>Date</th><th>Platform</th><th>Amount</th><th>Remarks</th><th></th></tr></thead>
+        <tbody id="adRows"></tbody>
+      </table></div>
+      <div class="small muted" id="adLoading">Loading…</div>
+    </div>
+  </section>
+
+  <!-- ======= VIEW: REPORTS ======= -->
+  <section id="view-reports" class="view">
+    <div class="card">
+      <h2 class="sec">🏆 Tool-wise Net Profit</h2>
+      <div id="repTools"></div>
+    </div>
+    <div class="card">
+      <h2 class="sec">🎯 Lead Source Report</h2>
+      <div class="tscroll"><table>
+        <thead><tr><th>Source</th><th>Sales</th><th>Revenue</th><th>Profit</th></tr></thead>
+        <tbody id="repLeads"></tbody>
+      </table></div>
+    </div>
+    <div class="card">
+      <h2 class="sec">📅 Monthly Growth</h2>
+      <div class="tscroll"><table>
+        <thead><tr><th>Month</th><th>Sales</th><th>Revenue</th><th>Net Profit</th><th>Growth</th></tr></thead>
+        <tbody id="repMonths"></tbody>
+      </table></div>
+      <div class="small muted" id="repLoading">Loading…</div>
+    </div>
+  </section>
+
+  <!-- ======= VIEW: ACCOUNTS ======= -->
+  <section id="view-accounts" class="view">
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+        <h2 class="sec" style="margin:0">🏦 Mere Accounts (Supply)</h2>
+        <button class="btn small secondary" id="accAddBtn">➕ Naya Account</button>
+      </div>
+      <div id="accFormWrap" style="display:none" class="editbox">
+        <div class="grid2">
+          <div><label>Account ID * (masalan SS-3 / CV-3)</label><input id="accId"></div>
+          <div><label>Tool *</label><input id="accTool" placeholder="Surfshark / Canva…"></div>
+          <div><label>Naam / Team</label><input id="accName"></div>
+          <div><label>Email</label><input id="accEmail"></div>
+          <div><label>Vendor</label><input id="accVendor"></div>
+          <div><label>Vendor Number</label><input id="accVendorNum"></div>
+          <div><label>Cost (Rs)</label><input id="accCost" type="number" min="0" step="any"></div>
+          <div><label>Access Type</label><input id="accAccess" placeholder="Own Email / Login…"></div>
+          <div><label>Start Date</label><input id="accStart" type="date"></div>
+          <div><label>Expiry Date</label><input id="accExpiry" type="date"></div>
+          <div><label>Status</label><select id="accStatus"><option>Active</option><option>Expired</option></select></div>
+          <div><label>Password (agar sheet mein rakha ho)</label><input id="accPass"></div>
+        </div>
+        <label>Notes</label><input id="accNotes">
+        <div style="margin-top:10px;display:flex;gap:8px"><button class="btn small" id="accSave">Save</button><button class="btn small secondary" id="accCancel">Cancel</button></div>
+        <div class="err" id="accErr"></div>
+      </div>
+      <div id="accList" style="margin-top:10px"></div>
+    </div>
+    <div class="card" id="memCard" style="display:none">
+      <h2 class="sec">👥 Members — <span id="memTitle"></span></h2>
+      <div class="tscroll"><table>
+        <thead><tr><th>Naam</th><th>Number</th><th>Tool</th><th>Added</th><th>Notes</th></tr></thead>
+        <tbody id="memRows"></tbody>
+      </table></div>
+      <div class="editbox" style="margin-top:10px">
+        <div class="small" style="font-weight:bold">➕ Member add karein</div>
+        <div class="grid2">
+          <div><label>Naam</label><input id="memName"></div>
+          <div><label>WhatsApp Number</label><input id="memNumber"></div>
+          <div><label>Tool</label><input id="memTool"></div>
+          <div><label>Notes</label><input id="memNotes"></div>
+        </div>
+        <div style="margin-top:10px"><button class="btn small" id="memSave">Member Save</button></div>
+        <div class="err" id="memErr"></div>
+        <div class="okmsg" id="memOk"></div>
+      </div>
+    </div>
+  </section>
+
+</div>
+</div>
+<div id="toast" class="toast" style="display:none"></div>
+
+<script>
+'use strict';
+var BIZ = 'AR SERVICES';
+var DATA = null;            // data payload {ok, generatedAt, activePlans, months, renewals, statuses}
+var CUSTOMERS = null;       // customers payload cache
+var CUST_STALE = true;
+var ADS = null;             // adspend entries cache
+var PERIOD = 'this';        // this | last | all | custom
+var HIST_KEY = null;        // history filter group key
+var TOOL_FILTER = '';
+
+function $(id){ return document.getElementById(id); }
+function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+function money(n){ return 'Rs ' + Number(n||0).toLocaleString('en-US'); }
+function toast(msg){ var t=$('toast'); t.textContent=msg; t.style.display='block'; setTimeout(function(){ t.style.display='none'; }, 3400); }
+function todayPKT(){ var n=new Date(); var p=new Date(n.getTime()+5*3600*1000); return p.toISOString().slice(0,10); }
+function monthKey(iso){ return String(iso||'').slice(0,7); }
+function dispDate(iso){ if(!iso) return '—'; var p=String(iso).split('-'); var MN=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']; return Number(p[2])+' '+MN[Number(p[1])-1]+' '+p[0]; }
+function daysOf(c){ if(c.days===''||c.days===null||c.days===undefined) return null; return Number(c.days); }
+function firstName(n){ return String(n||'').trim().split(/\s+/)[0] || ''; }
+
+function apiUrl(){ return localStorage.getItem('app_url')||''; }
+function apiPass(){ return localStorage.getItem('app_pass')||''; }
+function apiGet(){
+  return fetch(apiUrl() + (apiUrl().indexOf('?')>=0?'&':'?') + 'p=' + encodeURIComponent(apiPass()))
+    .then(function(r){ return r.json(); });
+}
+function apiPost(action, data){
+  return fetch(apiUrl(), { method:'POST', headers:{ 'Content-Type':'text/plain;charset=utf-8' }, body: JSON.stringify({ p: apiPass(), action: action, data: data||{} }) })
+    .then(function(r){ return r.json(); });
+}
+function guardResp(r){
+  if(r && r.error==='wrong_password'){ forceLock('Password ghalat hai ya link kaam nahi kar rahi. Dobara URL aur password daalein.'); throw new Error('wrong_password'); }
+  return r;
+}
+function forceLock(msg){
+  localStorage.removeItem('app_url'); localStorage.removeItem('app_pass');
+  $('appView').style.display='none'; $('lockView').style.display='block';
+  if(msg) $('lock-err').textContent = msg;
+}
+
+/* ---------- WA templates (spec 3.11) ---------- */
+function waRenewal(c){
+  var msg = 'Salam! ' + BIZ + ' se — aap ka ' + c.tool + ' plan ' + (c.expiry||'') + ' ko expire ho raha hai. Renew karwana hai to bata dein, hum foran kar dein ge. Shukriya!';
+  return 'https://wa.me/' + c.phoneDigits + '?text=' + encodeURIComponent(msg);
+}
+function waWinback(c){
+  var msg = 'Assalam-o-Alaikum! ' + BIZ + ' se — aap ka ' + c.tool + ' (' + (c.plan||'') + ') plan ' + (c.expiry||'') + ' ko expire ho gaya tha. Dobara activate karwana chahein to bata dein, aaj hi kar dein ge. Shukriya!';
+  return 'https://wa.me/' + c.phoneDigits + '?text=' + encodeURIComponent(msg);
+}
+function waChat(c){ return 'https://wa.me/' + c.phoneDigits; }
+function daysPill(d){
+  if(d===null) return '<span class="pill g-gry">—</span>';
+  var cls = d<=3 ? 'red' : (d<=7 ? 'org' : 'grn');
+  var txt = d<=0 ? (d===0 ? 'Aaj' : 'guzar gaya') : (d + ' din');
+  return '<span class="pill ' + cls + '">' + txt + '</span>';
+}
+function statusPill(c){
+  if(c.old) return '<span class="pill g-old">Old</span>';
+  var s = c.status||'';
+  var cls = s==='Active' ? 'g-act' : (s==='Expired' ? 'g-exp' : (s==='Expiring Soon' ? 'g-due' : 'g-gry'));
+  return '<span class="pill ' + cls + '">' + esc(s||'—') + '</span>';
+}
+
+/* ---------- Lock / boot ---------- */
+$('lock-btn').addEventListener('click', function(){
+  var url = $('lock-url').value.trim(), pw = $('lock-pass').value;
+  var err = $('lock-err'); err.textContent='';
+  if(!url || !pw){ err.textContent='URL aur password dono likhein.'; return; }
+  var btn = $('lock-btn'); btn.disabled = true; btn.textContent = 'Checking…';
+  fetch(url + (url.indexOf('?')>=0?'&':'?') + 'p=' + encodeURIComponent(pw)).then(function(r){ return r.json(); }).then(function(r){
+    btn.disabled=false; btn.textContent='Open Dashboard';
+    if(!r || !r.ok){ err.textContent='Password ghalat hai ya link kaam nahi kar rahi.'; return; }
+    localStorage.setItem('app_url', url); localStorage.setItem('app_pass', pw);
+    DATA = r; bootApp();
+  }).catch(function(){ btn.disabled=false; btn.textContent='Open Dashboard'; err.textContent='Link tak pohncha nahi — URL check karein.'; });
+});
+$('changeCreds').addEventListener('click', function(){ forceLock(''); });
+$('refreshBtn').addEventListener('click', function(){ refreshAll(true); });
+
+function bootApp(){
+  $('lockView').style.display='none'; $('appView').style.display='block';
+  $('lastUpdate').textContent = DATA.generatedAt || '—';
+  renderDashboard();
+}
+function refreshAll(notify){
+  return apiGet().then(function(r){
+    guardResp(r); if(!r.ok) throw new Error(r.error||'error');
+    DATA = r; $('lastUpdate').textContent = DATA.generatedAt || '—';
+    renderDashboard();
+    if(!CUST_STALE && CUSTOMERS){ /* keep */ } else { CUSTOMERS = null; }
+    if(notify) toast('Data refresh ho gaya ✔');
+    var v = currentView();
+    if(v==='renewals') renderRenewals();
+    if(v==='reports') renderReports();
+    if(v==='customers' && CUSTOMERS) renderCustomers();
+  }).catch(function(e){ if(e.message!=='wrong_password') toast('Refresh nahi ho saka — dobara koshish karein.'); });
+}
+
+/* ---------- Navigation ---------- */
+function currentView(){ var b=document.querySelector('#mainNav button.on'); return b ? b.getAttribute('data-view') : 'dashboard'; }
+document.querySelectorAll('#mainNav button').forEach(function(b){
+  b.addEventListener('click', function(){
+    document.querySelectorAll('#mainNav button').forEach(function(x){ x.classList.remove('on'); });
+    b.classList.add('on');
+    document.querySelectorAll('.view').forEach(function(s){ s.classList.remove('on'); });
+    $('view-' + b.getAttribute('data-view')).classList.add('on');
+    var v = b.getAttribute('data-view');
+    if(v==='customers') loadCustomers().then(renderCustomers);
+    if(v==='renewals') renderRenewals();
+    if(v==='adspend') loadAds().then(renderAds);
+    if(v==='reports') renderReports();
+    if(v==='order') prepOrderForm();
+    if(v==='accounts') renderAccounts();
+  });
+});
+function showView(v){
+  document.querySelectorAll('#mainNav button').forEach(function(x){ x.classList.toggle('on', x.getAttribute('data-view')===v); });
+  document.querySelectorAll('.view').forEach(function(s){ s.classList.remove('on'); });
+  $('view-' + v).classList.add('on');
+}
+
+/* ---------- Data loading (lazy, shared cache) ---------- */
+function loadCustomers(){
+  if(CUSTOMERS && !CUST_STALE) return Promise.resolve(CUSTOMERS);
+  $('custLoading').textContent = 'Loading…';
+  return apiPost('customers').then(function(r){
+    guardResp(r);
+    CUSTOMERS = (r && r.customers) || [];
+    CUST_STALE = false;
+    $('custLoading').textContent = '';
+    buildStatusDropdown(); buildToolChips();
+    return CUSTOMERS;
+  }).catch(function(e){ $('custLoading').textContent='Customers load nahi hue — Refresh dabayein.'; return []; });
+}
+function loadAds(){
+  if(ADS) return Promise.resolve(ADS);
+  return apiPost('adspendList').then(function(r){
+    guardResp(r);
+    ADS = (r && r.entries) || [];
+    return ADS;
+  }).catch(function(){ ADS = []; return ADS; });
+}
+
+/* ---------- DASHBOARD view ---------- */
+document.querySelectorAll('#periodBtns button').forEach(function(b){
+  b.addEventListener('click', function(){
+    document.querySelectorAll('#periodBtns button').forEach(function(x){ x.classList.remove('on'); });
+    b.classList.add('on');
+    PERIOD = b.getAttribute('data-p');
+    $('customBox').style.display = (PERIOD==='custom') ? 'block' : 'none';
+    if(PERIOD==='custom'){
+      if(!$('custFrom').value) $('custFrom').value = todayPKT().slice(0,8) + '01';
+      if(!$('custTo').value) $('custTo').value = todayPKT();
+      loadCustomers().then(function(){ computeAndRender(); });
+      loadAds().then(function(){ computeAndRender(); });
+    }
+    computeAndRender();
+  });
+});
+$('custApply').addEventListener('click', function(){
+  var f = $('custFrom').value, t = $('custTo').value, e = $('custErr'); e.textContent='';
+  if(!f || !t){ e.textContent='From aur To dono chunein.'; return; }
+  if(f > t){ e.textContent='From wali date To se barri hai — theek karein.'; return; }
+  loadCustomers().then(function(){ return loadAds(); }).then(computeAndRender);
+});
+
+function periodMonths(){
+  var ms = (DATA && DATA.months) || [];
+  var tk = todayPKT().slice(0,7);
+  var pk = monthKey(new Date(Date.now() - 0)); // placeholder
+  var d = new Date(); d.setMonth(d.getMonth()-1);
+  var lk = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
+  if(PERIOD==='this') return { label:'This Month', months: ms.filter(function(m){ return m.month===tk; }) };
+  if(PERIOD==='last') return { label:'Last Month', months: ms.filter(function(m){ return m.month===lk; }) };
+  return { label:'All Time', months: ms };
+}
+function sumMonths(ms){
+  var s = { sales:0, revenue:0, cost:0, adSpend:0, netProfit:0, customers:0, byTool:{} };
+  var custKeys = {};
+  ms.forEach(function(m){
+    s.sales += m.sales; s.revenue += m.revenue; s.cost += m.cost; s.adSpend += m.adSpend; s.netProfit += m.netProfit;
+    Object.keys(m.byTool||{}).forEach(function(t){
+      if(!s.byTool[t]) s.byTool[t] = { sales:0, revenue:0 };
+      s.byTool[t].sales += m.byTool[t].sales; s.byTool[t].revenue += m.byTool[t].revenue;
+    });
+  });
+  return s;
+}
+function computeAndRender(){
+  if(!DATA) return;
+  if(PERIOD==='custom'){ renderCustomRange(); return; }
+  var pm = periodMonths();
+  var s = sumMonths(pm.months);
+  // customers count for preset ranges: months payload ke unique counts ka jama (month-wise unique)
+  var cust = 0; pm.months.forEach(function(m){ cust += m.customers||0; });
+  drawDashboard({ label: pm.label, sales: s.sales, revenue: s.revenue, cost: s.cost, adSpend: s.adSpend, netProfit: s.netProfit, customers: cust, byTool: s.byTool });
+}
+function renderCustomRange(){
+  var f = $('custFrom').value, t = $('custTo').value;
+  if(!f || !t || !CUSTOMERS){ $('custNote').textContent='Customers load ho rahe hain…'; return; }
+  $('custNote').textContent = '';
+  var rows = CUSTOMERS.filter(function(c){ return c.purchaseISO && c.purchaseISO >= f && c.purchaseISO <= t; });
+  var s = { sales: rows.length, revenue:0, cost:0, adSpend:0, netProfit:0, byTool:{} };
+  var keys = {};
+  rows.forEach(function(c){
+    s.revenue += Number(c.selling||0); s.cost += Number(c.cost||0);
+    if(c.phoneDigits) keys[c.phoneDigits] = 1;
+    var tl = c.tool||'Other';
+    if(!s.byTool[tl]) s.byTool[tl] = { sales:0, revenue:0 };
+    s.byTool[tl].sales++; s.byTool[tl].revenue += Number(c.selling||0);
+  });
+  (ADS||[]).forEach(function(a){ if(a.dateISO && a.dateISO >= f && a.dateISO <= t) s.adSpend += Number(a.amount||0); });
+  s.netProfit = s.revenue - s.cost - s.adSpend;
+  s.customers = Object.keys(keys).length;
+  drawDashboard({ label:'Range: ' + dispDate(f) + ' → ' + dispDate(t), sales: s.sales, revenue: s.revenue, cost: s.cost, adSpend: s.adSpend, netProfit: s.netProfit, customers: s.customers, byTool: s.byTool });
+}
+function drawDashboard(s){
+  $('heroLabel').textContent = 'Net Profit — ' + s.label;
+  $('heroProfit').textContent = money(s.netProfit);
+  $('heroSub').textContent = 'Revenue ' + money(s.revenue) + ' · ' + s.sales + ' orders · ' + s.customers + ' customers';
+  $('kpiActive').textContent = (DATA && DATA.activePlans) || 0;
+  $('kpiRevenue').textContent = money(s.revenue);
+  $('kpiNet').textContent = money(s.netProfit);
+  $('kpiCustomers').textContent = s.customers;
+  var cpo = s.sales > 0 ? Math.round(s.adSpend / s.sales) : 0;
+  var rpr = s.adSpend > 0 ? (s.revenue / s.adSpend).toFixed(1) : '—';
+  $('adStrip').innerHTML = '💸 <b>Ad Efficiency</b> (' + esc(s.label) + '): Ad Spend <b>' + money(s.adSpend) + '</b> · Cost Per Order <b>' + (s.sales>0 ? money(cpo) : '—') + '</b> · Revenue per Ad Rupee <b>' + rpr + (rpr==='—'?'':'x') + '</b>';
+  // donut
+  var tools = Object.keys(s.byTool||{}).filter(function(t){ return s.byTool[t].sales > 0; })
+    .sort(function(a,b){ return s.byTool[b].sales - s.byTool[a].sales; });
+  var total = tools.reduce(function(a,t){ return a + s.byTool[t].sales; }, 0);
+  var COLORS = ['#2563eb','#7c3aed','#06b6d4','#f59e0b','#ef4444','#10b981','#ec4899','#64748b'];
+  var acc = 0, segs = [], legend = '';
+  tools.forEach(function(t, i){
+    var share = total ? (s.byTool[t].sales / total * 100) : 0;
+    segs.push(COLORS[i % COLORS.length] + ' ' + acc + '% ' + (acc + share) + '%');
+    acc += share;
+    legend += '<div><span class="dot" style="background:' + COLORS[i % COLORS.length] + '"></span>' + esc(t) + ' · ' + s.byTool[t].sales + '</div>';
+  });
+  $('donut').style.background = total ? ('conic-gradient(' + segs.join(',') + ')') : 'var(--bg-soft)';
+  $('donutTotal').textContent = total;
+  $('donutLegend').innerHTML = legend || '<span class="muted">Is period mein orders nahi.</span>';
+  // monthly bars (newest first)
+  var ms = ((DATA && DATA.months) || []).slice().sort(function(a,b){ return a.month < b.month ? 1 : -1; });
+  var maxP = Math.max.apply(null, ms.map(function(m){ return Math.abs(m.netProfit); }).concat([1]));
+  $('monthBars').innerHTML = ms.map(function(m){
+    var w = Math.max(2, Math.round(Math.abs(m.netProfit) / maxP * 100));
+    var MN = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    var lab = MN[Number(m.month.slice(5,7)) - 1] + ' ' + m.month.slice(0,4);
+    return '<div class="bar-row"><div class="bar-lab">' + lab + '</div><div class="bar-track"><div class="bar-fill" style="width:' + w + '%"></div></div><div class="bar-val">' + money(m.netProfit) + ' · ' + m.sales + ' orders</div></div>';
+  }).join('') || '<div class="muted">Data nahi.</div>';
+  // renewal alerts (first 8)
+  var ren = ((DATA && DATA.renewals) || []).slice(0, 8);
+  $('alertRows').innerHTML = ren.map(function(r){
+    return '<tr><td><b>' + esc(r.customer) + '</b></td><td>' + esc(r.tool) + '</td><td>' + esc(r.expiry) + '</td><td>' + daysPill(r.days) + '</td><td><a class="btn small wa" target="_blank" rel="noopener" href="' + esc(waRenewal(r)) + '">WA Reminder</a></td></tr>';
+  }).join('') || '<tr><td colspan="5" class="muted">Koi renewal alert nahi.</td></tr>';
+}
+function renderDashboard(){ computeAndRender(); }
+
+/* ---------- CUSTOMERS view ---------- */
+function groupKey(c){ return c.phoneDigits || ('name:' + String(c.gmail||'').toLowerCase()); }
+function buildStatusDropdown(){
+  var sel = $('custStatus'); var cur = sel.value;
+  var vals = (DATA && DATA.statuses) || ['Active','Expiring Soon','Expired'];
+  sel.innerHTML = '<option value="">All</option>' + vals.map(function(s){ return '<option' + (s===cur?' selected':'') + '>' + esc(s) + '</option>'; }).join('');
+}
+function allTools(){
+  var set = {};
+  (CUSTOMERS||[]).forEach(function(c){ if(c.tool) set[c.tool] = 1; });
+  return Object.keys(set).sort();
+}
+function buildToolChips(){
+  var tools = allTools();
+  var html = '<button data-t="" class="' + (TOOL_FILTER===''?'on':'') + '">All</button>' +
+    tools.map(function(t){ return '<button data-t="' + esc(t) + '" class="' + (TOOL_FILTER===t?'on':'') + '">' + esc(t) + '</button>'; }).join('');
+  $('toolChips').innerHTML = html;
+  document.querySelectorAll('#toolChips button').forEach(function(b){
+    b.addEventListener('click', function(){ TOOL_FILTER = b.getAttribute('data-t'); buildToolChips(); renderCustomers(); });
+  });
+}
+$('custSearch').addEventListener('input', renderCustomers);
+$('custStatus').addEventListener('change', renderCustomers);
+
+function filteredCustomers(){
+  var q = ($('custSearch').value||'').toLowerCase().trim();
+  var st = $('custStatus').value;
+  return (CUSTOMERS||[]).filter(function(c){
+    if(HIST_KEY && groupKey(c) !== HIST_KEY) return false;
+    if(TOOL_FILTER && c.tool !== TOOL_FILTER) return false;
+    if(st && c.status !== st) return false;
+    if(q){
+      var hay = (c.gmail+' '+c.phone+' '+c.tool+' '+c.plan).toLowerCase();
+      if(hay.indexOf(q) < 0) return false;
+    }
+    return true;
+  });
+}
+function renderCustomers(){
+  if(!CUSTOMERS){ $('custLoading').textContent='Loading…'; return; }
+  var rows = filteredCustomers();
+  $('custCount').textContent = rows.length + ' customers mile';
+  renderTopCustomers();
+  if(HIST_KEY){
+    var grows = (CUSTOMERS||[]).filter(function(c){ return groupKey(c)===HIST_KEY; });
+    var spent = grows.reduce(function(a,c){ return a + Number(c.selling||0); }, 0);
+    $('histBanner').innerHTML = '<div class="banner"><span>History: <b>' + esc(grows[0] ? (grows[0].gmail || grows[0].phone) : '') + '</b> — kul ' + grows.length + ' orders, kul kharcha ' + money(spent) + '</span><button class="btn small secondary" id="histClose">✖ Band karein</button></div>';
+    $('histClose').addEventListener('click', function(){ HIST_KEY = null; $('histBanner').innerHTML=''; renderCustomers(); });
+  } else { $('histBanner').innerHTML=''; }
+  $('custRows').innerHTML = rows.map(function(c, i){
+    var d = daysOf(c);
+    var canEdit = !c.old;
+    var canStatus = !c.old && c.sheet==='Subscriptions' && Number(c.row) <= 31;
+    var statusCell = canStatus
+      ? '<select data-status="' + i + '">' + ((DATA && DATA.statuses) || ['Active','Expiring Soon','Expired']).map(function(s){ return '<option' + (s===c.status?' selected':'') + '>' + esc(s) + '</option>'; }).join('') + '</select>'
+      : statusPill(c);
+    var acts = '<a class="btn small wa" target="_blank" rel="noopener" href="' + esc(waChat(c)) + '">💬 WhatsApp</a> ' +
+      (canEdit ? '<button class="btn small secondary" data-edit="' + i + '">✏️ Edit</button> <button class="btn small secondary" data-renew="' + i + '">♻️ Renew</button> <button class="btn small secondary" data-hist="' + i + '">🕘 History</button> <button class="btn small danger" data-del="' + i + '">🗑</button>' : '<span class="pill g-old">Old</span>');
+    return '<tr><td>' + esc(c.tool) + '</td><td><b>' + esc(c.gmail) + '</b>' + (c.old && c.notes ? '<div class="small muted">' + esc(c.notes) + '</div>' : '') + '</td><td>' + esc(c.phone) + '</td><td>' + esc(c.plan) + '</td><td>' + esc(c.purchase || '—') + '</td><td>' + esc(c.expiry || '—') + '</td><td>' + (d===null ? '—' : d) + '</td><td>' + money(c.selling) + '</td><td>' + money(c.profit) + '</td><td>' + statusCell + '</td><td style="white-space:normal;min-width:210px">' + acts + '</td></tr>' +
+      '<tr id="editrow-' + i + '" style="display:none"><td colspan="11"></td></tr>';
+  }).join('') || '<tr><td colspan="11" class="muted">Koi customer nahi mila.</td></tr>';
+  // wire actions
+  document.querySelectorAll('[data-status]').forEach(function(sel){
+    sel.addEventListener('change', function(){
+      var c = rows[Number(sel.getAttribute('data-status'))];
+      apiPost('setStatus', { row: c.row, status: sel.value }).then(function(r){
+        guardResp(r);
+        if(r && r.ok){ c.status = sel.value; toast('Status badal gaya ✔'); refreshAll(false); }
+        else { toast('Status nahi badla: ' + ((r && r.error) || 'error')); sel.value = c.status; }
+      }).catch(function(){ toast('Network error — status nahi badla.'); });
+    });
+  });
+  document.querySelectorAll('[data-hist]').forEach(function(b){
+    b.addEventListener('click', function(){ var c = rows[Number(b.getAttribute('data-hist'))]; HIST_KEY = groupKey(c); renderCustomers(); window.scrollTo({ top: 0, behavior: 'smooth' }); });
+  });
+  document.querySelectorAll('[data-renew]').forEach(function(b){
+    b.addEventListener('click', function(){
+      var c = rows[Number(b.getAttribute('data-renew'))];
+      if(!confirm('Renew kar dein? ' + c.gmail + ' — ' + c.tool + ' (aaj ki date se nayi entry banegi)')) return;
+      apiPost('add', { name: c.gmail, phone: c.phone, tool: c.tool, accessType: c.acct||'', plan: c.plan, purchaseISO: todayPKT(), expiryISO: expiryFromPlan(todayPKT(), c.plan), cost: c.cost, selling: c.selling, payment: c.payment||'Paid', lead: c.lead||'', notes: '', status: 'Active' }).then(function(r){
+        guardResp(r);
+        if(r && r.ok){ CUST_STALE = true; toast('Renew ho gaya ✔ Nayi entry ban gayi (row ' + r.row + ')'); loadCustomers().then(renderCustomers); refreshAll(false); }
+        else toast('Renew nahi hua: ' + ((r && r.error) || 'error'));
+      }).catch(function(){ toast('Network error — renew nahi hua.'); });
+    });
+  });
+  document.querySelectorAll('[data-del]').forEach(function(b){
+    b.addEventListener('click', function(){
+      var c = rows[Number(b.getAttribute('data-del'))];
+      if(!confirm('Pakka delete kar dein? Ye row Sheet se saaf ho jayegi.')) return;
+      apiPost('delete', { row: c.row }).then(function(r){
+        guardResp(r);
+        if(r && r.ok){ CUSTOMERS = CUSTOMERS.filter(function(x){ return x !== c; }); CUST_STALE = true; toast('Delete ho gaya ✔'); renderCustomers(); refreshAll(false); }
+        else toast('Delete nahi hua: ' + ((r && r.error) || 'error'));
+      }).catch(function(){ toast('Network error — delete nahi hua.'); });
+    });
+  });
+  document.querySelectorAll('[data-edit]').forEach(function(b){
+    b.addEventListener('click', function(){ toggleEdit(rows, Number(b.getAttribute('data-edit'))); });
+  });
+}
+function toggleEdit(rows, i){
+  var tr = $('editrow-' + i); if(!tr) return;
+  if(tr.style.display !== 'none'){ tr.style.display = 'none'; return; }
+  var c = rows[i];
+  var tools = allTools();
+  tr.querySelector('td').innerHTML =
+    '<div class="editbox"><div class="grid2">' +
+    '<div><label>Customer Name</label><input id="e-name" value="' + esc(c.gmail) + '"></div>' +
+    '<div><label>Phone / WhatsApp</label><input id="e-phone" value="' + esc(c.phone) + '"></div>' +
+    '<div><label>Tool</label><input id="e-tool" list="eToolList" value="' + esc(c.tool) + '"><datalist id="eToolList">' + tools.map(function(t){ return '<option value="' + esc(t) + '">'; }).join('') + '</datalist></div>' +
+    '<div><label>Plan</label><input id="e-plan" value="' + esc(c.plan) + '"></div>' +
+    '<div><label>Purchase Date</label><input id="e-date" type="date" value="' + esc(c.purchaseISO||'') + '"></div>' +
+    '<div><label>Cost (Rs)</label><input id="e-cost" type="number" step="any" value="' + esc(c.cost) + '"></div>' +
+    '<div><label>Selling (Rs)</label><input id="e-selling" type="number" step="any" value="' + esc(c.selling) + '"></div>' +
+    '<div><label>Lead Source</label><input id="e-lead" value="' + esc(c.lead||'') + '"></div>' +
+    '<div><label>Payment</label><select id="e-payment"><option' + (c.payment==='Paid'?' selected':'') + '>Paid</option><option' + (c.payment==='Pending'?' selected':'') + '>Pending</option></select></div>' +
+    '<div><label>Notes (sirf form wali rows par save hota hai)</label><input id="e-notes" value="' + esc(c.notes||'') + '"></div>' +
+    '</div><div style="margin-top:10px;display:flex;gap:8px"><button class="btn small" id="e-save">Save</button><button class="btn small secondary" id="e-cancel">Cancel</button></div><div class="err" id="e-err"></div></div>';
+  tr.style.display = '';
+  $('e-cancel').addEventListener('click', function(){ tr.style.display='none'; });
+  $('e-save').addEventListener('click', function(){
+    var start = $('e-date').value;
+    var payload = { row: c.row, name: $('e-name').value.trim(), phone: $('e-phone').value.trim(), tool: $('e-tool').value.trim(), accessType: c.acct||'', plan: $('e-plan').value.trim(), purchaseISO: start, expiryISO: start ? expiryFromPlan(start, $('e-plan').value.trim()) : '', cost: $('e-cost').value, selling: $('e-selling').value, payment: $('e-payment').value, lead: $('e-lead').value.trim(), notes: $('e-notes').value };
+    apiPost('update', payload).then(function(r){
+      guardResp(r);
+      if(r && r.ok){ CUST_STALE = true; toast('Save ho gaya ✔'); loadCustomers().then(renderCustomers); refreshAll(false); }
+      else $('e-err').textContent = 'Save nahi hua: ' + ((r && r.error) || 'error');
+    }).catch(function(){ $('e-err').textContent = 'Network error — save nahi hua.'; });
+  });
+}
+function renderTopCustomers(){
+  var groups = {};
+  (CUSTOMERS||[]).forEach(function(c){
+    var k = groupKey(c);
+    if(!groups[k]) groups[k] = { name: c.gmail, phone: c.phone, phoneDigits: c.phoneDigits, total: 0, orders: 0, tools: {} };
+    groups[k].total += Number(c.selling||0); groups[k].orders++;
+    groups[k].tools[c.tool] = (groups[k].tools[c.tool]||0) + 1;
+    if(!groups[k].phoneDigits && c.phoneDigits) groups[k].phoneDigits = c.phoneDigits;
+  });
+  var top = Object.keys(groups).map(function(k){ return groups[k]; }).sort(function(a,b){ return b.total - a.total; }).slice(0, 10);
+  $('topCust').innerHTML = top.map(function(g, i){
+    var br = Object.keys(g.tools).sort(function(a,b){ return g.tools[b]-g.tools[a]; }).map(function(t){ return esc(t) + ' ×' + g.tools[t]; }).join(' • ');
+    return '<div style="display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-bottom:1px solid var(--border)">' +
+      '<b style="width:22px;flex:none">' + (i+1) + '.</b>' +
+      '<div style="flex:1"><b>' + esc(g.name) + '</b>' + (g.phone ? '<div class="small muted">📞 ' + esc(g.phone) + '</div>' : '') +
+      '<div class="small muted">' + br + ' · ' + g.orders + ' orders · <b style="color:var(--text)">' + money(g.total) + '</b></div></div>' +
+      (g.phoneDigits ? '<a class="btn small wa" target="_blank" rel="noopener" href="https://wa.me/' + g.phoneDigits + '">WhatsApp</a>' : '') + '</div>';
+  }).join('') || '<div class="muted">Data nahi.</div>';
+}
+$('csvBtn').addEventListener('click', function(){
+  if(!CUSTOMERS){ toast('Pehle customers load hone dein.'); return; }
+  var head = ['Tool','Gmail','Phone','Plan','Purchase','Expiry','Days','Cost','Selling','Profit','Lead','Status'];
+  function q(v){ v = String(v==null?'':v); return /[",\n]/.test(v) ? '"' + v.replace(/"/g,'""') + '"' : v; }
+  var lines = [head.join(',')];
+  CUSTOMERS.forEach(function(c){ lines.push([c.tool, c.gmail, c.phone, c.plan, c.purchaseISO, c.expiryISO, (c.days===''?'':c.days), c.cost, c.selling, c.profit, c.lead, c.status].map(q).join(',')); });
+  var blob = new Blob(['\ufeff' + lines.join('\n')], { type: 'text/csv;charset=utf-8' });
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'ar-services-customers-' + todayPKT().replace(/-/g,'') + '.csv';
+  a.click(); URL.revokeObjectURL(a.href);
+});
+
+/* ---------- Plan → expiry (spec 3.3 ki table) ---------- */
+function planDays(plan){
+  var p = String(plan||'').trim().toLowerCase();
+  if(p==='1 month') return 30; if(p==='2 months') return 60; if(p==='3 months') return 90;
+  if(p==='4 months') return 110; if(p==='6 months') return 180; if(p==='1 year'||p==='12 months') return 365;
+  if(p==='18 months') return 540; if(p==='7 days') return 7;
+  var m = /(\d+)\s*month/.exec(p); if(m) return Number(m[1]) * 30;
+  var d = /(\d+)\s*day/.exec(p); if(d) return Number(d[1]);
+  return 0;
+}
+function expiryFromPlan(startISO, plan){
+  if(!startISO) return '';
+  var dd = planDays(plan);
+  var dt = new Date(startISO + 'T00:00:00');
+  dt.setDate(dt.getDate() + dd);
+  return dt.toISOString().slice(0,10);
+}
+
+/* ---------- NEW ORDER view ---------- */
+var NAMED_TOOLS = ['CapCut Pro','Canva Pro','Gemini','Surfshark VPN','Netflix','YouTube Premium','MS Office 365 Plus','Adobe Express','iLovePDF','QuillBot','Super Duolingo'];
+function prepOrderForm(){
+  var sel = $('ordTool');
+  if(!sel.options.length){
+    sel.innerHTML = NAMED_TOOLS.map(function(t){ return '<option>' + esc(t) + '</option>'; }).join('') + '<option value="__other">Other</option>';
+    $('ordDate').value = todayPKT();
+    $('adDate').value = todayPKT();
+  }
+  var tools = allTools();
+  $('toolNameList').innerHTML = tools.map(function(t){ return '<option value="' + esc(t) + '">'; }).join('');
+  ordToolChanged();
+}
+$('ordTool').addEventListener('change', ordToolChanged);
+function ordToolChanged(){
+  var v = $('ordTool').value;
+  $('ordToolNewWrap').style.display = (v === '__other') ? 'block' : 'none';
+  $('nfWrap').style.display = (v === 'Netflix') ? 'block' : 'none';
+  nfPreview();
+}
+['nfProfile','nfPin','nfGmail'].forEach(function(id){ $(id).addEventListener('input', nfPreview); });
+function nfPreview(){
+  var p = $('nfProfile').value.trim(), pin = $('nfPin').value.trim(), g = $('nfGmail').value.trim();
+  $('nfPreview').textContent = (p || pin) ? ('Note mein jayega: Profile ' + p + ' · PIN ' + pin + (g ? ' · ' + g : '')) : '';
+}
+$('ordSubmit').addEventListener('click', function(){
+  var err = $('ordErr'), ok = $('ordOk'); err.textContent = ''; ok.textContent = '';
+  var toolSel = $('ordTool').value;
+  var tool = (toolSel === '__other') ? $('ordToolName').value.trim() : toolSel;
+  var name = $('ordName').value.trim(), phone = $('ordPhone').value.trim();
+  var plan = $('ordPlan').value.trim(), selling = $('ordSelling').value;
+  var nfP = $('nfProfile').value.trim(), nfPin = $('nfPin').value.trim(), nfG = $('nfGmail').value.trim();
+  if(toolSel === 'Netflix' && ((nfP && !nfPin) || (!nfP && nfPin))){ err.textContent = 'Netflix: Profile aur PIN dono likhein, ya dono khali chor dein.'; return; }
+  if(!tool){ err.textContent = 'Tool chunein ya likhein.'; return; }
+  if(!name || !phone || !plan || selling === ''){ err.textContent = 'Name, Phone, Plan aur Selling Price lazmi hain.'; return; }
+  var notes = $('ordNotes').value.trim();
+  if(toolSel === 'Netflix' && nfP){ var nfn = 'Profile ' + nfP + ' · PIN ' + nfPin + (nfG ? ' · ' + nfG : ''); notes = notes ? (notes + ' | ' + nfn) : nfn; }
+  var start = $('ordDate').value || todayPKT();
+  var btn = $('ordSubmit'); btn.disabled = true; btn.textContent = 'Saving…';
+  apiPost('add', { name: name, phone: phone, tool: tool, accessType: $('ordAccess').value, plan: plan, purchaseISO: start, expiryISO: expiryFromPlan(start, plan), cost: $('ordCost').value, selling: selling, payment: $('ordPayment').value, lead: $('ordLead').value.trim(), notes: notes, status: $('ordStatus').value, email: $('ordEmail').value.trim(), team: '', accountId: '' }).then(function(r){
+    btn.disabled = false; btn.textContent = 'Order Save Karein';
+    guardResp(r);
+    if(r && r.ok){
+      ok.textContent = 'Order save ho gaya ✔ (Form row ' + r.row + ') — bridge se Subscriptions mein aa jayega.';
+      ['ordName','ordPhone','ordSelling','ordCost','ordNotes','ordEmail','nfProfile','nfPin','nfGmail'].forEach(function(id){ $(id).value=''; });
+      CUST_STALE = true; CUSTOMERS = null; refreshAll(false);
+    } else err.textContent = 'Save nahi hua: ' + ((r && r.error) || 'error');
+  }).catch(function(){ btn.disabled = false; btn.textContent = 'Order Save Karein'; err.textContent = 'Network error — save nahi hua.'; });
+});
+
+/* ---------- RENEWALS view ---------- */
+function sentMap(){
+  try { return JSON.parse(localStorage.getItem('ar_sent_v1') || '{}'); } catch(e){ return {}; }
+}
+function saveSentMap(m){ try { localStorage.setItem('ar_sent_v1', JSON.stringify(m)); } catch(e){} }
+function renderRenewals(){
+  var ren = (DATA && DATA.renewals) || [];
+  var today = todayPKT();
+  var sm = sentMap(); var sentToday = sm[today] || [];
+  var fu = ren.filter(function(r){ return r.days <= 7; });
+  $('fuRows').innerHTML = fu.map(function(r, i){
+    var sent = sentToday.indexOf(r.phone) >= 0;
+    return '<tr class="' + (sent ? 'sent' : '') + '"><td><b>' + esc(r.customer) + '</b></td><td>' + esc(r.tool) + '</td><td>' + esc(r.plan) + '</td><td>' + esc(r.expiry) + '</td><td>' + daysPill(r.days) + '</td>' +
+      '<td><a class="btn small wa" target="_blank" rel="noopener" href="' + esc(waRenewal(r)) + '">WA Reminder</a></td>' +
+      '<td>' + (sent ? '<span class="pill g-act">✔ Bhej diya</span> <button class="btn small secondary" data-undo="' + i + '">↩️ Undo</button>' : '<button class="btn small secondary" data-sent="' + i + '">✅ Bhej diya</button>') + '</td></tr>';
+  }).join('') || '<tr><td colspan="7" class="muted">Aaj koi follow-up nahi.</td></tr>';
+  document.querySelectorAll('[data-sent]').forEach(function(b){
+    b.addEventListener('click', function(){
+      var r = fu[Number(b.getAttribute('data-sent'))];
+      var m = sentMap(); if(!m[today]) m[today] = [];
+      if(m[today].indexOf(r.phone) < 0) m[today].push(r.phone);
+      saveSentMap(m); renderRenewals();
+    });
+  });
+  document.querySelectorAll('[data-undo]').forEach(function(b){
+    b.addEventListener('click', function(){
+      var r = fu[Number(b.getAttribute('data-undo'))];
+      var m = sentMap(); m[today] = (m[today] || []).filter(function(x){ return x !== r.phone; });
+      saveSentMap(m); renderRenewals();
+    });
+  });
+  $('renRows').innerHTML = ren.map(function(r){
+    return '<tr><td><b>' + esc(r.customer) + '</b></td><td>' + esc(r.tool) + '</td><td>' + esc(r.plan) + '</td><td>' + esc(r.expiry) + '</td><td>' + daysPill(r.days) + '</td><td><a class="btn small wa" target="_blank" rel="noopener" href="' + esc(waRenewal(r)) + '">WA Reminder</a></td></tr>';
+  }).join('') || '<tr><td colspan="6" class="muted">Renewals nahi.</td></tr>';
+  renderWinback();
+}
+function renderWinback(){
+  if(!CUSTOMERS){ $('wbLoading').textContent = 'Customers load ho rahe hain…'; loadCustomers().then(renderWinback); return; }
+  $('wbLoading').textContent = '';
+  var groups = {};
+  CUSTOMERS.forEach(function(c){
+    var k = groupKey(c);
+    if(!groups[k]) groups[k] = [];
+    groups[k].push(c);
+  });
+  var wb = [];
+  Object.keys(groups).forEach(function(k){
+    var rows = groups[k].slice().sort(function(a, b){ return (a.purchaseISO || '') < (b.purchaseISO || '') ? 1 : -1; });
+    var latest = rows[0];
+    if(latest && latest.status === 'Expired') wb.push(latest);
+  });
+  wb.sort(function(a, b){ return (a.expiryISO || '') < (b.expiryISO || '') ? 1 : -1; });
+  $('wbCount').textContent = wb.length;
+  $('wbRows').innerHTML = wb.map(function(c){
+    return '<tr><td><b>' + esc(c.gmail) + '</b></td><td>' + esc(c.phone) + '</td><td>' + esc(c.tool) + '</td><td>' + esc(c.plan) + '</td><td>' + esc(c.expiry || '—') + '</td><td><a class="btn small wa" target="_blank" rel="noopener" href="' + esc(waWinback(c)) + '">WhatsApp</a></td></tr>';
+  }).join('') || '<tr><td colspan="6" class="muted">Win-back list khali hai.</td></tr>';
+}
+
+/* ---------- AD SPEND view ---------- */
+$('adSubmit').addEventListener('click', function(){
+  var err = $('adErr'), ok = $('adOk'); err.textContent = ''; ok.textContent = '';
+  var amt = $('adAmount').value;
+  if(amt === '' || Number(amt) < 0){ err.textContent = 'Amount lazmi hai.'; return; }
+  apiPost('adspendAdd', { dateISO: $('adDate').value || todayPKT(), platform: $('adPlatform').value.trim(), amount: amt, remarks: $('adRemarks').value.trim() }).then(function(r){
+    guardResp(r);
+    if(r && r.ok){ ok.textContent = 'Save ho gaya ✔'; $('adAmount').value = ''; $('adRemarks').value = ''; ADS = null; loadAds().then(renderAds); refreshAll(false); }
+    else if(r && r.error === 'no_adspend_tab') err.textContent = 'Ads tab nahi mila.';
+    else err.textContent = 'Save nahi hua: ' + ((r && r.error) || 'error');
+  }).catch(function(){ err.textContent = 'Network error — save nahi hua.'; });
+});
+$('adRefresh').addEventListener('click', function(){ ADS = null; loadAds().then(renderAds); });
+function renderAds(){
+  var entries = ADS || [];
+  var mk = todayPKT().slice(0, 7);
+  var monthTotal = 0, monthCount = 0;
+  entries.forEach(function(a){ if(a.dateISO && a.dateISO.slice(0, 7) === mk){ monthTotal += Number(a.amount || 0); monthCount++; } });
+  var MN = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  $('adSummary').innerHTML = 'Is month (' + MN[Number(mk.slice(5,7)) - 1] + ' ' + mk.slice(0,4) + ') kul ad spend: <b>' + money(monthTotal) + '</b> · kul entries: <b>' + monthCount + '</b>';
+  $('adLoading').textContent = entries.length ? '' : 'Entries nahi.';
+  $('adRows').innerHTML = entries.map(function(a, i){
+    return '<tr><td>' + esc(a.date || '—') + '</td><td>' + esc(a.platform) + '</td><td>' + money(a.amount) + '</td><td>' + esc(a.remarks) + '</td><td><button class="btn small danger" data-adel="' + i + '">Delete</button></td></tr>';
+  }).join('');
+  document.querySelectorAll('[data-adel]').forEach(function(b){
+    b.addEventListener('click', function(){
+      var a = entries[Number(b.getAttribute('data-adel'))];
+      if(!confirm('Ye ad spend entry delete kar dein?')) return;
+      apiPost('adspendDelete', { row: a.row }).then(function(r){
+        guardResp(r);
+        if(r && r.ok){ ADS = null; loadAds().then(renderAds); refreshAll(false); toast('Entry delete ho gayi ✔'); }
+        else toast('Delete nahi hua: ' + ((r && r.error) || 'error'));
+      }).catch(function(){ toast('Network error.'); });
+    });
+  });
+}
+
+/* ---------- REPORTS view ---------- */
+function renderReports(){
+  if(!CUSTOMERS){ $('repLoading').textContent = 'Customers load ho rahe hain…'; loadCustomers().then(renderReports); return; }
+  $('repLoading').textContent = '';
+  var byTool = {}, byLead = {};
+  CUSTOMERS.forEach(function(c){
+    var t = c.tool || 'Other';
+    if(!byTool[t]) byTool[t] = { profit: 0, sales: 0, revenue: 0 };
+    byTool[t].profit += Number(c.profit || 0); byTool[t].sales++; byTool[t].revenue += Number(c.selling || 0);
+    var L = (c.lead || '').trim() || '— (khali)';
+    if(!byLead[L]) byLead[L] = { profit: 0, sales: 0, revenue: 0 };
+    byLead[L].profit += Number(c.profit || 0); byLead[L].sales++; byLead[L].revenue += Number(c.selling || 0);
+  });
+  var tools = Object.keys(byTool).sort(function(a, b){ return byTool[b].profit - byTool[a].profit; });
+  var maxP = Math.max.apply(null, tools.map(function(t){ return Math.abs(byTool[t].profit); }).concat([1]));
+  var totP = 0, totS = 0;
+  $('repTools').innerHTML = tools.map(function(t){
+    totP += byTool[t].profit; totS += byTool[t].sales;
+    var w = Math.max(2, Math.round(Math.abs(byTool[t].profit) / maxP * 100));
+    return '<div class="bar-row"><div class="bar-lab" style="width:130px">' + esc(t) + '</div><div class="bar-track"><div class="bar-fill" style="width:' + w + '%"></div></div><div class="bar-val" style="width:170px">' + money(byTool[t].profit) + ' · ' + byTool[t].sales + ' sales</div></div>';
+  }).join('') + '<div style="border-top:2px solid var(--border);margin-top:8px;padding-top:8px;font-weight:bold">Total: ' + money(totP) + ' · ' + totS + ' sales</div>';
+  var leads = Object.keys(byLead).sort(function(a, b){ return byLead[b].profit - byLead[a].profit; });
+  $('repLeads').innerHTML = leads.map(function(L){
+    return '<tr><td>' + esc(L) + '</td><td>' + byLead[L].sales + '</td><td>' + money(byLead[L].revenue) + '</td><td>' + money(byLead[L].profit) + '</td></tr>';
+  }).join('') || '<tr><td colspan="4" class="muted">Data nahi.</td></tr>';
+  var ms = ((DATA && DATA.months) || []);
+  var MN = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  $('repMonths').innerHTML = ms.map(function(m, i){
+    var g = '—';
+    if(i > 0){
+      var prev = ms[i - 1].netProfit;
+      if(prev !== 0){ var pct = (m.netProfit - prev) / Math.abs(prev) * 100; g = (pct >= 0 ? '<span style="color:var(--ok)">▲ +' : '<span style="color:var(--danger)">▼ ') + pct.toFixed(1) + '%</span>'; }
+      else g = '—';
+    }
+    return '<tr><td>' + MN[Number(m.month.slice(5,7)) - 1] + ' ' + m.month.slice(0,4) + '</td><td>' + m.sales + '</td><td>' + money(m.revenue) + '</td><td>' + money(m.netProfit) + '</td><td>' + g + '</td></tr>';
+  }).join('') || '<tr><td colspan="5" class="muted">Data nahi.</td></tr>';
+}
+
+/* ---------- ACCOUNTS view (7th) ---------- */
+var ACC_SEL = null;
+function accMembers(id){ return ((DATA && DATA.members) || []).filter(function(m){ return m.accountId === id; }); }
+function renderAccounts(){
+  var accs = (DATA && DATA.accounts) || [];
+  $('accList').innerHTML = accs.map(function(a, i){
+    var mem = accMembers(a.id);
+    var d = (a.days === null || a.days === undefined) ? null : Number(a.days);
+    var warn = (d !== null && d <= 15) ? ' <span class="pill org">⚠ ' + d + ' din baqi</span>' : '';
+    return '<div style="border:1px solid var(--border);border-radius:12px;padding:12px 14px;margin-bottom:10px">' +
+      '<div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;align-items:center">' +
+      '<div><b style="font-size:16px">' + esc(a.id) + '</b> · ' + esc(a.tool) + (a.name ? ' · ' + esc(a.name) : '') + '</div>' +
+      '<div>' + statusPill({ status: a.status }) + warn + '</div></div>' +
+      '<div class="small muted" style="margin-top:5px;line-height:1.7">' +
+      (a.email ? '📧 ' + esc(a.email) + '<br>' : '') +
+      (a.vendor ? 'Vendor: ' + esc(a.vendor) + (a.vendorNumber ? ' (' + esc(a.vendorNumber) + ')' : '') + '<br>' : '') +
+      'Cost: <b style="color:var(--text)">' + money(a.cost) + '</b>' +
+      (a.startDisp ? ' · Start: ' + esc(a.startDisp) : '') +
+      (a.expiryDisp ? ' · Expiry: <b style="color:var(--text)">' + esc(a.expiryDisp) + '</b>' : '') +
+      (a.accessType ? '<br>Access: ' + esc(a.accessType) : '') +
+      (a.notes ? '<br>📝 ' + esc(a.notes) : '') +
+      '</div>' +
+      '<div style="margin-top:9px;display:flex;gap:7px;flex-wrap:wrap">' +
+      '<button class="btn small secondary" data-acc-mem="' + i + '">👥 Members (' + mem.length + ')</button>' +
+      '<button class="btn small secondary" data-acc-edit="' + i + '">✏️ Edit</button>' +
+      '</div><div id="accedit-' + i + '"></div></div>';
+  }).join('') || '<div class="muted">Accounts nahi mile.</div>';
+  document.querySelectorAll('[data-acc-mem]').forEach(function(b){
+    b.addEventListener('click', function(){ showMembers(accs[Number(b.getAttribute('data-acc-mem'))]); });
+  });
+  document.querySelectorAll('[data-acc-edit]').forEach(function(b){
+    b.addEventListener('click', function(){ toggleAccEdit(accs, Number(b.getAttribute('data-acc-edit'))); });
+  });
+  if(ACC_SEL){ var cur = accs.filter(function(a){ return a.id === ACC_SEL; })[0]; if(cur) showMembers(cur, true); }
+}
+function showMembers(a, keep){
+  ACC_SEL = a.id;
+  $('memCard').style.display = 'block';
+  $('memTitle').textContent = a.id + ' — ' + a.tool;
+  $('memTool').value = a.tool || '';
+  var mem = accMembers(a.id);
+  $('memRows').innerHTML = mem.map(function(m){
+    return '<tr><td><b>' + esc(m.name) + '</b></td><td>' + esc(m.number) + '</td><td>' + esc(m.tool) + '</td><td>' + esc(m.added ? dispDate(m.added) : '—') + '</td><td>' + esc(m.notes) + '</td></tr>';
+  }).join('') || '<tr><td colspan="5" class="muted">Is account par members nahi.</td></tr>';
+  if(!keep) $('memCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+$('memSave').addEventListener('click', function(){
+  var err = $('memErr'), ok = $('memOk'); err.textContent = ''; ok.textContent = '';
+  if(!ACC_SEL){ err.textContent = 'Pehle kisi account ke Members kholein.'; return; }
+  var name = $('memName').value.trim(), num = $('memNumber').value.trim();
+  if(!name || !num){ err.textContent = 'Naam aur number lazmi hain.'; return; }
+  apiPost('member', { accountId: ACC_SEL, name: name, number: num, tool: $('memTool').value.trim(), added: todayPKT(), notes: $('memNotes').value.trim() }).then(function(r){
+    guardResp(r);
+    if(r && r.ok){ ok.textContent = 'Member save ho gaya ✔'; $('memName').value = ''; $('memNumber').value = ''; $('memNotes').value = ''; DATA = null; refreshAll(false).then(function(){ var a = ((DATA && DATA.accounts) || []).filter(function(x){ return x.id === ACC_SEL; })[0]; if(a) showMembers(a, true); }); }
+    else err.textContent = 'Save nahi hua: ' + ((r && r.error) || 'error');
+  }).catch(function(){ err.textContent = 'Network error.'; });
+});
+function toggleAccEdit(accs, i){
+  var box = $('accedit-' + i); if(!box) return;
+  if(box.innerHTML){ box.innerHTML = ''; return; }
+  var a = accs[i];
+  box.innerHTML = '<div class="editbox"><div class="grid2">' +
+    '<div><label>Tool</label><input id="ae-tool" value="' + esc(a.tool) + '"></div>' +
+    '<div><label>Naam / Team</label><input id="ae-name" value="' + esc(a.name) + '"></div>' +
+    '<div><label>Email</label><input id="ae-email" value="' + esc(a.email) + '"></div>' +
+    '<div><label>Vendor</label><input id="ae-vendor" value="' + esc(a.vendor) + '"></div>' +
+    '<div><label>Vendor Number</label><input id="ae-vnum" value="' + esc(a.vendorNumber) + '"></div>' +
+    '<div><label>Cost (Rs)</label><input id="ae-cost" type="number" step="any" value="' + esc(a.cost) + '"></div>' +
+    '<div><label>Start Date</label><input id="ae-start" type="date" value="' + esc(a.start || '') + '"></div>' +
+    '<div><label>Expiry Date</label><input id="ae-expiry" type="date" value="' + esc(a.expiry || '') + '"></div>' +
+    '<div><label>Status</label><input id="ae-status" value="' + esc(a.status) + '"></div>' +
+    '<div><label>Access Type</label><input id="ae-access" value="' + esc(a.accessType) + '"></div>' +
+    '<div><label>Password</label><input id="ae-pass" value="' + esc(a.password || '') + '"></div>' +
+    '<div><label>Notes</label><input id="ae-notes" value="' + esc(a.notes) + '"></div>' +
+    '</div><div style="margin-top:10px;display:flex;gap:8px"><button class="btn small" id="ae-save">Save</button><button class="btn small secondary" id="ae-cancel">Cancel</button></div><div class="err" id="ae-err"></div></div>';
+  $('ae-cancel').addEventListener('click', function(){ box.innerHTML = ''; });
+  $('ae-save').addEventListener('click', function(){
+    apiPost('updateaccount', { id: a.id, tool: $('ae-tool').value.trim(), name: $('ae-name').value.trim(), email: $('ae-email').value.trim(), vendor: $('ae-vendor').value.trim(), vendorNumber: $('ae-vnum').value.trim(), cost: $('ae-cost').value, start: $('ae-start').value, expiry: $('ae-expiry').value, status: $('ae-status').value.trim(), notes: $('ae-notes').value.trim(), password: $('ae-pass').value, accessType: $('ae-access').value.trim() }).then(function(r){
+      guardResp(r);
+      if(r && r.ok){ toast('Account save ho gaya ✔'); DATA = null; refreshAll(false).then(renderAccounts); }
+      else $('ae-err').textContent = 'Save nahi hua: ' + ((r && r.error) || 'error');
+    }).catch(function(){ $('ae-err').textContent = 'Network error.'; });
+  });
+}
+$('accAddBtn').addEventListener('click', function(){
+  var w = $('accFormWrap');
+  w.style.display = (w.style.display === 'none') ? 'block' : 'none';
+});
+$('accCancel').addEventListener('click', function(){ $('accFormWrap').style.display = 'none'; });
+$('accSave').addEventListener('click', function(){
+  var err = $('accErr'); err.textContent = '';
+  var id = $('accId').value.trim(), tool = $('accTool').value.trim();
+  if(!id || !tool){ err.textContent = 'Account ID aur Tool lazmi hain.'; return; }
+  apiPost('account', { id: id, tool: tool, name: $('accName').value.trim(), email: $('accEmail').value.trim(), vendor: $('accVendor').value.trim(), vendorNumber: $('accVendorNum').value.trim(), cost: $('accCost').value, start: $('accStart').value, expiry: $('accExpiry').value, status: $('accStatus').value, notes: $('accNotes').value.trim(), password: $('accPass').value, accessType: $('accAccess').value.trim() }).then(function(r){
+    guardResp(r);
+    if(r && r.ok){ toast('Naya account save ho gaya ✔'); $('accFormWrap').style.display = 'none'; DATA = null; refreshAll(false).then(renderAccounts); }
+    else err.textContent = 'Save nahi hua: ' + ((r && r.error) || 'error');
+  }).catch(function(){ err.textContent = 'Network error.'; });
+});
+
+/* ---------- Boot ---------- */
+(function(){
+  $('ordDate').value = todayPKT();
+  $('adDate').value = todayPKT();
+  if(apiUrl() && apiPass()){
+    apiGet().then(function(r){
+      if(r && r.ok){ DATA = r; bootApp(); }
+      else $('lockView').style.display = 'block';
+    }).catch(function(){ /* lock screen rehne do */ });
+  }
+})();
+</script>
+</body>
+</html>
